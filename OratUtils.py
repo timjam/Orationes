@@ -8,7 +8,7 @@ class OratUtils:
 		string = []
 		fid = open( tfile, 'r' )
 
-		string = fid.readline().decode('utf-8')
+		string = fid.readline().decode('utf-8', 'ignore')
 		fid.close()
 
 		print len(string)
