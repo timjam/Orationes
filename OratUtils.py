@@ -12,5 +12,6 @@ class OratUtils:
 		fid.close()
 
 		print len(string)
-		print string
-
+		#print string
+		for c in string:
+			print c
