@@ -1,0 +1,13 @@
+Orationes Python:
+
+ ☐ Write method for homomorphic filtering
+ ☐ Write method for contrast stretching
+ ☐ Write method for bounding box
+ ☐ Write method for poor man radon transform
+ ☐ Write method for processlines
+ ☐ Write method for padlines
+ ☐ Write method for ´parsing out the coordinates of possible matches
+
+  OratUtils:
+    ☐ Debug the stringparser functionality in #OratUtils.py
+    ☐ Debug the regexp search possibility in #OratUtils.py

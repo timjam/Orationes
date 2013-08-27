@@ -17,7 +17,7 @@ def osearch( img, txtf, sw ):
 
 
 	charcount, charpos, charlines, wordlens = OratUtils.stringparser( tfile, sw )
-	
+
 
 	return
 
@@ -34,4 +34,4 @@ if __name__ == "__main__":
 		print "Name of the image, name of the correspoding raw text file, word that's being searched\n"
 		print "For example use:    python osearch.py \"Lit_Ms_E_41 070r.jpg\" \"070\" \"King\" "
 
-
+		
