@@ -1,4 +1,5 @@
 #import codecs
+import re
 
 class OratUtils:
 
@@ -11,7 +12,16 @@ class OratUtils:
 		string = fid.readline().decode('utf-8', 'ignore')
 		fid.close()
 
+		print
 		print len(string)
-		#print string
-		for c in string:
-			print c
+		print
+		print "testi " + string[63] + " testi "
+		print
+
+		indlist = []
+
+		for m in re.finditer(c, string):
+			indlist.append(m.start())	# m.start() osoittaa jokaisen osuman ekaan indeksiin.
+			#print m.start()
+
+		print indlist
