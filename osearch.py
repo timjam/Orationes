@@ -16,9 +16,8 @@ def osearch( img, txtf, sw ):
 	tfile = curDir + "\\Texts\\" + txtf
 
 
-	#charcount, charpos, charlines, wordlens = 
-	#ut = Utils
-	OratUtils.stringparser( tfile, sw )
+	charcount, charpos, charlines, wordlens = OratUtils.stringparser( tfile, sw )
+	
 
 	return
 

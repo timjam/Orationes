@@ -7,9 +7,11 @@ class OratUtils:
 	@staticmethod
 	def stringparser( tfile, c ):
 
-		lineindlist = [] # Holds lists of the match positions.
-		co = []
 		charcount = [] # Holds the lengths of each line
+		charlines = []
+		charpos = []
+		wordlens = []
+		k = 0
 
 		fid = open( tfile, 'r' )
 
@@ -18,7 +20,7 @@ class OratUtils:
 
 		
 		for string in lines:
-			
+
 			# Each string needs to be decoded to utf-8 as the files are saved in utf-8 format. 
 			# Without decoding matching would be done to ascii decoding and that causes the 
 			# strings to contain extra characters.
@@ -31,8 +33,17 @@ class OratUtils:
 			
 			for m in re.finditer(c, s):
 				charindlist.append(m.start())
+			
+			if charindlist:	
+				charpos.append(charindlist)
+				
+				tempv1 = [k]*len(charindlist)		# These two temporary values are needed to append right amount of linenumbers and wordlenght numbers
+				tempv2 = [len(c)]*len(charindlist)	# into their respective vectors
+				
+				charlines.append(tempv1)
+				wordlens.append(tempv2)
 
-			lineindlist.append(charindlist)
+			k += 1
 
-		print lineindlist
-		print charcount
+
+		return charcount, charpos, charlines, wordlens
