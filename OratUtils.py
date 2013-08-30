@@ -1,4 +1,6 @@
 import re
+import math
+import numpy as np
 
 class OratUtils:
 
@@ -47,3 +49,45 @@ class OratUtils:
 
 
 		return charcount, charpos, charlines, wordlens
+
+
+
+
+	@staticmethod
+	def hfilter( img, d, r, c, n ):
+
+		# img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format
+
+		# r = height
+		# c = length
+
+		print img
+
+		A = H = np.zeros( (r,c) )
+
+
+		for i in range(r):
+			for j in range(c):
+				A[i,j] = math.sqrt( math.pow(( (i+1) -r/2),2) + math.pow(( (j+1) -c/2),2) )
+				#print A[i,j]
+				H[i,j] = 1/( 1 + math.pow( d/( A[i,j] ) , 2*n ) )
+
+		aL = 0.949
+		aH = 1.51
+
+		H[:,:] = ( H[:,:] * (aH - aL) ) + aL
+
+		im_l = np.log( 1+img )
+
+		im_f = np.fft.fft2( im_l )
+
+		im_nf = im_f * H # Computes element by element multiplication c[0,0] = a[0,0]*b[0,0] etc
+
+		im_n = np.abs( np.fft.ifft2( im_nf ) )
+
+		im_e = np.exp( im_n )
+
+		filteredImage = im_e - 1
+
+
+		return filteredImage

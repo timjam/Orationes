@@ -7,10 +7,10 @@
 
 import os
 import sys
-import Image
+import Image as Im
 import matplotlib.pyplot as plt
 from OratUtils import OratUtils
-from scipy.misc import imread
+from scipy.misc import fromimage, toimage
 
 
 def osearch( img, txtf, sw ):
@@ -26,10 +26,23 @@ def osearch( img, txtf, sw ):
 		print "Couldn't find string %s from page %s" %(sw, img)
 		return
 
-	image = imread(imagename)
-	im = image.convert("L")
+	origimage = Im.open(imagename)
+	grayimage = origimage.convert("LA") # Conversion from RGB to Grayscale
 
-	plt.imshow(im)
+	ImLength, ImHeight = origimage.size
+
+	# Conversion from PIL image to scipy image and then from uint8 to float
+	tI = fromimage(grayimage) # From PIL to scipy image
+	print tI
+	tI = tI.astype('float') # From uint8 to float
+
+	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )
+
+	filteredIm = filteredIm.astype('uint8') # From float to uint8
+
+
+
+	plt.imshow(filteredIm)
 	plt.show()
 
 	return
