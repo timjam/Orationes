@@ -1,6 +1,7 @@
 import re
 import math
 import numpy as np
+import warnings
 
 class OratUtils:
 
@@ -61,16 +62,22 @@ class OratUtils:
 		# r = height
 		# c = length
 
-		print img
+		#print img
+
+		warnings.filterwarnings('error')
 
 		A = H = np.zeros( (r,c) )
 
 
 		for i in range(r):
 			for j in range(c):
-				A[i,j] = math.sqrt( math.pow(( (i+1) -r/2),2) + math.pow(( (j+1) -c/2),2) )
-				#print A[i,j]
-				H[i,j] = 1/( 1 + math.pow( d/( A[i,j] ) , 2*n ) )
+				try:
+					A[i,j] = math.sqrt( math.pow(( (i+1) -r/2),2) + math.pow(( (j+1) -c/2),2) )
+					H[i,j] = 1/( 1 + math.pow( d/( A[i,j] ) , 2*n ) )
+				except Warning:
+					print i
+					print j
+					print A[i,j]
 
 		aL = 0.949
 		aH = 1.51

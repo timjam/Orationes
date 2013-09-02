@@ -9,8 +9,9 @@ import os
 import sys
 import Image as Im
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from OratUtils import OratUtils
-from scipy.misc import fromimage, toimage
+from scipy.misc import fromimage, toimage, imshow
 
 
 def osearch( img, txtf, sw ):
@@ -27,13 +28,16 @@ def osearch( img, txtf, sw ):
 		return
 
 	origimage = Im.open(imagename)
-	grayimage = origimage.convert("LA") # Conversion from RGB to Grayscale
+	grayimage = origimage.convert("L") # Conversion from RGB to Grayscale
+
+	#plt.imshow(grayimage, cmap = cm.Greys_r)
+	#plt.show()
 
 	ImLength, ImHeight = origimage.size
 
 	# Conversion from PIL image to scipy image and then from uint8 to float
+	# tI = fromimage(origimage, 'True') # Should do conversion from PIL to scipy and also from RGB to gray
 	tI = fromimage(grayimage) # From PIL to scipy image
-	print tI
 	tI = tI.astype('float') # From uint8 to float
 
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )
@@ -42,7 +46,7 @@ def osearch( img, txtf, sw ):
 
 
 
-	plt.imshow(filteredIm)
+	plt.imshow(filteredIm, cmap = cm.Greys_r)
 	plt.show()
 
 	return
