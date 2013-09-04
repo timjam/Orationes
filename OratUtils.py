@@ -4,8 +4,25 @@ import re
 import math
 import numpy as np
 import warnings
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 class OratUtils:
+
+	@staticmethod
+	def im2float( image ):
+		I = image.astype( 'float' )
+		minI = float(I.min())
+		maxI = float(I.max())
+		I[:,:] = (I[:,:] - minI)/(maxI - minI)
+		#I = I/maxI
+		return I
+
+	@staticmethod
+	def im2uint8( image ):
+		I = image*255
+		I = I.astype( 'uint8' )
+		return I		
 
 	# Performs case sensitive search for text file tfile with string or character c on default.
 	# Argument c can be any regular expression
@@ -69,6 +86,9 @@ class OratUtils:
 		A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
+		print A.dtype
+		print F.dtype
+
 		# Ongelma tässä on, että laskut pitäisi tehdä kaikkien muuttujien ollen floatteja mutta osa muuttujista käsitellään intteinä ja siten tuloksetkin välillä pyörisettään nollaksi mikäli tulos on <0.5
 		for i in range(h):
 			for j in range(l):
@@ -80,26 +100,16 @@ class OratUtils:
 					D = float(d)
 					N = float(n)
 					A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
-					#print A[i,j]
-					#A[i,j] = math.sqrt( ( i-h/2 )**2 + ( j-l/2 )**2 )
 					F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
-					#F[i,j] = A[i,j]
 				except Warning:
 					print '***** Warning divide by zero happened in Butterworth filtering *****'
-					#print range(h)
-					#print range(l)
-					#print h
-					#print l
-					#print i
-					#print j
-					#print A[i,j]
-					#print '**********************************'
 
-		#print A
-		#print F
 
 		aL = 0.949
 		aH = 1.51
+
+		print A
+		print F
 
 
 		F[:,:] = ( F[:,:] * (aH - aL) ) + aL
@@ -115,6 +125,16 @@ class OratUtils:
 		im_e = np.exp( im_n )
 
 		filteredImage = im_e - 1
+
+
+		#plt.imshow( np.abs(im_f).astype('uint8'), cmap=cm.Greys_r )
+		#plt.show()
+
+		#f = plt.figure()
+		#f.add_subplot(1,2,1); plt.imshow( np.abs(im_f).astype('uint8'), cmap=cm.Greys_r )
+		#f.add_subplot(1,2,2); plt.imshow( np.abs(im_nf).astype('uint8'), cmap=cm.Greys_r )
+		plt.imshow( img.astype('uint8'), cmap=cm.Greys_r )
+		plt.show()
 
 
 		return filteredImage

@@ -34,16 +34,17 @@ def osearch( img, txtf, sw ):
 	ImLength, ImHeight = origimage.size
 
 	# Conversion from PIL image to scipy image and then from uint8 to float
+	
 	# tI = fromimage(origimage, 'True') # Should do conversion from PIL to scipy and also from RGB to gray
 	tI = fromimage(grayimage) # From PIL to scipy image
-	print tI.dtype
-	tI = tI.astype('float') # From uint8 to float
-	print tI.dtype
+	tI = OratUtils.im2float(tI) # From uint8 to float
 
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )
 	#filteredIm = tI
 
-	filteredIm = filteredIm.astype('uint8') # From float to uint8
+	filteredIm = OratUtils.im2uint8(filteredIm) # From float to uint8
+	print filteredIm.min()
+	print filteredIm.max()
 
 
 	f = plt.figure()
