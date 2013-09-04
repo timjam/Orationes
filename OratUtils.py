@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import re
 import math
 import numpy as np
@@ -55,40 +57,58 @@ class OratUtils:
 
 
 	@staticmethod
-	def hfilter( img, d, r, c, n ):
+	def hfilter( img, d, h, l, n ):
 
 		# img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format
 
-		# r = height
-		# c = length
-
-		#print img
+		# h = height
+		# l = length
 
 		warnings.filterwarnings('error')
 
-		A = H = np.zeros( (r,c) )
+		A = np.zeros( (h,l), np.float )
+		F = np.zeros( (h,l), np.float )
 
-
-		for i in range(r):
-			for j in range(c):
+		# Ongelma tässä on, että laskut pitäisi tehdä kaikkien muuttujien ollen floatteja mutta osa muuttujista käsitellään intteinä ja siten tuloksetkin välillä pyörisettään nollaksi mikäli tulos on <0.5
+		for i in range(h):
+			for j in range(l):
 				try:
-					A[i,j] = math.sqrt( math.pow(( (i+1) -r/2),2) + math.pow(( (j+1) -c/2),2) )
-					H[i,j] = 1/( 1 + math.pow( d/( A[i,j] ) , 2*n ) )
+					H = float(h)
+					L = float(l)
+					I = float(i)
+					J = float(j)
+					D = float(d)
+					N = float(n)
+					A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
+					#print A[i,j]
+					#A[i,j] = math.sqrt( ( i-h/2 )**2 + ( j-l/2 )**2 )
+					F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
+					#F[i,j] = A[i,j]
 				except Warning:
-					print i
-					print j
-					print A[i,j]
+					print '***** Warning divide by zero happened in Butterworth filtering *****'
+					#print range(h)
+					#print range(l)
+					#print h
+					#print l
+					#print i
+					#print j
+					#print A[i,j]
+					#print '**********************************'
+
+		#print A
+		#print F
 
 		aL = 0.949
 		aH = 1.51
 
-		H[:,:] = ( H[:,:] * (aH - aL) ) + aL
+
+		F[:,:] = ( F[:,:] * (aH - aL) ) + aL
 
 		im_l = np.log( 1+img )
 
 		im_f = np.fft.fft2( im_l )
 
-		im_nf = im_f * H # Computes element by element multiplication c[0,0] = a[0,0]*b[0,0] etc
+		im_nf = im_f * F # Computes element by element multiplication c[0,0] = a[0,0]*b[0,0] etc
 
 		im_n = np.abs( np.fft.ifft2( im_nf ) )
 

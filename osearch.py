@@ -30,24 +30,27 @@ def osearch( img, txtf, sw ):
 	origimage = Im.open(imagename)
 	grayimage = origimage.convert("L") # Conversion from RGB to Grayscale
 
-	#plt.imshow(grayimage, cmap = cm.Greys_r)
-	#plt.show()
 
 	ImLength, ImHeight = origimage.size
 
 	# Conversion from PIL image to scipy image and then from uint8 to float
 	# tI = fromimage(origimage, 'True') # Should do conversion from PIL to scipy and also from RGB to gray
 	tI = fromimage(grayimage) # From PIL to scipy image
+	print tI.dtype
 	tI = tI.astype('float') # From uint8 to float
+	print tI.dtype
 
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )
+	#filteredIm = tI
 
 	filteredIm = filteredIm.astype('uint8') # From float to uint8
 
 
-
-	plt.imshow(filteredIm, cmap = cm.Greys_r)
+	f = plt.figure()
+	f.add_subplot(1,2,1); plt.imshow( tI, cmap=cm.Greys_r ); plt.title(' Original Image as grayscale ')
+	f.add_subplot(1,2,2); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Filtered Image as grayscale ')
 	plt.show()
+
 
 	return
 
