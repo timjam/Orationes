@@ -12,17 +12,22 @@ class OratUtils:
 	@staticmethod
 	def im2float( image ):
 		I = image.astype( 'float' )
-		minI = float(I.min())
-		maxI = float(I.max())
+		minI = 0.0
+		maxI = 255.0
 		I[:,:] = (I[:,:] - minI)/(maxI - minI)
-		#I = I/maxI
 		return I
 
 	@staticmethod
 	def im2uint8( image ):
-		I = image*255
-		I = I.astype( 'uint8' )
-		return I		
+
+		I = image
+		I[I>1] = 1
+		I[I<0] = 0
+		I *= 255
+		I = I.astype('uint8')
+
+
+		return I
 
 	# Performs case sensitive search for text file tfile with string or character c on default.
 	# Argument c can be any regular expression
@@ -86,8 +91,8 @@ class OratUtils:
 		A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
-		print A.dtype
-		print F.dtype
+		# print str(A.dtype) == "float64"
+		# print F.dtype
 
 		# Ongelma tässä on, että laskut pitäisi tehdä kaikkien muuttujien ollen floatteja mutta osa muuttujista käsitellään intteinä ja siten tuloksetkin välillä pyörisettään nollaksi mikäli tulos on <0.5
 		for i in range(h):
@@ -108,8 +113,8 @@ class OratUtils:
 		aL = 0.949
 		aH = 1.51
 
-		print A
-		print F
+		# print A
+		# print F
 
 
 		F[:,:] = ( F[:,:] * (aH - aL) ) + aL
@@ -131,10 +136,10 @@ class OratUtils:
 		#plt.show()
 
 		#f = plt.figure()
-		#f.add_subplot(1,2,1); plt.imshow( np.abs(im_f).astype('uint8'), cmap=cm.Greys_r )
-		#f.add_subplot(1,2,2); plt.imshow( np.abs(im_nf).astype('uint8'), cmap=cm.Greys_r )
-		plt.imshow( img.astype('uint8'), cmap=cm.Greys_r )
-		plt.show()
+		#f.add_subplot(1,2,1); plt.imshow( OratUtils.im2uint8(np.abs(im_f)), cmap=cm.Greys_r )
+		#f.add_subplot(1,2,2); plt.imshow( OratUtils.im2uint8(np.abs(im_nf)), cmap=cm.Greys_r )
+		#plt.imshow( img.astype('uint8'), cmap=cm.Greys_r )
+		#plt.show()
 
 
 		return filteredImage
