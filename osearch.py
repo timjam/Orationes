@@ -55,6 +55,10 @@ def osearch( img, txtf, sw ):
 	# Stretch the contrast of the image
 	cIm = OratUtils.contStretch( filteredIm, 20 , ImHeight )
 
+
+	# Get the bounding boxes covering each line
+	bboxes = OratUtils.boundingBox( fromimage(grayimage) )
+
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
 	f = plt.figure()

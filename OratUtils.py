@@ -50,6 +50,40 @@ class OratUtils:
 
 
 
+	@staticmethod
+	def im2bw( image, t ):
+
+		if str(image.dtype) == "float64" :
+			
+			bw = image
+			bw[ bw >= t ] = 1
+			bw[ bw <= t ] = 0
+			bw.astype('b')
+
+		elif str(image.dtype) == "uint8" :
+
+			bw = image
+			bw[ bw >= int(t*255) ] = 1
+			bw[ bw <= int(t*255) ] = 0
+			bw.astype('b')
+
+		else:
+			pass
+
+		print bw.max()
+		print bw.min()
+		plt.imshow(bw)
+		plt.show()
+
+		return bw
+
+
+
+
+
+
+
+
 	# Performs case sensitive search for text file tfile with string or character c on default.
 	# Argument c can be any regular expression
 	@staticmethod
@@ -175,3 +209,20 @@ class OratUtils:
 		resI[resI<0] = 0
 
 		return resI
+
+
+
+
+
+
+
+
+	@staticmethod
+	def boundingBox( cIm ):
+
+		# Take histogram of the image
+		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
+
+		bwI = OratUtils.im2bw(cIm, 0.65)
+
+		return []
