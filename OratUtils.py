@@ -149,3 +149,29 @@ class OratUtils:
 		filteredImage = im_e - 1
 
 		return filteredImage
+
+
+
+
+
+
+
+
+	@staticmethod
+	def contStretch( image, a, h ):
+
+		if h > 30000:
+			# This part was supposed to take average sample from the background
+			# The limit is set to 30000 to ensure that at this point this will never
+			# happen.
+			temp = image[100:200, 600:800]
+			i_avg = np.mean(temp)
+		else:
+			i_avg = np.mean(image)
+
+		resI = image[:,:] + a*( image[:,:] - i_avg )
+
+		resI[resI>255] = 255
+		resI[resI<0] = 0
+
+		return resI

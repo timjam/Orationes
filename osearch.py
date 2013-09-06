@@ -52,11 +52,14 @@ def osearch( img, txtf, sw ):
 	filteredIm = OratUtils.gray2uint8(filteredIm) # From float to uint8
 
 
+	# Stretch the contrast of the image
+	cIm = OratUtils.contStretch( filteredIm, 20 , ImHeight )
+
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
 	f = plt.figure()
-	f.add_subplot(1,2,1); plt.imshow( tI, cmap=cm.Greys_r ); plt.title(' Original Image as grayscale ')
-	f.add_subplot(1,2,2); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Filtered Image as grayscale ')
+	f.add_subplot(1,2,1); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Eka ')
+	f.add_subplot(1,2,2); plt.imshow( cIm, cmap=cm.Greys_r ); plt.title(' Toka ')
 	plt.show()
 
 
