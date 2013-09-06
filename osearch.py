@@ -16,40 +16,44 @@ from scipy.misc import fromimage, toimage, imshow
 
 def osearch( img, txtf, sw ):
 
+	# Open the image and text file with their absolute paths to ensure that the right files from
+	# the right place are opened
 	curDir = os.path.dirname( os.path.realpath( __file__ ))
 	imagename = curDir + "\\Images\\" + img
 	tfile = curDir + "\\Texts\\" + txtf
 
 
+	# Parse the XML file. The XML file must be formatted to raw text with no XML tags. 
+	# Should be done separately outside of this program unless this program is updated
+	# to do that as well.
 	charcount, charpos, charlines, wordlens = OratUtils.stringparser( tfile, sw )
 
 	if not charpos:
-		print "Couldn't find string %s from page %s" %(sw, img)
-		return
+		print "Couldn't find string \'%s\' from page %s" %(sw, img)
+		return 0
 
+
+	# Open the original image and convert it to grayscale
 	origimage = Im.open(imagename)
 	grayimage = origimage.convert("L") # Conversion from RGB to Grayscale
 
 
+	# Get the dimensions of the image
 	ImLength, ImHeight = origimage.size
 
-	# Conversion from PIL image to scipy image and then from uint8 to float
 
+	# Conversion from PIL image to scipy image and then from uint8 to float
 	tI = fromimage(grayimage) # From PIL to scipy image
 	tI = OratUtils.im2float(tI) # From uint8 to float
 
-	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )
+
+	# Filter the image and convert it back to grayscale uint8 image
+	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )	
+	filteredIm = OratUtils.gray2uint8(filteredIm) # From float to uint8
 
 
-
-
-	
-
-	filteredIm = OratUtils.im2uint8(filteredIm) # From float to uint8
-	print "Minima of Filtered Image: " + str(filteredIm.min())
-	print "Maxima of Filtered Image: " + str(filteredIm.max())
-
-
+	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
+	# as a list to the main program that's calling this program
 	f = plt.figure()
 	f.add_subplot(1,2,1); plt.imshow( tI, cmap=cm.Greys_r ); plt.title(' Original Image as grayscale ')
 	f.add_subplot(1,2,2); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Filtered Image as grayscale ')
@@ -57,6 +61,8 @@ def osearch( img, txtf, sw ):
 
 
 	return
+
+
 
 
 

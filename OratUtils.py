@@ -9,6 +9,13 @@ import matplotlib.cm as cm
 
 class OratUtils:
 
+
+
+
+
+
+
+
 	@staticmethod
 	def im2float( image ):
 		I = image.astype( 'float' )
@@ -17,8 +24,15 @@ class OratUtils:
 		I[:,:] = (I[:,:] - minI)/(maxI - minI)
 		return I
 
+
+
+
+
+
+
+
 	@staticmethod
-	def im2uint8( image ):
+	def gray2uint8( image ):
 
 		I = image
 		I[I>1] = 1
@@ -28,6 +42,13 @@ class OratUtils:
 
 
 		return I
+
+
+
+
+
+
+
 
 	# Performs case sensitive search for text file tfile with string or character c on default.
 	# Argument c can be any regular expression
@@ -78,11 +99,14 @@ class OratUtils:
 
 
 
+
+
+
+
 	@staticmethod
 	def hfilter( img, d, h, l, n ):
 
 		# img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format
-
 		# h = height
 		# l = length
 
@@ -91,10 +115,6 @@ class OratUtils:
 		A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
-		# print str(A.dtype) == "float64"
-		# print F.dtype
-
-		# Ongelma tässä on, että laskut pitäisi tehdä kaikkien muuttujien ollen floatteja mutta osa muuttujista käsitellään intteinä ja siten tuloksetkin välillä pyörisettään nollaksi mikäli tulos on <0.5
 		for i in range(h):
 			for j in range(l):
 				try:
@@ -113,9 +133,6 @@ class OratUtils:
 		aL = 0.949
 		aH = 1.51
 
-		# print A
-		# print F
-
 
 		F[:,:] = ( F[:,:] * (aH - aL) ) + aL
 
@@ -130,16 +147,5 @@ class OratUtils:
 		im_e = np.exp( im_n )
 
 		filteredImage = im_e - 1
-
-
-		#plt.imshow( np.abs(im_f).astype('uint8'), cmap=cm.Greys_r )
-		#plt.show()
-
-		#f = plt.figure()
-		#f.add_subplot(1,2,1); plt.imshow( OratUtils.im2uint8(np.abs(im_f)), cmap=cm.Greys_r )
-		#f.add_subplot(1,2,2); plt.imshow( OratUtils.im2uint8(np.abs(im_nf)), cmap=cm.Greys_r )
-		#plt.imshow( img.astype('uint8'), cmap=cm.Greys_r )
-		#plt.show()
-
 
 		return filteredImage
