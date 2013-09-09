@@ -53,6 +53,7 @@ class OratUtils:
 	@staticmethod
 	def im2bw( image, t ):
 
+		# Testcomment
 		if str(image.dtype) == "float64" :
 			
 			bw = image
