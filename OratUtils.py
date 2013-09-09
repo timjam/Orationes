@@ -59,21 +59,24 @@ class OratUtils:
 			bw = image
 			bw[ bw >= t ] = 1
 			bw[ bw <= t ] = 0
-			bw.astype('b')
+			bw.astype('bool')
 
 		elif str(image.dtype) == "uint8" :
 
+			#print image.max()
+			#print image.min()
 			bw = image
-			bw[ bw >= int(t*255) ] = 1
-			bw[ bw <= int(t*255) ] = 0
-			bw.astype('b')
+			bw[ bw <= math.floor(t*255) ] = 0
+			bw[ bw >= math.floor(t*255) ] = 1
+			bw.astype('bool')
+			#print bw
 
 		else:
 			pass
 
-		print bw.max()
-		print bw.min()
-		plt.imshow(bw)
+		#print bw.max()
+		#print bw.min()
+		plt.imshow((bw*255).astype('uint8'), cmap=cm.Greys_r)
 		plt.show()
 
 		return bw
@@ -224,6 +227,6 @@ class OratUtils:
 		# Take histogram of the image
 		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
 
-		bwI = OratUtils.im2bw(cIm, 0.65)
+		bwI = OratUtils.im2bw(cIm, 0.5)
 
 		return []
