@@ -6,6 +6,8 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from scipy.ndimage.measurements import label
+from scipy import ndimage
 
 class OratUtils:
 
@@ -53,31 +55,22 @@ class OratUtils:
 	@staticmethod
 	def im2bw( image, t ):
 
-		# Testcomment
 		if str(image.dtype) == "float64" :
 			
 			bw = image
-			bw[ bw >= t ] = 1
 			bw[ bw <= t ] = 0
+			bw[ bw >= t ] = 1
 			bw.astype('bool')
 
 		elif str(image.dtype) == "uint8" :
 
-			#print image.max()
-			#print image.min()
 			bw = image
 			bw[ bw <= math.floor(t*255) ] = 0
 			bw[ bw >= math.floor(t*255) ] = 1
 			bw.astype('bool')
-			#print bw
 
 		else:
 			pass
-
-		#print bw.max()
-		#print bw.min()
-		plt.imshow((bw*255).astype('uint8'), cmap=cm.Greys_r)
-		plt.show()
 
 		return bw
 
@@ -227,6 +220,26 @@ class OratUtils:
 		# Take histogram of the image
 		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
 
-		bwI = OratUtils.im2bw(cIm, 0.5)
+		# Binarize the image and invert it to a complement image
+		bwI = OratUtils.im2bw(cIm, 0.95)
+		compIm = (bwI[:,:] - 1)**2
+
+		# Calculate connected components from the image
+
+		lArray, nFeat = label(compIm)
+
+		#print lArray
+		print nFeat
+
+		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
+		largestArea = sizes.max()
+		#[i for i, j in enumerate(sizes) if j == sizes]
+
+		print sizes
+		print largestArea
+		print lInd
+
+		plt.imshow((compIm*255).astype('uint8'), cmap=cm.Greys_r)
+		plt.show()
 
 		return []
