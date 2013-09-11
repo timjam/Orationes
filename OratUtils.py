@@ -235,23 +235,28 @@ class OratUtils:
 		#largestArea = sizes.max()
 		#lInd = [i for i, j in enumerate(sizes) if j == largestArea]
 
-		S = []
-		L = []
-		for i in range(1,nFeat+1):
-			S.append(sum( sum(lArray[:,:] == i) ))
-			L.append(i)
 
-		#print S
-		#print L
+		maxInd = np.where( sizes == sizes.max())[0] + 1 	# Find the index which points to largest patchs
+		maxPixs = np.where( lArray == maxInd )				# Find the pixels which have the maxInd as label from labeled image
+		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
 
-		#print sizes
+		#S = []
+		#L = []
+		#for i in range(1,nFeat+1):
+		#	S.append(sum( sum(lArray[:,:] == i) ))
+		#	L.append(i)
 
-		lArea = max(S)
-		lInd = [i for i, j in enumerate(S) if j == lArea]		
-		#print lArea
-		#print lInd[0]
+		##print S
+		##print L
 
-		lArray[ lArray == L[lInd[0]] ] = 0
+		##print sizes
+
+		#lArea = max(S)
+		#lInd = [i for i, j in enumerate(S) if j == lArea]		
+		##print lArea
+		##print lInd[0]
+
+		#lArray[ lArray == L[lInd[0]] ] = 0
 		#print lArray
 
 		compIm2 = lArray
