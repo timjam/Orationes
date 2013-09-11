@@ -225,44 +225,40 @@ class OratUtils:
 		compIm = (bwI[:,:] - 1)**2
 
 		# Calculate connected components from the image
-
 		lArray, nFeat = label(compIm)
 
-		#print lArray
-		#print nFeat
-
+		# Calculate the sizes of each labeled patch
 		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
-		#largestArea = sizes.max()
-		#lInd = [i for i, j in enumerate(sizes) if j == largestArea]
 
+		f = plt.figure()
+		f.add_subplot(1,2,1); plt.imshow( (compIm*255).astype('uint8'), cmap=cm.Greys_r )
 
+		# Remove the largest patch from the image
+		# It is assumed that the largest patch is always the are that's left outside of the margins
 		maxInd = np.where( sizes == sizes.max())[0] + 1 	# Find the index which points to largest patchs
 		maxPixs = np.where( lArray == maxInd )				# Find the pixels which have the maxInd as label from labeled image
 		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
-
-		#S = []
-		#L = []
-		#for i in range(1,nFeat+1):
-		#	S.append(sum( sum(lArray[:,:] == i) ))
-		#	L.append(i)
-
-		##print S
-		##print L
-
-		##print sizes
-
-		#lArea = max(S)
-		#lInd = [i for i, j in enumerate(S) if j == lArea]		
-		##print lArea
-		##print lInd[0]
-
-		#lArray[ lArray == L[lInd[0]] ] = 0
 		#print lArray
+		#print sizes
 
+		oIdxs = np.where( sizes <= 50 )[0] + 1
+		#oPixs = np.where( lArray == oIdxs )
+		#lArray[ oPixs ] = 0
+		#print oIdxs
+		#print oPixs
+
+		for i in range(len(oIdxs)):
+			lArray[ np.where( lArray == oIdxs[i] )] = 0
+
+		# Make the labeled image with the largest patch removed as the new complement image and change all the labels to 1 and 0s
 		compIm2 = lArray
 		compIm2[ compIm2 != 0 ] = 1
 
-		plt.imshow((compIm2*255).astype('uint8'), cmap=cm.Greys_r)
+		#plt.imshow((compIm2*255).astype('uint8'), cmap=cm.Greys_r)
+		#plt.show()
+
+		
+		f.add_subplot(1,2,2); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
 		plt.show()
 
 		return []
