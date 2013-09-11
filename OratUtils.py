@@ -229,17 +229,35 @@ class OratUtils:
 		lArray, nFeat = label(compIm)
 
 		#print lArray
-		print nFeat
+		#print nFeat
 
 		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
-		largestArea = sizes.max()
-		#[i for i, j in enumerate(sizes) if j == sizes]
+		#largestArea = sizes.max()
+		#lInd = [i for i, j in enumerate(sizes) if j == largestArea]
 
-		print sizes
-		print largestArea
-		print lInd
+		S = []
+		L = []
+		for i in range(1,nFeat+1):
+			S.append(sum( sum(lArray[:,:] == i) ))
+			L.append(i)
 
-		plt.imshow((compIm*255).astype('uint8'), cmap=cm.Greys_r)
+		#print S
+		#print L
+
+		#print sizes
+
+		lArea = max(S)
+		lInd = [i for i, j in enumerate(S) if j == lArea]		
+		#print lArea
+		#print lInd[0]
+
+		lArray[ lArray == L[lInd[0]] ] = 0
+		#print lArray
+
+		compIm2 = lArray
+		compIm2[ compIm2 != 0 ] = 1
+
+		plt.imshow((compIm2*255).astype('uint8'), cmap=cm.Greys_r)
 		plt.show()
 
 		return []
