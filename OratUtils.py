@@ -230,9 +230,6 @@ class OratUtils:
 		# Calculate the sizes of each labeled patch
 		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
 
-		#f = plt.figure()
-		#f.add_subplot(1,2,1); plt.imshow( (compIm*255).astype('uint8'), cmap=cm.Greys_r )
-
 		# Remove the largest patch from the image
 		# It is assumed that the largest patch is always the are that's left outside of the margins
 		maxInd = np.where( sizes == sizes.max())[0] + 1 	# Find the index which points to largest patchs
@@ -274,7 +271,12 @@ class OratUtils:
 		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
 
 		# Get the coordinates of each pixel from each labeled patch
-		# TODO
+		# X,Y = np.where( lArray2 == 2 )
+
+		# print lArray
+		# print X
+		# print Y
+		# Käy läpi jokaisen alueen label ja kerää jokaisesta erikseen X ja Y koordinaatit. Tutki onko mahdollista vektoroida tai käyttää lambafunktiota kuten matlabissa
 
 
 		f = plt.figure()
