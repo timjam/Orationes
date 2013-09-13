@@ -230,35 +230,56 @@ class OratUtils:
 		# Calculate the sizes of each labeled patch
 		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
 
-		f = plt.figure()
-		f.add_subplot(1,2,1); plt.imshow( (compIm*255).astype('uint8'), cmap=cm.Greys_r )
+		#f = plt.figure()
+		#f.add_subplot(1,2,1); plt.imshow( (compIm*255).astype('uint8'), cmap=cm.Greys_r )
 
 		# Remove the largest patch from the image
 		# It is assumed that the largest patch is always the are that's left outside of the margins
 		maxInd = np.where( sizes == sizes.max())[0] + 1 	# Find the index which points to largest patchs
 		maxPixs = np.where( lArray == maxInd )				# Find the pixels which have the maxInd as label from labeled image
 		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
-		#print lArray
-		#print sizes
+
 
 		oIdxs = np.where( sizes <= 50 )[0] + 1
-		#oPixs = np.where( lArray == oIdxs )
-		#lArray[ oPixs ] = 0
-		#print oIdxs
-		#print oPixs
+
 
 		for i in range(len(oIdxs)):
-			lArray[ np.where( lArray == oIdxs[i] )] = 0
+			lArray[ np.where( lArray == oIdxs[i] ) ] = 0
 
 		# Make the labeled image with the largest patch removed as the new complement image and change all the labels to 1 and 0s
 		compIm2 = lArray
 		compIm2[ compIm2 != 0 ] = 1
 
-		#plt.imshow((compIm2*255).astype('uint8'), cmap=cm.Greys_r)
-		#plt.show()
+		# Remove all patches which height spans over 70 pixels
+		# TODO
 
-		
-		f.add_subplot(1,2,2); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
+		# Erode the image with vertical line shaped structure element
+		SEe = np.zeros((5,5))
+		SEe[:,2] = 1
+		SEe.astype('bool')
+
+		cI3 = ndimage.binary_erosion(compIm2, structure=SEe).astype(compIm2.dtype)
+
+
+		# Dilate the image with horizontal line shaped structure element
+		SEd = np.zeros((60,60))
+		SEd[30,:] = 1
+		SEd.astype('bool')
+
+		cI3 = ndimage.binary_dilation(cI3, structure=SEd).astype(cI3.dtype)
+
+
+		# Label the new morphologically operated image
+		lArray2, nFeat2 = label( cI3 )
+		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
+
+		# Get the coordinates of each pixel from each labeled patch
+		# TODO
+
+
+		f = plt.figure()
+		f.add_subplot(1,2,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
+		f.add_subplot(1,2,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
 		plt.show()
 
 		return []
