@@ -196,13 +196,24 @@ class OratUtils:
 		# Get the coordinates of each pixel from each labeled patch
 		# First generate an array of zeros with the size of 3 * the amount of ones in cI3
 		# Then populate the right positions with the coordinates of pixels and also their respective labels
-		xyl = HFun.getCoords( np.sum(cI3), nFeat2, lArray2 )
+		# xyl = HFun.getCoords( np.sum(cI3), nFeat2, lArray2 ) ### Näitä ei välttämättä ees tarvita!
+
+		# Remove the dilated patches which size is smaller than 4000 pixels
+		oIdxs2 = np.where( sizes <= 4000 )[0] + 1
+		for i in range(len(oIdxs2)):
+			lArray2[ np.where( lArray2 == oIdxs2[i] ) ] = 0
+
+		cI4 = lArray2
+		cI4[ cI4 != 0 ] = 1
+
+		Fucked up shit!!!
 
 
 
 		f = plt.figure()
-		f.add_subplot(1,2,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
-		f.add_subplot(1,2,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
+		f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
+		f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
+		f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
 		plt.show()
 
 		return []
