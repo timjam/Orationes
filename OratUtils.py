@@ -16,10 +16,6 @@ class OratUtils:
 
 
 
-
-
-
-
 	# Performs case sensitive search for text file tfile with string or character c on default.
 	# Argument c can be any regular expression
 	@staticmethod
@@ -65,10 +61,6 @@ class OratUtils:
 
 
 		return charcount, charpos, charlines, wordlens
-
-
-
-
 
 
 
@@ -123,10 +115,6 @@ class OratUtils:
 
 
 
-
-
-
-
 	@staticmethod
 	def contStretch( image, a, h ):
 
@@ -145,10 +133,6 @@ class OratUtils:
 		resI[resI<0] = 0
 
 		return resI
-
-
-
-
 
 
 
@@ -210,9 +194,24 @@ class OratUtils:
 		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
 
 		# Get the coordinates of each pixel from each labeled patch
-		xyl = np.array([])
+		# First generate an array of zeros with the size of 3 * the amount of ones in cI3
+		# Then populate the right positions with the coordinates of pixels and also their respective labels
+		xyl = np.zeros((3,np.sum(cI3)))
+
+		c = 0
 		for i in range(1, nFeat2+1):
-			xyl.concatenate( xyl, getCoords( i, lArray2 ) )
+			X,Y = np.where( lArray2 == i )
+			p = len(X)
+			
+			L = np.array([i]*p)
+			xyl[:,c:(c+p)] = np.vstack([X,Y,L])
+			c = c+p
+
+
+
+
+			#xyl.concatenate( xyl, HFun.getCoords( i, lArray2 ) )
+			#xyl = np.append( [xyl], [HFun.getCoords( i, lArray2 )], axis=2 )
 		# X,Y = np.where( lArray2 == 2 )
 
 		# print lArray
