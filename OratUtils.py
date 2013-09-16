@@ -196,28 +196,8 @@ class OratUtils:
 		# Get the coordinates of each pixel from each labeled patch
 		# First generate an array of zeros with the size of 3 * the amount of ones in cI3
 		# Then populate the right positions with the coordinates of pixels and also their respective labels
-		xyl = np.zeros((3,np.sum(cI3)))
+		xyl = HFun.getCoords( np.sum(cI3), nFeat2, lArray2 )
 
-		c = 0
-		for i in range(1, nFeat2+1):
-			X,Y = np.where( lArray2 == i )
-			p = len(X)
-			
-			L = np.array([i]*p)
-			xyl[:,c:(c+p)] = np.vstack([X,Y,L])
-			c = c+p
-
-
-
-
-			#xyl.concatenate( xyl, HFun.getCoords( i, lArray2 ) )
-			#xyl = np.append( [xyl], [HFun.getCoords( i, lArray2 )], axis=2 )
-		# X,Y = np.where( lArray2 == 2 )
-
-		# print lArray
-		# print X
-		# print Y
-		# Käy läpi jokaisen alueen label ja kerää jokaisesta erikseen X ja Y koordinaatit. Tutki onko mahdollista vektoroida tai käyttää lambafunktiota kuten matlabissa
 
 
 		f = plt.figure()
