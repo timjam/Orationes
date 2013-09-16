@@ -8,71 +8,10 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.ndimage.measurements import label
 from scipy import ndimage
+from HFun import HFun
 
 class OratUtils:
 
-
-
-
-
-
-
-
-	@staticmethod
-	def im2float( image ):
-		I = image.astype( 'float' )
-		minI = 0.0
-		maxI = 255.0
-		I[:,:] = (I[:,:] - minI)/(maxI - minI)
-		return I
-
-
-
-
-
-
-
-
-	@staticmethod
-	def gray2uint8( image ):
-
-		I = image
-		I[I>1] = 1
-		I[I<0] = 0
-		I *= 255
-		I = I.astype('uint8')
-
-
-		return I
-
-
-
-
-
-
-
-
-	@staticmethod
-	def im2bw( image, t ):
-
-		if str(image.dtype) == "float64" :
-			
-			bw = image
-			bw[ bw <= t ] = 0
-			bw[ bw >= t ] = 1
-			bw.astype('bool')
-
-		elif str(image.dtype) == "uint8" :
-
-			bw = image
-			bw[ bw <= math.floor(t*255) ] = 0
-			bw[ bw >= math.floor(t*255) ] = 1
-			bw.astype('bool')
-
-		else:
-			pass
-
-		return bw
 
 
 
@@ -221,7 +160,7 @@ class OratUtils:
 		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
 
 		# Binarize the image and invert it to a complement image
-		bwI = OratUtils.im2bw(cIm, 0.95)
+		bwI = HFun.im2bw(cIm, 0.95)
 		compIm = (bwI[:,:] - 1)**2
 
 		# Calculate connected components from the image
@@ -271,6 +210,9 @@ class OratUtils:
 		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
 
 		# Get the coordinates of each pixel from each labeled patch
+		xyl = np.array([])
+		for i in range(1, nFeat2+1):
+			xyl.concatenate( xyl, getCoords( i, lArray2 ) )
 		# X,Y = np.where( lArray2 == 2 )
 
 		# print lArray

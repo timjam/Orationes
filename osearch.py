@@ -11,6 +11,7 @@ import Image as Im
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from OratUtils import OratUtils
+from HFun import HFun
 from scipy.misc import fromimage, toimage, imshow
 
 
@@ -44,12 +45,12 @@ def osearch( img, txtf, sw ):
 
 	# Conversion from PIL image to scipy image and then from uint8 to float
 	tI = fromimage(grayimage) # From PIL to scipy image
-	tI = OratUtils.im2float(tI) # From uint8 to float
+	tI = HFun.im2float(tI) # From uint8 to float
 
 
 	# Filter the image and convert it back to grayscale uint8 image
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )	
-	filteredIm = OratUtils.gray2uint8(filteredIm) # From float to uint8
+	filteredIm = HFun.gray2uint8(filteredIm) # From float to uint8
 
 
 	# Stretch the contrast of the image
