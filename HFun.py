@@ -61,7 +61,7 @@ class HFun:
 	@staticmethod
 	def getCoords( size, ran, lArray ):
 		# Get the coordinates of each pixel from each labeled patch
-		# First generate an array of zeros with the size of 3 * the amount of ones in cI3
+		# First generate an array of zeros with the size of 3x the amount of ones in cI3
 		# Then populate the right positions with the coordinates of pixels and also their respective labels
 		xyl = np.zeros((3,size))
 
