@@ -73,3 +73,17 @@ class HFun:
 			L = np.array([i]*p)
 			xyl[:,c:(c+p)] = np.vstack([X,Y,L])
 			c = c+p
+
+
+
+
+	@staticmethod
+	def remPatches( sizes, lArray, maxSize ):
+		oIdxs = np.where( sizes <= maxSize )[0] + 1
+		for i in range(len(oIdxs)):
+			lArray[ np.where( lArray == oIdxs[i] ) ] = 0
+
+		bwimage = lArray
+		bwimage[ bwimage != 0 ] = 1
+
+		return bwimage

@@ -160,15 +160,15 @@ class OratUtils:
 		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
 
 
-		oIdxs = np.where( sizes <= 50 )[0] + 1
-
-
-		for i in range(len(oIdxs)):
-			lArray[ np.where( lArray == oIdxs[i] ) ] = 0
+		# Remove patches which size is smaller or equal to 50 pixels
+		# oIdxs = np.where( sizes <= 50 )[0] + 1
+		# for i in range(len(oIdxs)):
+		#	lArray[ np.where( lArray == oIdxs[i] ) ] = 0
 
 		# Make the labeled image with the largest patch removed as the new complement image and change all the labels to 1 and 0s
-		compIm2 = lArray
-		compIm2[ compIm2 != 0 ] = 1
+		#compIm2 = lArray
+		#compIm2[ compIm2 != 0 ] = 1
+		compIm2 = remPatches( sizes, lArray, 50 )
 
 		# Remove all patches which height spans over 70 pixels
 		# TODO
@@ -199,14 +199,14 @@ class OratUtils:
 		# xyl = HFun.getCoords( np.sum(cI3), nFeat2, lArray2 ) ### Näitä ei välttämättä ees tarvita!
 
 		# Remove the dilated patches which size is smaller than 4000 pixels
-		oIdxs2 = np.where( sizes <= 4000 )[0] + 1
-		for i in range(len(oIdxs2)):
-			lArray2[ np.where( lArray2 == oIdxs2[i] ) ] = 0
+		#oIdxs2 = np.where( sizes2 <= 4000 )[0] + 1
+		#for i in range(len(oIdxs2)):
+		#	lArray2[ np.where( lArray2 == oIdxs2[i] ) ] = 0
 
-		cI4 = lArray2
-		cI4[ cI4 != 0 ] = 1
+		#cI4 = lArray2
+		#cI4[ cI4 != 0 ] = 1
+		cI4 = HFun.remPatches( sizes2, lArray2, 4000 )
 
-		Fucked up shit!!!
 
 
 
