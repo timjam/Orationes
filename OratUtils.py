@@ -207,16 +207,64 @@ class OratUtils:
 			BBs[:,i-1] = [i, xstart, ystart, xstop, ystop]
 
 		# Sort the coordinates and labels by their ystart coordinates
-		sIdxs = np.argsort(BBs[2])
-		BBs = BBs[:,sIdxs]
+		# Jos ei tehdä tätä sorttia niin saadaan erotusmatriisista yDiff suoraan lähekkäisten bounding boxien labelit
+		# sIdxs = np.argsort(BBs[2])
+		# BBs = BBs[:,sIdxs]
 
-		
+		yss = BBs[2,:] # Lists all the starting y-coordinates into a vector
+		yDiff = np.zeros((len(yss), len(yss)), np.int16)
+		yDiff[:,:] = yss
+
+		for i in range(len(yss)):
+			yDiff[:,i] = yDiff[:,i]-yss
+
+		yDiff[ yDiff > 25 ] = 0
+		yDiff[ yDiff < 0  ] = 0
+
+		sameBBs = np.argwhere( yDiff != 0 ) # Eli sisältää tosiaan tarpeeksi lähellä olevien BB:iden indeksit BBs listassa
 
 
-		f = plt.figure()
-		f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
-		f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
-		f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
-		plt.show()
+		for i in range( len(sameBBs[:,1])):
+			# sameBBs sisältää pareja, jotka ovat tarpeeksi lähekkäin olevien BB:iden indeksejä BBs arrayssa
+			# Haetaan siis näitä indeksejä vastaavat BB:iden tiedot muuttujiin a ja b ja yhdistetään ne
+			# a and b are [label, xstart, ystart, xstop, ystop]
 
-		return []
+			a = BBs[:,sameBBs[i,0]]
+			b = BBs[:,sameBBs[i,1]]
+			c = np.array([0,0,0,0,0])
+
+			# Make new leftmost BB start coordinate by taking the leftmost x coordinate and highest ( lowest index ) y-coordinate
+			c[1] = min( a[1], b[1] )
+			c[2] = min( a[2], b[2] )
+
+			# Make new rightmost BB stop coordinate by taking the rightmost x coordinate and lowest ( highest index ) y-coordinate
+			c[3] = max( a[3], b[3] )
+			c[4] = max( a[4], b[4] )
+
+			# Set the label of the new BBs to the same as the label of a
+			c[0] = a[0]
+
+			BBs[:,sameBBs[i,0]] = c
+			BBs[:,sameBBs[i,1]] = c
+
+		# sdg
+		#print BBs
+		#for i in range(len(BBs[2,:])):
+		#	x1 = BBs[1,i]
+		#	x2 = BBs[3,i]
+		#	y1 = BBs[2,i]
+		#	y2 = BBs[4,i]
+		#	cI4[y1:y2,x1] = 1
+		#	cI4[y1:y2,x2] = 1
+		#	cI4[y1,x1:x2] = 1
+		#	cI4[y2,x1:x2] = 1
+
+
+
+		#f = plt.figure()
+		#f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
+		#f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
+		#f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
+		#plt.show()
+
+		return BBs
