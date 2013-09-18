@@ -7,7 +7,7 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.ndimage.measurements import label
-from scipy import ndimage
+from scipy import ndimage, signal
 from HFun import HFun
 
 class OratUtils:
@@ -247,8 +247,10 @@ class OratUtils:
 			BBs[:,sameBBs[i,0]] = c
 			BBs[:,sameBBs[i,1]] = c
 
-		# sdg
-		#print BBs
+		# Get unique bounding boxes thus removing the possible duplicate BBs
+		vals, idx = np.unique( BBs[0,:], return_index=True )
+		BBs = BBs[:,idx]
+		print BBs
 		#for i in range(len(BBs[2,:])):
 		#	x1 = BBs[1,i]
 		#	x2 = BBs[3,i]
@@ -268,3 +270,30 @@ class OratUtils:
 		#plt.show()
 
 		return BBs
+
+
+
+
+
+	@staticmethod
+	def poormanradon( image, iname, height ):
+
+		# Check if the imagename contains (2) or not
+
+
+		linesums = np.zeros((height,1))
+
+		for i in range(height):
+			linesums[i,0] = sum(image[i,:])
+
+		inv = (-1)*linesums
+		plt.plot(inv)
+		plt.show()
+
+		print inv
+		print np.arange(10,20)
+
+		peakind = signal.find_peaks_cwt(inv, np.arange(10,20))
+		print peakind
+
+		return imlines

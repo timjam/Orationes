@@ -58,7 +58,11 @@ def osearch( img, txtf, sw ):
 
 
 	# Get the bounding boxes covering each line
-	bboxes = OratUtils.boundingBox( cIm )
+	# Put in its own thread?
+	#bboxes = OratUtils.boundingBox( cIm )
+
+	# Get the positions of lines
+	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight )
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
