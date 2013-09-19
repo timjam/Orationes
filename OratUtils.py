@@ -6,6 +6,7 @@ import numpy as np
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import peakdet
 from scipy.ndimage.measurements import label
 from scipy import ndimage, signal
 from HFun import HFun
@@ -279,6 +280,13 @@ class OratUtils:
 	def poormanradon( image, iname, height ):
 
 		# Check if the imagename contains (2) or not
+		try:
+			if( iname.index('(2)') >= 0 ):
+				upLim = 290
+				downLim = 2400
+		except ValueError:
+			upLim = 200
+			downLim = 2520
 
 
 		linesums = np.zeros((height,1))
@@ -287,13 +295,20 @@ class OratUtils:
 			linesums[i,0] = sum(image[i,:])
 
 		inv = (-1)*linesums
-		plt.plot(inv)
+		inv2 = (inv[3:len(inv)]+inv[0:(len(inv)-3)])/2
+		
+		f = plt.figure()
+		f.add_subplot(2,1,1); plt.plot( inv )
+		f.add_subplot(2,1,2); plt.plot( inv2) 
+		#plt.plot(inv)
 		plt.show()
 
-		print inv
-		print np.arange(10,20)
 
-		peakind = signal.find_peaks_cwt(inv, np.arange(10,20))
-		print peakind
+		#print inv
+		#print np.arange(10,20)
+
+		#peakind = signal.find_peaks_cwt(inv, np.arange(10,20))
+		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=20, delta=100 )
+		print max_peaks
 
 		return imlines
