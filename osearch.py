@@ -61,8 +61,14 @@ def osearch( img, txtf, sw ):
 	# Put in its own thread?
 	#bboxes = OratUtils.boundingBox( cIm )
 
-	# Get the positions of lines
+	# Get the positions of lines according to the image and its radon transform
 	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight )
+
+	# Get the rightlines according to the XML file and the image
+	rlines = OratUtils.processlines( charcount, imlines )
+
+	# Get the lines that are used to search the possible hits
+	slines = OratUtils.padlines( imlines, rlines, charlines )
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program

@@ -22,9 +22,9 @@ class OratUtils:
 	@staticmethod
 	def stringparser( tfile, c ):
 
-		charcount = [] # Holds the lengths of each line
-		charlines = []
-		charpos = []
+		charcount = [] 	# Holds the lengths of each line
+		charlines = []	# 
+		charpos = []	# The positions of the found characters or the first letters of the found words
 		wordlens = []
 		k = 0
 
@@ -305,7 +305,103 @@ class OratUtils:
 		mp = mp[ mp > upLim ]
 		mp = mp[ mp < downLim ]
 
-		for j in range(len(mp)):
-			img[mp[j]-1:mp[j]+1,:] = 0
+		#for j in range(len(mp)):
+		#	img[mp[j]-1:mp[j]+1,:] = 0
 
 		return mp
+
+
+
+
+	@staticmethod
+	def processlines( charcount, imlines ):
+
+		#print imlines.shape[0]
+		linenum = len(charcount)
+		nofound = linenum - imlines.shape[0]
+
+		llines = np.zeros((linenum,2))
+		llines[:,1] = 1
+
+		#print llines
+		#print nofound
+
+		if( nofound < 0 ):
+			# Do something
+			pass
+
+		else:
+
+			for i in range(nofound):
+				m = charcount[ charcount == min(charcount) ]
+				llines[m,2] = 0
+				charcount[m] += 1000
+
+		#print charcount
+
+		return llines
+
+
+
+
+	@staticmethod
+	def padlines( imlines, llines, charlines ):
+
+		# Imlines contains the lines got from the image by radontrasnform
+		# Llines contains the information about the lines got from the XML and also it contains the 
+		# information of if some of the lines is longer or shorter than the mean length of the lines
+
+		temp = llines[:,1]
+		temp[ temp > np.mean(temp) ] = 1
+		temp[ temp != 1 ] = 0
+		llines[:,1] = temp
+
+		# nlines is the number of lines calculated from the XML file
+		# The corrected lines are gathered into the rlines
+
+		#print llines.shape[0]
+		#print llines.shape[1]
+
+		nlines = llines.shape[0]
+		rlines = np.zeros((nlines, 1))
+		idx = 1
+
+		# Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
+		# tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
+		# rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän
+		# kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne
+		# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
+		# rivien indeksit osoittamaan aina oikeaan riviin.
+
+		if( imlines.shape[0] < nlines ):
+			
+			for i in range(nlines):
+				
+				if(llines[i,1] == 1):
+					rlines[i,0] = imlines[idx,0]
+					idx += 1
+
+				else:
+					rlines[i,0] = None
+
+			#print rlines
+
+			# The F is happening here?
+			# Some sort of forcing the lines to be something if there are more lines in the xml than what's found from the image
+			charlines[ charlines > nlines ] = nlines # rlines.shape[0] --> nlines
+			wantedlines = rlines[ charlines ]
+		else:
+
+			# Flattens the list of lists (charlines) and takes only the unique values, which are number of the lines which has the matches of the word that's been searched
+			# These values/indexes are used to choose only those lines that are needed in the search
+			cl = np.unique( np.asarray([item for sublist in charlines for item in sublist]) )
+
+			#print charlines
+			#print cl
+
+			wantedlines = imlines[ cl ]
+
+
+		print wantedlines
+
+		return wantedlines
