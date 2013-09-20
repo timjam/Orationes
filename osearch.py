@@ -70,8 +70,11 @@ def osearch( img, txtf, sw ):
 	# Get the lines that are used to search the possible hits
 	slines = OratUtils.padlines( imlines, rlines, charlines )
 
+	# Find the correspondences between the lines which are used for searching and the bounding boxes
+
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
+	# Encode the list into sensible json package or json-string
 	f = plt.figure()
 	f.add_subplot(1,2,1); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Eka ')
 	f.add_subplot(1,2,2); plt.imshow( cIm, cmap=cm.Greys_r ); plt.title(' Toka ')
