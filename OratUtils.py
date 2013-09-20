@@ -298,36 +298,14 @@ class OratUtils:
 			linesums[i,0] = sum(img[i,:])
 
 		inv = (-1)*linesums
-		inv2 = (inv[3:len(inv)]+inv[0:(len(inv)-3)])/2
-		
-		#f = plt.figure()
-		#f.add_subplot(2,1,1); plt.plot( inv )
-		#f.add_subplot(2,1,2); plt.plot( inv2) 
-		#plt.plot(inv)
-		#plt.show()
 
-
-		#print inv
-		#print np.arange(10,20)
-
-		#peakind = signal.find_peaks_cwt(inv, np.arange(10,20))
 		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=20, delta=100 )
 		mp = np.asarray(max_peaks)[:,0]
-		#print np.asarray(max_peaks)[:,0]
 
 		mp = mp[ mp > upLim ]
 		mp = mp[ mp < downLim ]
 
-		#print mp
-
-		#plt.show()
-
 		for j in range(len(mp)):
 			img[mp[j]-1:mp[j]+1,:] = 0
-
-		#plt.imshow( (img*255).astype('uint8'), cmap=cm.Greys_r )
-		#plt.imshow( img, cmap=cm.Greys_r )
-		#plt.show()
-
 
 		return mp
