@@ -42,12 +42,16 @@ class HFun:
 			bw[ bw >= t ] = 1
 			bw.astype('bool')
 
+			return bw
+
 		elif str(image.dtype) == "uint8" :
 
 			bw = image
 			bw[ bw <= math.floor(t*255) ] = 0
 			bw[ bw >= math.floor(t*255) ] = 1
 			bw.astype('bool')
+
+			return bw
 
 		else:
 			pass

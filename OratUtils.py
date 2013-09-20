@@ -279,29 +279,32 @@ class OratUtils:
 	@staticmethod
 	def poormanradon( image, iname, height ):
 
+		img = image #HFun.im2bw(image, 0.95)
+
 		# Check if the imagename contains (2) or not
+		# Very bad way to choose the area to find lines from, but at the moment there's no other method to do this. Needs to be improved somehow!
 		try:
 			if( iname.index('(2)') >= 0 ):
 				upLim = 290
 				downLim = 2400
 		except ValueError:
 			upLim = 200
-			downLim = 2520
+			downLim = 2440 # 2520
 
 
 		linesums = np.zeros((height,1))
 
 		for i in range(height):
-			linesums[i,0] = sum(image[i,:])
+			linesums[i,0] = sum(img[i,:])
 
 		inv = (-1)*linesums
 		inv2 = (inv[3:len(inv)]+inv[0:(len(inv)-3)])/2
 		
-		f = plt.figure()
-		f.add_subplot(2,1,1); plt.plot( inv )
-		f.add_subplot(2,1,2); plt.plot( inv2) 
+		#f = plt.figure()
+		#f.add_subplot(2,1,1); plt.plot( inv )
+		#f.add_subplot(2,1,2); plt.plot( inv2) 
 		#plt.plot(inv)
-		plt.show()
+		#plt.show()
 
 
 		#print inv
@@ -309,6 +312,22 @@ class OratUtils:
 
 		#peakind = signal.find_peaks_cwt(inv, np.arange(10,20))
 		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=20, delta=100 )
-		print max_peaks
+		mp = np.asarray(max_peaks)[:,0]
+		#print np.asarray(max_peaks)[:,0]
 
-		return imlines
+		mp = mp[ mp > upLim ]
+		mp = mp[ mp < downLim ]
+
+		#print mp
+
+		#plt.show()
+
+		for j in range(len(mp)):
+			img[mp[j]-1:mp[j]+1,:] = 0
+
+		#plt.imshow( (img*255).astype('uint8'), cmap=cm.Greys_r )
+		#plt.imshow( img, cmap=cm.Greys_r )
+		#plt.show()
+
+
+		return mp
