@@ -117,7 +117,9 @@ class OratUtils:
 
 
 	@staticmethod
-	def contStretch( image, a, h ):
+	def contStretch( im, a, h ):
+
+		image = np.copy(im)
 
 		if h > 30000:
 			# This part was supposed to take average sample from the background
@@ -139,7 +141,9 @@ class OratUtils:
 
 
 	@staticmethod
-	def boundingBox( cIm ):
+	def boundingBox( image ):
+
+		cIm = np.copy(image)
 
 		# Take histogram of the image
 		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
@@ -167,6 +171,22 @@ class OratUtils:
 
 		# Remove all patches which height spans over 70 pixels
 		# TODO
+
+		lArrayTemp, nFeatTemp = label(compIm2)
+
+		for i in range(1,nFeatTemp+1):
+			A = np.argwhere( lArrayTemp== i )
+			#print A
+			(y1, x1), (y2, x2) = A.min(0), A.max(0)
+			if( y2-y1 > 70 ):
+				lArrayTemp[ lArrayTemp == i ] = 0
+
+		compIm2 = lArrayTemp
+		compIm2[ compIm2 != 0] = 1
+
+
+
+
 
 		# Erode the image with vertical line shaped structure element
 		SEe = np.zeros((5,5))
@@ -205,7 +225,14 @@ class OratUtils:
 		for i in range(1,nFeat3+1):
 			B = np.argwhere( lArray3==i )
 			(ystart, xstart),(ystop, xstop) = B.min(0), B.max(0) # Rajaa siten, että bounding boxin reunaviiva osuu reunimmaisten pikseleiden päälle. Jos halutaan niiden jäävän myös boxin sisään niin pitää molempiin lisätä 1
+			###if( ystop - ystart < 70 ):
 			BBs[:,i-1] = [i, xstart, ystart, xstop, ystop]
+
+		print BBs
+
+		###BBs = BBs[ BBs[:,2] != 0 ]
+		###print BBs
+
 
 		# Sort the coordinates and labels by their ystart coordinates
 		# Jos ei tehdä tätä sorttia niin saadaan erotusmatriisista yDiff suoraan lähekkäisten bounding boxien labelit
@@ -251,7 +278,7 @@ class OratUtils:
 		# Get unique bounding boxes thus removing the possible duplicate BBs
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
-		print BBs
+		#print BBs
 		#for i in range(len(BBs[2,:])):
 		#	x1 = BBs[1,i]
 		#	x2 = BBs[3,i]
@@ -264,11 +291,11 @@ class OratUtils:
 
 
 
-		#f = plt.figure()
-		#f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
-		#f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
-		#f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
-		#plt.show()
+		f = plt.figure()
+		f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
+		f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
+		f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
+		plt.show()
 
 		return BBs
 
@@ -279,7 +306,7 @@ class OratUtils:
 	@staticmethod
 	def poormanradon( image, iname, height ):
 
-		img = image #HFun.im2bw(image, 0.95)
+		img = np.copy(image) #HFun.im2bw(image, 0.95)
 
 		# Check if the imagename contains (2) or not
 		# Very bad way to choose the area to find lines from, but at the moment there's no other method to do this. Needs to be improved somehow!
@@ -320,11 +347,10 @@ class OratUtils:
 		linenum = len(charcount)
 		nofound = linenum - imlines.shape[0]
 
+
 		llines = np.zeros((linenum,2))
 		llines[:,1] = 1
 
-		#print llines
-		#print nofound
 
 		if( nofound < 0 ):
 			# Do something
@@ -382,7 +408,7 @@ class OratUtils:
 					idx += 1
 
 				else:
-					rlines[i,0] = None
+					rlines[i,0] = np.nan
 
 			#print rlines
 
@@ -402,6 +428,6 @@ class OratUtils:
 			wantedlines = imlines[ cl ]
 
 
-		print wantedlines
+		#print wantedlines
 
 		return wantedlines

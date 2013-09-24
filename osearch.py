@@ -14,6 +14,8 @@ from OratUtils import OratUtils
 from HFun import HFun
 from scipy.misc import fromimage, toimage, imshow
 
+import numpy as np
+
 
 def osearch( img, txtf, sw ):
 
@@ -59,7 +61,7 @@ def osearch( img, txtf, sw ):
 
 	# Get the bounding boxes covering each line
 	# Put in its own thread?
-	#bboxes = OratUtils.boundingBox( cIm )
+	bboxes = OratUtils.boundingBox( cIm )
 
 	# Get the positions of lines according to the image and its radon transform
 	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight )
@@ -71,6 +73,45 @@ def osearch( img, txtf, sw ):
 	slines = OratUtils.padlines( imlines, rlines, charlines )
 
 	# Find the correspondences between the lines which are used for searching and the bounding boxes
+
+	bbYs = bboxes[:,2]
+	rounds = slines.shape[0]
+
+	rBBs = np.zeros((5,rounds))
+
+	print bboxes
+
+	# for i in range( rounds ):
+
+	# 	if( i==0 or ( slines[i] - slines[i-1] > 100 ) ):
+	# 		minlim = slines[i] - 70
+
+	# 	else:
+	# 		minlim = slines[i-1]
+
+	# 	print minlim
+	# 	print slines[i]
+
+	# 	cBBYstarts = bbYs[ bbYs > minlim ]
+	# 	cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
+
+	# 	print cBBYstarts
+
+	# 	#rBBs[:,i] = 
+	# 	rBBs = bboxes[:, bboxes[:,2] == cBBYstarts ]
+	# 	xsta = rBBs[1]
+	# 	ysta = rBBs[2]
+	# 	xsto = rBBs[3]
+	# 	ysto = rBBs[4]
+
+	# 	cIm[ysta, xsta:xsto] = 0
+	# 	cIm[ysto, xsta:xsto] = 0
+	# 	cIm[ysta:ysto, xsta] = 0
+	# 	cIm[ysta:ysto, xsto] = 0
+
+
+	# 	#print rBBs
+	# 	print '*****************************'
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
