@@ -197,8 +197,8 @@ class OratUtils:
 
 
 		# Dilate the image with horizontal line shaped structure element
-		SEd = np.zeros((60,60))
-		SEd[30,:] = 1
+		SEd = np.zeros((70,70)) # 60 60 ja 30
+		SEd[35,:] = 1
 		SEd.astype('bool')
 
 		cI3 = ndimage.binary_dilation(cI3, structure=SEd).astype(cI3.dtype)
@@ -225,13 +225,7 @@ class OratUtils:
 		for i in range(1,nFeat3+1):
 			B = np.argwhere( lArray3==i )
 			(ystart, xstart),(ystop, xstop) = B.min(0), B.max(0) # Rajaa siten, että bounding boxin reunaviiva osuu reunimmaisten pikseleiden päälle. Jos halutaan niiden jäävän myös boxin sisään niin pitää molempiin lisätä 1
-			###if( ystop - ystart < 70 ):
 			BBs[:,i-1] = [i, xstart, ystart, xstop, ystop]
-
-		print BBs
-
-		###BBs = BBs[ BBs[:,2] != 0 ]
-		###print BBs
 
 
 		# Sort the coordinates and labels by their ystart coordinates
@@ -279,15 +273,15 @@ class OratUtils:
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
 		#print BBs
-		#for i in range(len(BBs[2,:])):
-		#	x1 = BBs[1,i]
-		#	x2 = BBs[3,i]
-		#	y1 = BBs[2,i]
-		#	y2 = BBs[4,i]
-		#	cI4[y1:y2,x1] = 1
-		#	cI4[y1:y2,x2] = 1
-		#	cI4[y1,x1:x2] = 1
-		#	cI4[y2,x1:x2] = 1
+		for i in range(len(BBs[2,:])):
+			x1 = BBs[1,i]
+			x2 = BBs[3,i]
+			y1 = BBs[2,i]
+			y2 = BBs[4,i]
+			cI4[y1:y2,x1] = 1
+			cI4[y1:y2,x2] = 1
+			cI4[y1,x1:x2] = 1
+			cI4[y2,x1:x2] = 1
 
 
 

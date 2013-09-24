@@ -79,7 +79,7 @@ def osearch( img, txtf, sw ):
 
 	rBBs = np.zeros((5,rounds))
 
-	print bboxes
+	#print bboxes
 
 	# for i in range( rounds ):
 
