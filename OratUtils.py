@@ -169,9 +169,10 @@ class OratUtils:
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
 		compIm2 = HFun.remPatches( sizes, lArray, 50 )
 
-		# Remove all patches which height spans over 70 pixels
-		# TODO
 
+
+
+		# Remove all patches which height spans over 70 pixels
 		lArrayTemp, nFeatTemp = label(compIm2)
 
 		for i in range(1,nFeatTemp+1):
@@ -273,23 +274,23 @@ class OratUtils:
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
 		#print BBs
-		for i in range(len(BBs[2,:])):
-			x1 = BBs[1,i]
-			x2 = BBs[3,i]
-			y1 = BBs[2,i]
-			y2 = BBs[4,i]
-			cI4[y1:y2,x1] = 1
-			cI4[y1:y2,x2] = 1
-			cI4[y1,x1:x2] = 1
-			cI4[y2,x1:x2] = 1
+		# for i in range(len(BBs[2,:])):
+		# 	x1 = BBs[1,i]
+		# 	x2 = BBs[3,i]
+		# 	y1 = BBs[2,i]
+		# 	y2 = BBs[4,i]
+		# 	cI4[y1:y2,x1] = 1
+		# 	cI4[y1:y2,x2] = 1
+		# 	cI4[y1,x1:x2] = 1
+		# 	cI4[y2,x1:x2] = 1
 
 
 
-		f = plt.figure()
-		f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
-		f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
-		f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
-		plt.show()
+		# f = plt.figure()
+		# f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
+		# f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
+		# f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
+		# plt.show()
 
 		return BBs
 

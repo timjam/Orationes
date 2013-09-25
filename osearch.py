@@ -74,44 +74,57 @@ def osearch( img, txtf, sw ):
 
 	# Find the correspondences between the lines which are used for searching and the bounding boxes
 
-	bbYs = bboxes[:,2]
+	bbYs = bboxes[2,:]
 	rounds = slines.shape[0]
 
 	rBBs = np.zeros((5,rounds))
 
+	#print rounds
+	#print bbYs
+	#print
 	#print bboxes
+	#print
 
-	# for i in range( rounds ):
+	#print ""
 
-	# 	if( i==0 or ( slines[i] - slines[i-1] > 100 ) ):
-	# 		minlim = slines[i] - 70
+	for i in range( rounds ):
 
-	# 	else:
-	# 		minlim = slines[i-1]
+		if( i==0 or ( slines[i] - slines[i-1] > 100 ) ):
+			minlim = slines[i] - 70
 
-	# 	print minlim
-	# 	print slines[i]
+		else:
+			minlim = slines[i-1]
 
-	# 	cBBYstarts = bbYs[ bbYs > minlim ]
-	# 	cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
+		#print minlim
+		#print slines[i]
 
-	# 	print cBBYstarts
+		cBBYstarts = bbYs[ bbYs > minlim ]
+		cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
 
-	# 	#rBBs[:,i] = 
-	# 	rBBs = bboxes[:, bboxes[:,2] == cBBYstarts ]
-	# 	xsta = rBBs[1]
-	# 	ysta = rBBs[2]
-	# 	xsto = rBBs[3]
-	# 	ysto = rBBs[4]
+		#print cBBYstarts
 
-	# 	cIm[ysta, xsta:xsto] = 0
-	# 	cIm[ysto, xsta:xsto] = 0
-	# 	cIm[ysta:ysto, xsta] = 0
-	# 	cIm[ysta:ysto, xsto] = 0
+		rBBs = bboxes[:,bboxes[2,:] == cBBYstarts]
+		xsta = rBBs[1]
+		ysta = rBBs[2]
+		xsto = rBBs[3]
+		ysto = rBBs[4]
+
+		#print str(xsta) + "\t" + str(ysta) + "\t" + str(xsto) + "\t" + str(ysto)
+		#print str(rBBs[1]) + "\t" + str(rBBs[2]) + "\t" + str(rBBs[3]) + "\t" + str(rBBs[4])
+		#print
+
+		cIm[ysta, xsta:xsto] = 0
+		cIm[ysto, xsta:xsto] = 0
+		cIm[ysta:ysto, xsta] = 0
+		cIm[ysta:ysto, xsto] = 0
 
 
-	# 	#print rBBs
-	# 	print '*****************************'
+		#print rBBs
+		#print
+		#print
+		#print '*****************************'
+		#print
+		#print
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
