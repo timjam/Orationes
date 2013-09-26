@@ -241,8 +241,14 @@ class OratUtils:
 		for i in range(len(yss)):
 			yDiff[:,i] = yDiff[:,i]-yss
 
+
+			yDiff[i,i] = -1
+
+		yDiff[ yDiff == 0 ] = 1
+
 		yDiff[ yDiff > 25 ] = 0
 		yDiff[ yDiff < 0  ] = 0
+		# !!!!! Erota diagonaalin ulkopuoliset nollat! Diagonaalin yläpuoliset nollat jätetään, alapuoliset poistetaan, jottei samoja indeksejä käsitellä kahteen kertaan
 
 		sameBBs = np.argwhere( yDiff != 0 ) # Eli sisältää tosiaan tarpeeksi lähellä olevien BB:iden indeksit BBs listassa
 

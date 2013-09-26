@@ -77,15 +77,9 @@ def osearch( img, txtf, sw ):
 	bbYs = bboxes[2,:]
 	rounds = slines.shape[0]
 
-	rBBs = np.zeros((5,rounds))
+	coords = np.zeros((7,rounds), np.int16)
 
-	#print rounds
-	#print bbYs
-	#print
-	#print bboxes
-	#print
-
-	#print ""
+	print bboxes
 
 	for i in range( rounds ):
 
@@ -95,36 +89,49 @@ def osearch( img, txtf, sw ):
 		else:
 			minlim = slines[i-1]
 
-		#print minlim
-		#print slines[i]
-
 		cBBYstarts = bbYs[ bbYs > minlim ]
 		cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
 
-		#print cBBYstarts
+		temp = bboxes[:,bboxes[2,:] == cBBYstarts]
+		print cBBYstarts
+		#coords[:,i] = bboxes[:,bboxes[2,:] == cBBYstarts]
+		#print coords[:,i]
+		coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
+		coords[1,i] = temp[1]	# Sisältää kyseisen bounding boxin xstart koordinaatin
+		coords[2,i] = temp[2]	# Sisältää kyseisen bounding boxin ystart koordinaatin
+		coords[3,i] = temp[3]	# Sisältää kyseisen bounding boxin xstop koordinaatin
+		coords[4,i] = temp[4]	# Sisältää kyseisen bounding boxin ystop koordinaatin
+		coords[5,i] = charcount[ np.where( bbYs == temp[2])[0] ]	# Sisältää kyseisellä rivillä olevien kirjainten lukumäärän
+		coords[6,i] = cBBYstarts[0]	# Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin
+		#print np.where( bbYs == temp[2] )
+		#print np.where( bbYs == temp[2] )[0]
 
-		rBBs = bboxes[:,bboxes[2,:] == cBBYstarts]
-		xsta = rBBs[1]
-		ysta = rBBs[2]
-		xsto = rBBs[3]
-		ysto = rBBs[4]
-
-		#print str(xsta) + "\t" + str(ysta) + "\t" + str(xsto) + "\t" + str(ysto)
-		#print str(rBBs[1]) + "\t" + str(rBBs[2]) + "\t" + str(rBBs[3]) + "\t" + str(rBBs[4])
-		#print
-
-		cIm[ysta, xsta:xsto] = 0
-		cIm[ysto, xsta:xsto] = 0
-		cIm[ysta:ysto, xsta] = 0
-		cIm[ysta:ysto, xsto] = 0
+		#print coords
 
 
-		#print rBBs
-		#print
-		#print
-		#print '*****************************'
-		#print
-		#print
+		#xsta = coords[1,i]
+		#ysta = coords[2,i]
+		#xsto = coords[3,i]
+		#ysto = coords[4,i]
+
+		#cIm[ysta, xsta:xsto] = 0
+		#cIm[ysto, xsta:xsto] = 0
+		#cIm[ysta:ysto, xsta] = 0
+		#cIm[ysta:ysto, xsto] = 0
+
+	print coords
+
+	for i in range(bboxes.shape[1]):
+		x1 = bboxes[1,i]
+		y1 = bboxes[2,i]
+		x2 = bboxes[3,i]
+		y2 = bboxes[4,i]
+
+		cIm[y1, x1:x2] = 0
+		cIm[y2, x1:x2] = 0
+		cIm[y1:y2, x1] = 0
+		cIm[y1:y2, x2] = 0
+
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
