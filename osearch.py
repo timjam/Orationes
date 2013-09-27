@@ -79,7 +79,7 @@ def osearch( img, txtf, sw ):
 
 	coords = np.zeros((7,rounds), np.int16)
 
-	print bboxes
+	#print bboxes
 
 	for i in range( rounds ):
 
@@ -93,7 +93,7 @@ def osearch( img, txtf, sw ):
 		cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
 
 		temp = bboxes[:,bboxes[2,:] == cBBYstarts]
-		print cBBYstarts
+		#print cBBYstarts
 		#coords[:,i] = bboxes[:,bboxes[2,:] == cBBYstarts]
 		#print coords[:,i]
 		coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
@@ -119,7 +119,28 @@ def osearch( img, txtf, sw ):
 		#cIm[ysta:ysto, xsta] = 0
 		#cIm[ysta:ysto, xsto] = 0
 
-	print coords
+	#print coords
+
+	#print charpos
+
+	#Y = coords[6,:]
+	#X = coords[2,:] + ( coords[3,:] - coords[1,:] )/coords[5,:]
+
+	for i in range( 3 ):
+
+		print charpos[i]
+		print coords[2,i]
+		print coords[3,i]
+		print coords[1,i]
+		print coords[5,i]
+
+		X = coords[2,i] + charpos[i] * ( coords[3,i]-coords[1,i] )/coords[5,i]
+		print X
+		Y  = coords[6,i]
+		print Y
+
+	#print Y
+	#print X
 
 	for i in range(bboxes.shape[1]):
 		x1 = bboxes[1,i]
