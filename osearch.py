@@ -79,7 +79,9 @@ def osearch( img, txtf, sw ):
 
 	coords = np.zeros((7,rounds), np.int16)
 
-	#print bboxes
+	print bboxes
+
+	print charcount
 
 	for i in range( rounds ):
 
@@ -101,8 +103,15 @@ def osearch( img, txtf, sw ):
 		coords[2,i] = temp[2]	# Sisältää kyseisen bounding boxin ystart koordinaatin
 		coords[3,i] = temp[3]	# Sisältää kyseisen bounding boxin xstop koordinaatin
 		coords[4,i] = temp[4]	# Sisältää kyseisen bounding boxin ystop koordinaatin
-		coords[5,i] = charcount[ np.where( bbYs == temp[2])[0] ]	# Sisältää kyseisellä rivillä olevien kirjainten lukumäärän
-		coords[6,i] = cBBYstarts[0]	# Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin
+		# print np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1]
+		# ^ Konvertoi ensin charcount listan numpy arrayksi
+		# Sen jälkeen haetaan bboxes numpy arrayn toiselta rivilta kaikki niiden sarakkeiden indeksit, joissa sarakkeen arvon on sama kuin temp listan toiset arvot, koska temp listan toisina arvoina on halutut y koordinaatit
+		# Sitten otetaan tästä np.where tuloksesta ensimmäinen alkio, koska se sisältää halutun indeksin ja lisätään siihen sitten yksi. Tämä sen takia, että labelit bboxissa on järjestetty 
+		# kasvavaan järjestykseen siten, että label on aina indeksi plus yksi ja sitten kaikki onkin ihan vitun sekavaa ...
+
+
+		coords[5,i] = np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1] # Sisältää kyseisellä rivillä olevien kirjainten lukumäärän
+		coords[6,i] = slines[i]	# Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin
 		#print np.where( bbYs == temp[2] )
 		#print np.where( bbYs == temp[2] )[0]
 
@@ -126,18 +135,39 @@ def osearch( img, txtf, sw ):
 	#Y = coords[6,:]
 	#X = coords[2,:] + ( coords[3,:] - coords[1,:] )/coords[5,:]
 
-	for i in range( 3 ):
+	for i in range( 3 ): # rounds
 
+		print "*****\n"
+		#print charpos[i]
+		#print coords[2,i]
+		#print coords[3,i]
+		#print coords[1,i]
+		#print coords[5,i]
+
+		#print "\n///////\\\\\\\\\\\\\\\n"
+
+		rightbound = coords[1,i]
+		leftbound = coords[3,i]
+		ccount = coords[5,i] # Vääriä ccounteja!!
+		linecenter = coords[6,i]
+
+		print rightbound
+		print leftbound
+		print ccount
+		print linecenter
 		print charpos[i]
-		print coords[2,i]
-		print coords[3,i]
-		print coords[1,i]
-		print coords[5,i]
 
-		X = coords[2,i] + charpos[i] * ( coords[3,i]-coords[1,i] )/coords[5,i]
+		for j in range( len(charpos[i])):
+			print charpos[i][j]
+			print 
+			X = charpos[i][j] * ( leftbound - rightbound )/ccount + rightbound
+			Y = linecenter
+
 		print X
-		Y  = coords[6,i]
+		print X.shape
+		
 		print Y
+		print "******\n"
 
 	#print Y
 	#print X
