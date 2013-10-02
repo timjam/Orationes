@@ -91,3 +91,8 @@ class HFun:
 		bwimage[ bwimage != 0 ] = 1
 
 		return bwimage
+
+
+	@staticmethod
+	def indices(a, func):
+	    return [i for (i, val) in enumerate(a) if func(val)]

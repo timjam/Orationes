@@ -355,14 +355,17 @@ class OratUtils:
 
 		if( nofound < 0 ):
 			# Do something
-			pass
+			return llines
 
-		else:
-
+		elif( nofound > 0):
+			
 			for i in range(nofound):
 				m = charcount[ charcount == min(charcount) ]
 				llines[m,2] = 0
 				charcount[m] += 1000
+		else:
+			return llines
+
 
 		#print charcount
 
