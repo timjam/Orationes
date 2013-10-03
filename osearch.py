@@ -81,7 +81,7 @@ def osearch( img, txtf, sw ):
 
 	coords = np.zeros((7,rounds), np.int16)
 
-	print bboxes
+	#print bboxes
 
 	#print charcount
 
@@ -99,8 +99,9 @@ def osearch( img, txtf, sw ):
 		#cBB = np.where( (bbYs > minlim) and (bbYs < slines[i]) )
 		cBB = HFun.indices( bbYs, lambda x: ( x > minlim and x < slines[i] ) )
 		#print cBB
+		#print "*****\n"
 
-		temp = bboxes[:,bboxes[2,:] == cBBYstarts]
+		temp = bboxes[:,bboxes[2,:] == bbYs[ cBB[0] ] ] #cBBYstarts before
 
 		coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
 		coords[1,i] = temp[1]	# Sisältää kyseisen bounding boxin xstart koordinaatin
@@ -115,7 +116,8 @@ def osearch( img, txtf, sw ):
 
 
 		#coords[5,i] = np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1] # Sisältää kyseisellä rivillä olevien kirjainten lukumäärän
-		coords[5,i] = charcount[cBB[0]]
+		#print np.where( imlines == slines[i] )
+		coords[5,i] = charcount[ np.where( imlines == slines[i] )[0] ]
 		coords[6,i] = slines[i]	# Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin
 
 
@@ -124,7 +126,7 @@ def osearch( img, txtf, sw ):
 
 	oI = fromimage( origimage )
 
-	#print coords
+	print coords
 
 	for i in range( rounds ): # rounds
 
@@ -148,13 +150,14 @@ def osearch( img, txtf, sw ):
 				oI[ Y-20:Y+20, X+50] = [0, 255, 0]
 				
 			except IndexError:
-				print rightbound
-				print leftbound
-				print ccount
-				print "Y: " + str(Y)
-				print "X: " + str(X)
-				print "Fail"
-				print
+				pass
+				# print rightbound
+				# print leftbound
+				# print ccount
+				# print "Y: " + str(Y)
+				# print "X: " + str(X)
+				# print "Fail"
+				# print
 				
 
 			xx.append( X )
@@ -185,6 +188,12 @@ def osearch( img, txtf, sw ):
 	plt.imshow( oI )
 	plt.show()
 
+	# np.savetxt( 'testres1.txt', charcount, delimiter=",", fmt="%i" )
+	# np.savetxt( 'testres2.txt', imlines.astype( np.int16 ), delimiter=",", fmt="%i" )
+	# np.savetxt( 'testres3.txt', slines.astype( np.int16 ), delimiter=",", fmt="%i" )
+	# np.savetxt( 'testres4.txt', rlines.astype( np.int16 ), delimiter=",", fmt="%i" )
+	# np.savetxt( 'testres5.txt', bboxes.astype( np.int16 ), delimiter=",", fmt="%i" )
+	
 
 	return
 
