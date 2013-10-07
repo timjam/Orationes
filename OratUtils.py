@@ -241,27 +241,10 @@ class OratUtils:
 			BBs[:,sameBBs[i,0]] = c
 			BBs[:,sameBBs[i,1]] = c
 
+
 		# Get unique bounding boxes thus removing the possible duplicate BBs
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
-		#print BBs
-		# for i in range(len(BBs[2,:])):
-		# 	x1 = BBs[1,i]
-		# 	x2 = BBs[3,i]
-		# 	y1 = BBs[2,i]
-		# 	y2 = BBs[4,i]
-		# 	cI4[y1:y2,x1] = 1
-		# 	cI4[y1:y2,x2] = 1
-		# 	cI4[y1,x1:x2] = 1
-		# 	cI4[y2,x1:x2] = 1
-
-
-
-		# f = plt.figure()
-		# f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
-		# f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
-		# f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
-		# plt.show()
 
 		return BBs
 
