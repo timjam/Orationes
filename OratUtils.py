@@ -67,7 +67,9 @@ class OratUtils:
 
 
 	@staticmethod
-	def hfilter( img, d, h, l, n ):
+	def hfilter( image, d, h, l, n ):
+
+		img = np.copy(image)
 
 		# img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format
 		# h = height
@@ -172,39 +174,20 @@ class OratUtils:
 		# Remove patches which size is smaller or equal to 50 pixels
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
 		compIm2 = HFun.remPatches( sizes, lArray, 50 )
-
-
-
-
 		# Remove all patches which height spans over 70 pixels
-		lArrayTemp, nFeatTemp = label(compIm2)
-
-		for i in range(1,nFeatTemp+1):
-			A = np.argwhere( lArrayTemp== i )
-			#print A
-			(y1, x1), (y2, x2) = A.min(0), A.max(0)
-			if( y2-y1 > 70 ):
-				lArrayTemp[ lArrayTemp == i ] = 0
-
-		compIm2 = lArrayTemp
-		compIm2[ compIm2 != 0] = 1
-
-
-
+		compIm2 = HFun.remHighPatches( compIm2, 70 )
 
 
 		# Erode the image with vertical line shaped structure element
-		SEe = np.zeros((5,5))
+		SEe = np.zeros((5,5)).astype('bool')
 		SEe[:,2] = 1
-		SEe.astype('bool')
 
 		cI3 = ndimage.binary_erosion(compIm2, structure=SEe).astype(compIm2.dtype)
 
 
 		# Dilate the image with horizontal line shaped structure element
-		SEd = np.zeros((70,70)) # 60 60 ja 30
+		SEd = np.zeros((70,70)).astype('bool') # 60 60 ja 30
 		SEd[35,:] = 1
-		SEd.astype('bool')
 
 		cI3 = ndimage.binary_dilation(cI3, structure=SEd).astype(cI3.dtype)
 

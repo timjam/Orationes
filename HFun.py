@@ -2,6 +2,7 @@
 
 import math
 import numpy as np
+from scipy.ndimage.measurements import label
 
 class HFun:
 
@@ -96,3 +97,27 @@ class HFun:
 	@staticmethod
 	def indices(a, func):
 	    return [i for (i, val) in enumerate(a) if func(val)]
+
+
+	@staticmethod
+	def remHighPatches( image, height ):
+
+		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
+		#im = np.copy( image ) # Remember to change image to im if this is enabled
+
+		lArrayTemp, nFeatTemp = label( image )
+
+		for i in range(1,nFeatTemp+1):
+
+			A = np.argwhere( lArrayTemp== i )
+			(y1, x1), (y2, x2) = A.min(0), A.max(0)
+			
+			if( y2-y1 > 70 ):
+				lArrayTemp[ lArrayTemp == i ] = 0
+
+
+		image = lArrayTemp
+		image[ image != 0] = 1
+
+
+		return image
