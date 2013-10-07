@@ -78,17 +78,21 @@ class OratUtils:
 		A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
+		H = float(h)
+		L = float(l)
+		D = float(d)
+		N = float(n)
+
 		for i in range(h):
 			for j in range(l):
 				try:
-					H = float(h)
-					L = float(l)
+					
 					I = float(i)
 					J = float(j)
-					D = float(d)
-					N = float(n)
+					
 					A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
 					F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
+					
 				except Warning:
 					print '***** Warning divide by zero happened in Butterworth filtering *****'
 
