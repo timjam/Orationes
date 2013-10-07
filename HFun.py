@@ -121,3 +121,29 @@ class HFun:
 
 
 		return image
+
+
+
+	@staticmethod
+	def diffMat( v ):
+
+		# v is a list of all the starting y-coordinates in a vector
+
+		yDiff = np.zeros((len(v), len(v)), np.int16)
+		yDiff[:,:] = v
+
+		for i in range(len(v)):
+			yDiff[:,i] = yDiff[:,i]-v
+
+			# Sets the diagonal components to -1 so that if the difference between two values is zero, they are detected as values on the same y-coordinate
+			yDiff[i,i] = -1
+
+		yDiff[ yDiff == 0 ] = 1 # Sets all the zero values to 1 so the coordinates which difference is zero are included in the matrix. Causes those coordinates to be twice in the matrix as their difference is always
+								# 0. Other non-zero differences are > 0 in the upper triangle and < 0 in the lower triangle and therefore calculated only once. ( <0 and >25 values are rendered to 0 and in the final
+								# calculation in the main thread only non-zero values are used)
+
+		yDiff[ yDiff > 25 ] = 0
+		yDiff[ yDiff < 0  ] = 0
+		# !!!!! Erota diagonaalin ulkopuoliset nollat! Diagonaalin yläpuoliset nollat jätetään, alapuoliset poistetaan, jottei samoja indeksejä käsitellä kahteen kertaan
+
+		return yDiff

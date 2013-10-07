@@ -221,21 +221,8 @@ class OratUtils:
 		# sIdxs = np.argsort(BBs[2])
 		# BBs = BBs[:,sIdxs]
 
-		yss = BBs[2,:] # Lists all the starting y-coordinates into a vector
-		yDiff = np.zeros((len(yss), len(yss)), np.int16)
-		yDiff[:,:] = yss
-
-		for i in range(len(yss)):
-			yDiff[:,i] = yDiff[:,i]-yss
-
-
-			yDiff[i,i] = -1
-
-		yDiff[ yDiff == 0 ] = 1
-
-		yDiff[ yDiff > 25 ] = 0
-		yDiff[ yDiff < 0  ] = 0
-		# !!!!! Erota diagonaalin ulkopuoliset nollat! Diagonaalin yläpuoliset nollat jätetään, alapuoliset poistetaan, jottei samoja indeksejä käsitellä kahteen kertaan
+		# Calculate the difference matrix for the starting y-coordinates between all bounding boxes
+		yDiff = HFun.diffMat( BBs[2,:] )
 
 		sameBBs = np.argwhere( yDiff != 0 ) # Eli sisältää tosiaan tarpeeksi lähellä olevien BB:iden indeksit BBs listassa
 
