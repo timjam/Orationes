@@ -67,7 +67,9 @@ class OratUtils:
 
 
 	@staticmethod
-	def hfilter( img, d, h, l, n ):
+	def hfilter( image, d, h, l, n ):
+
+		img = np.copy(image)
 
 		# img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format
 		# h = height
@@ -78,17 +80,21 @@ class OratUtils:
 		A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
+		H = float(h)
+		L = float(l)
+		D = float(d)
+		N = float(n)
+
 		for i in range(h):
 			for j in range(l):
 				try:
-					H = float(h)
-					L = float(l)
+					
 					I = float(i)
 					J = float(j)
-					D = float(d)
-					N = float(n)
+					
 					A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
 					F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
+					
 				except Warning:
 					print '***** Warning divide by zero happened in Butterworth filtering *****'
 
@@ -168,39 +174,20 @@ class OratUtils:
 		# Remove patches which size is smaller or equal to 50 pixels
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
 		compIm2 = HFun.remPatches( sizes, lArray, 50 )
-
-
-
-
 		# Remove all patches which height spans over 70 pixels
-		lArrayTemp, nFeatTemp = label(compIm2)
-
-		for i in range(1,nFeatTemp+1):
-			A = np.argwhere( lArrayTemp== i )
-			#print A
-			(y1, x1), (y2, x2) = A.min(0), A.max(0)
-			if( y2-y1 > 70 ):
-				lArrayTemp[ lArrayTemp == i ] = 0
-
-		compIm2 = lArrayTemp
-		compIm2[ compIm2 != 0] = 1
-
-
-
+		compIm2 = HFun.remHighPatches( compIm2, 70 )
 
 
 		# Erode the image with vertical line shaped structure element
-		SEe = np.zeros((5,5))
+		SEe = np.zeros((5,5)).astype('bool')
 		SEe[:,2] = 1
-		SEe.astype('bool')
 
 		cI3 = ndimage.binary_erosion(compIm2, structure=SEe).astype(compIm2.dtype)
 
 
 		# Dilate the image with horizontal line shaped structure element
-		SEd = np.zeros((70,70)) # 60 60 ja 30
+		SEd = np.zeros((70,70)).astype('bool') # 60 60 ja 30
 		SEd[35,:] = 1
-		SEd.astype('bool')
 
 		cI3 = ndimage.binary_dilation(cI3, structure=SEd).astype(cI3.dtype)
 
@@ -209,10 +196,6 @@ class OratUtils:
 		lArray2, nFeat2 = label( cI3 )
 		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
 
-		# Get the coordinates of each pixel from each labeled patch
-		# First generate an array of zeros with the size of 3 * the amount of ones in cI3
-		# Then populate the right positions with the coordinates of pixels and also their respective labels
-		# xyl = HFun.getCoords( np.sum(cI3), nFeat2, lArray2 ) ### Näitä ei välttämättä ees tarvita!
 
 		# Remove the dilated patches which size is smaller than 4000 pixels
 		cI4 = HFun.remPatches( sizes2, lArray2, 4000 )
@@ -229,26 +212,8 @@ class OratUtils:
 			BBs[:,i-1] = [i, xstart, ystart, xstop, ystop]
 
 
-		# Sort the coordinates and labels by their ystart coordinates
-		# Jos ei tehdä tätä sorttia niin saadaan erotusmatriisista yDiff suoraan lähekkäisten bounding boxien labelit
-		# sIdxs = np.argsort(BBs[2])
-		# BBs = BBs[:,sIdxs]
-
-		yss = BBs[2,:] # Lists all the starting y-coordinates into a vector
-		yDiff = np.zeros((len(yss), len(yss)), np.int16)
-		yDiff[:,:] = yss
-
-		for i in range(len(yss)):
-			yDiff[:,i] = yDiff[:,i]-yss
-
-
-			yDiff[i,i] = -1
-
-		yDiff[ yDiff == 0 ] = 1
-
-		yDiff[ yDiff > 25 ] = 0
-		yDiff[ yDiff < 0  ] = 0
-		# !!!!! Erota diagonaalin ulkopuoliset nollat! Diagonaalin yläpuoliset nollat jätetään, alapuoliset poistetaan, jottei samoja indeksejä käsitellä kahteen kertaan
+		# Calculate the difference matrix for the starting y-coordinates between all bounding boxes
+		yDiff = HFun.diffMat( BBs[2,:] )
 
 		sameBBs = np.argwhere( yDiff != 0 ) # Eli sisältää tosiaan tarpeeksi lähellä olevien BB:iden indeksit BBs listassa
 
@@ -276,27 +241,10 @@ class OratUtils:
 			BBs[:,sameBBs[i,0]] = c
 			BBs[:,sameBBs[i,1]] = c
 
+
 		# Get unique bounding boxes thus removing the possible duplicate BBs
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
-		#print BBs
-		# for i in range(len(BBs[2,:])):
-		# 	x1 = BBs[1,i]
-		# 	x2 = BBs[3,i]
-		# 	y1 = BBs[2,i]
-		# 	y2 = BBs[4,i]
-		# 	cI4[y1:y2,x1] = 1
-		# 	cI4[y1:y2,x2] = 1
-		# 	cI4[y1,x1:x2] = 1
-		# 	cI4[y2,x1:x2] = 1
-
-
-
-		# f = plt.figure()
-		# f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype('uint8'), cmap=cm.Greys_r )
-		# f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype('uint8'), cmap=cm.Greys_r )
-		# f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype('uint8'), cmap=cm.Greys_r )
-		# plt.show()
 
 		return BBs
 

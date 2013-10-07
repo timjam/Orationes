@@ -2,6 +2,7 @@
 
 import math
 import numpy as np
+from scipy.ndimage.measurements import label
 
 class HFun:
 
@@ -61,26 +62,6 @@ class HFun:
 
 
 
-	# Get the coordinates and label numbers
-	@staticmethod
-	def getCoords( size, ran, lArray ):
-		# Get the coordinates of each pixel from each labeled patch
-		# First generate an array of zeros with the size of 3x the amount of ones in cI3
-		# Then populate the right positions with the coordinates of pixels and also their respective labels
-		xyl = np.zeros((3,size))
-
-		c = 0
-		for i in range(1, ran+1):
-			X,Y = np.where( lArray == i )
-			p = len(X)
-			
-			L = np.array([i]*p)
-			xyl[:,c:(c+p)] = np.vstack([X,Y,L])
-			c = c+p
-
-
-
-
 	@staticmethod
 	def remPatches( sizes, lArray, maxSize ):
 		oIdxs = np.where( sizes <= maxSize )[0] + 1
@@ -96,3 +77,53 @@ class HFun:
 	@staticmethod
 	def indices(a, func):
 	    return [i for (i, val) in enumerate(a) if func(val)]
+
+
+	@staticmethod
+	def remHighPatches( image, height ):
+
+		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
+		#im = np.copy( image ) # Remember to change image to im if this is enabled
+
+		lArrayTemp, nFeatTemp = label( image )
+
+		for i in range(1,nFeatTemp+1):
+
+			A = np.argwhere( lArrayTemp== i )
+			(y1, x1), (y2, x2) = A.min(0), A.max(0)
+			
+			if( y2-y1 > 70 ):
+				lArrayTemp[ lArrayTemp == i ] = 0
+
+
+		image = lArrayTemp
+		image[ image != 0] = 1
+
+
+		return image
+
+
+
+	@staticmethod
+	def diffMat( v ):
+
+		# v is a list of all the starting y-coordinates in a vector
+
+		yDiff = np.zeros((len(v), len(v)), np.int16)
+		yDiff[:,:] = v
+
+		for i in range(len(v)):
+			yDiff[:,i] = yDiff[:,i]-v
+
+			# Sets the diagonal components to -1 so that if the difference between two values is zero, they are detected as values on the same y-coordinate
+			yDiff[i,i] = -1
+
+		yDiff[ yDiff == 0 ] = 1 # Sets all the zero values to 1 so the coordinates which difference is zero are included in the matrix. Causes those coordinates to be twice in the matrix as their difference is always
+								# 0. Other non-zero differences are > 0 in the upper triangle and < 0 in the lower triangle and therefore calculated only once. ( <0 and >25 values are rendered to 0 and in the final
+								# calculation in the main thread only non-zero values are used)
+
+		yDiff[ yDiff > 25 ] = 0
+		yDiff[ yDiff < 0  ] = 0
+		# !!!!! Erota diagonaalin ulkopuoliset nollat! Diagonaalin yläpuoliset nollat jätetään, alapuoliset poistetaan, jottei samoja indeksejä käsitellä kahteen kertaan
+
+		return yDiff
