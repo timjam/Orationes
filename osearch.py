@@ -15,9 +15,12 @@ from HFun import HFun
 from scipy.misc import fromimage, toimage, imshow
 
 import numpy as np
+import timeit
 
 
 def osearch( img, txtf, sw ):
+
+	
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -49,19 +52,21 @@ def osearch( img, txtf, sw ):
 	tI = fromimage(grayimage) # From PIL to scipy image
 	tI = HFun.im2float(tI) # From uint8 to float
 
-
+	
 	# Filter the image and convert it back to grayscale uint8 image
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )	
 	filteredIm = HFun.gray2uint8(filteredIm) # From float to uint8
 
 
+
+
 	# Stretch the contrast of the image
 	cIm = OratUtils.contStretch( filteredIm, 20 , ImHeight )
-
 
 	# Get the bounding boxes covering each line
 	# Put in its own thread?
 	bboxes = OratUtils.boundingBox( cIm )
+
 
 	# Get the positions of lines according to the image and its radon transform
 	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight )
@@ -125,8 +130,6 @@ def osearch( img, txtf, sw ):
 	yy = []
 
 	oI = fromimage( origimage )
-
-	print coords
 
 	for i in range( rounds ): # rounds
 
@@ -193,6 +196,7 @@ def osearch( img, txtf, sw ):
 	# np.savetxt( 'testres3.txt', slines.astype( np.int16 ), delimiter=",", fmt="%i" )
 	# np.savetxt( 'testres4.txt', rlines.astype( np.int16 ), delimiter=",", fmt="%i" )
 	# np.savetxt( 'testres5.txt', bboxes.astype( np.int16 ), delimiter=",", fmt="%i" )
+	
 	
 
 	return
