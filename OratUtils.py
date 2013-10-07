@@ -196,10 +196,6 @@ class OratUtils:
 		lArray2, nFeat2 = label( cI3 )
 		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
 
-		# Get the coordinates of each pixel from each labeled patch
-		# First generate an array of zeros with the size of 3 * the amount of ones in cI3
-		# Then populate the right positions with the coordinates of pixels and also their respective labels
-		# xyl = HFun.getCoords( np.sum(cI3), nFeat2, lArray2 ) ### Näitä ei välttämättä ees tarvita!
 
 		# Remove the dilated patches which size is smaller than 4000 pixels
 		cI4 = HFun.remPatches( sizes2, lArray2, 4000 )
@@ -215,11 +211,6 @@ class OratUtils:
 			(ystart, xstart),(ystop, xstop) = B.min(0), B.max(0) # Rajaa siten, että bounding boxin reunaviiva osuu reunimmaisten pikseleiden päälle. Jos halutaan niiden jäävän myös boxin sisään niin pitää molempiin lisätä 1
 			BBs[:,i-1] = [i, xstart, ystart, xstop, ystop]
 
-
-		# Sort the coordinates and labels by their ystart coordinates
-		# Jos ei tehdä tätä sorttia niin saadaan erotusmatriisista yDiff suoraan lähekkäisten bounding boxien labelit
-		# sIdxs = np.argsort(BBs[2])
-		# BBs = BBs[:,sIdxs]
 
 		# Calculate the difference matrix for the starting y-coordinates between all bounding boxes
 		yDiff = HFun.diffMat( BBs[2,:] )

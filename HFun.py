@@ -62,26 +62,6 @@ class HFun:
 
 
 
-	# Get the coordinates and label numbers
-	@staticmethod
-	def getCoords( size, ran, lArray ):
-		# Get the coordinates of each pixel from each labeled patch
-		# First generate an array of zeros with the size of 3x the amount of ones in cI3
-		# Then populate the right positions with the coordinates of pixels and also their respective labels
-		xyl = np.zeros((3,size))
-
-		c = 0
-		for i in range(1, ran+1):
-			X,Y = np.where( lArray == i )
-			p = len(X)
-			
-			L = np.array([i]*p)
-			xyl[:,c:(c+p)] = np.vstack([X,Y,L])
-			c = c+p
-
-
-
-
 	@staticmethod
 	def remPatches( sizes, lArray, maxSize ):
 		oIdxs = np.where( sizes <= maxSize )[0] + 1
