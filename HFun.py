@@ -4,6 +4,8 @@ import math
 import numpy as np
 from scipy.ndimage.measurements import label
 
+import timeit
+
 class HFun:
 
 
@@ -63,12 +65,27 @@ class HFun:
 
 
 	@staticmethod
-	def remPatches( sizes, lArray, maxSize ):
+	def remPatches( sizes, lArray, maxSize, nFeat ):
 		oIdxs = np.where( sizes <= maxSize )[0] + 1
-		for i in range(len(oIdxs)):
-			lArray[ np.where( lArray == oIdxs[i] ) ] = 0
 
-		bwimage = lArray
+		##tic = timeit.default_timer()
+
+		idxs = np.zeros(nFeat + 1, np.uint8)
+		idxs[oIdxs] = 1
+		feats = idxs[lArray]
+
+		print lArray
+		print feats
+
+		bwimage = lArray ^ feats
+
+		#for i in range(len(oIdxs)):
+		#	lArray[ np.where( lArray == oIdxs[i] ) ] = 0
+
+		##toc = timeit.default_timer()
+		##print toc-tic
+
+		#bwimage = lArray
 		bwimage[ bwimage != 0 ] = 1
 
 		return bwimage
@@ -84,6 +101,8 @@ class HFun:
 
 		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
 		#im = np.copy( image ) # Remember to change image to im if this is enabled
+		print image.dtype
+		print image
 
 		lArrayTemp, nFeatTemp = label( image )
 

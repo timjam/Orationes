@@ -13,9 +13,7 @@ import matplotlib.cm as cm
 from OratUtils import OratUtils
 from HFun import HFun
 from scipy.misc import fromimage, toimage, imshow
-
 import numpy as np
-import timeit
 
 
 def osearch( img, txtf, sw ):

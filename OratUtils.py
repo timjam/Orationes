@@ -11,6 +11,8 @@ from scipy.ndimage.measurements import label
 from scipy import ndimage, signal
 from HFun import HFun
 
+import timeit
+
 class OratUtils:
 
 
@@ -152,30 +154,37 @@ class OratUtils:
 		cIm = np.copy(image)
 
 		# Take histogram of the image
-		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
+		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False ) #0.16s
 
 		# Binarize the image and invert it to a complement image
-		bwI = HFun.im2bw(cIm, 0.95)
-		compIm = (bwI[:,:] - 1)**2
+		bwI = HFun.im2bw(cIm, 0.95)	#
+		compIm = (bwI[:,:] - 1)**2 	# 0.12s
 
 		# Calculate connected components from the image
-		lArray, nFeat = label(compIm)
-
+		lArray, nFeat = label(compIm)	# 0.078s
+	
 		# Calculate the sizes of each labeled patch
-		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
+		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )	#0.10s
 
 		# Remove the largest patch from the image
 		# It is assumed that the largest patch is always the are that's left outside of the margins
 		maxInd = np.where( sizes == sizes.max())[0] + 1 	# Find the index which points to largest patchs
 		maxPixs = np.where( lArray == maxInd )				# Find the pixels which have the maxInd as label from labeled image
 		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
+		# ^0.047s
 
-
+		#tic = timeit.default_timer()
 		# Remove patches which size is smaller or equal to 50 pixels
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
-		compIm2 = HFun.remPatches( sizes, lArray, 50 )
+		compIm2 = HFun.remPatches( sizes, lArray, 50, nFeat )	# 52.7s!!!!!!
+
+		#toc = timeit.default_timer()
+		#print toc-tic
+
 		# Remove all patches which height spans over 70 pixels
-		compIm2 = HFun.remHighPatches( compIm2, 70 )
+		compIm2 = HFun.remHighPatches( compIm2, 70 )	# 32.7s!!!!!
+
+		
 
 
 		# Erode the image with vertical line shaped structure element
@@ -198,7 +207,7 @@ class OratUtils:
 
 
 		# Remove the dilated patches which size is smaller than 4000 pixels
-		cI4 = HFun.remPatches( sizes2, lArray2, 4000 )
+		cI4 = HFun.remPatches( sizes2, lArray2, 4000, nFeat2 )
 
 		# Label the latest binary image
 		lArray3, nFeat3 = label(cI4)
