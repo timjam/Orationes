@@ -10,7 +10,7 @@ def main():
 					[1, 0, 0, 0, 1, 0],
 					[0, 0, 0, 1, 1, 0],
 					[0, 0, 0, 0, 1, 1],
-					[1, 0, 0, 0, 1, 0]	])
+					[1, 0, 0, 0, 1, 0]	], np.int64)
 
 	print a
 	print
@@ -27,11 +27,11 @@ def main():
 	print sizes
 	print
 
-	mp = np.where(sizes==sizes.max())[0]+1 
+	mp = np.where(sizes == sizes.max())[0]+1 
 	print mp
 	print
 
-	max_index = np.zeros(numpatches + 1, np.uint8)
+	max_index = np.zeros(numpatches + 1, np.int32)
 	max_index[mp] = 1
 	print max_index
 	print
@@ -40,13 +40,15 @@ def main():
 	print max_feature
 	print
 
-	fin = a^max_feature
+	fin = max_feature^a
 
 	print fin
 	print
 
 	print fin.dtype
 	print
+
+	lA, npa = ndimage.label( fin, None, None )
 
 
 
