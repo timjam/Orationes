@@ -160,9 +160,6 @@ class OratUtils:
 		bwI = HFun.im2bw(cIm, 0.95)	#
 		compIm = (bwI[:,:] - 1)**2 	# 0.12s
 
-		print compIm.dtype
-		print
-
 		# Calculate connected components from the image
 		lArray, nFeat = label(compIm)	# 0.078s
 	
@@ -213,7 +210,7 @@ class OratUtils:
 		cI4 = HFun.remPatches( sizes2, lArray2, 4000, nFeat2 )
 
 		# Label the latest binary image
-		lArray3, nFeat3 = label(cI4)
+		lArray3, nFeat3 = label(cI4.astype( 'float' ))
 
 		BBs = np.zeros((5,nFeat3), dtype=np.int16)
 

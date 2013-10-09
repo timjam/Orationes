@@ -84,14 +84,15 @@ class HFun:
 
 
 	@staticmethod
-	def remHighPatches( im, height ):
+	def remHighPatches( image, height ):
 
 		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
-		image = np.copy( im ) # Remember to change image to im if this is enabled
-		print image.dtype
-		print image
+		#image = np.copy( im ) # Remember to change image to im if this is enabled
 
 		lArrayTemp, nFeatTemp = label( image )
+
+		print nFeatTemp
+		print
 
 		for i in range(1,nFeatTemp+1):
 
