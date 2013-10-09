@@ -160,6 +160,9 @@ class OratUtils:
 		bwI = HFun.im2bw(cIm, 0.95)	#
 		compIm = (bwI[:,:] - 1)**2 	# 0.12s
 
+		print compIm.dtype
+		print
+
 		# Calculate connected components from the image
 		lArray, nFeat = label(compIm)	# 0.078s
 	
@@ -173,18 +176,18 @@ class OratUtils:
 		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
 		# ^0.047s
 
-		#tic = timeit.default_timer()
 		# Remove patches which size is smaller or equal to 50 pixels
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
-		compIm2 = HFun.remPatches( sizes, lArray, 50, nFeat )	# 52.7s!!!!!!
+		compImtmp = HFun.remPatches( sizes, lArray, 50, nFeat )	# 52.7s!!!!!!
 
-		#toc = timeit.default_timer()
-		#print toc-tic
+		tic2 = timeit.default_timer()
 
 		# Remove all patches which height spans over 70 pixels
-		compIm2 = HFun.remHighPatches( compIm2, 70 )	# 32.7s!!!!!
+		compIm2 = HFun.remHighPatches( compImtmp.astype( 'float' ), 70 )	# 32.7s!!!!!
 
-		
+		toc2 = timeit.default_timer()
+		print toc2-tic2
+		print
 
 
 		# Erode the image with vertical line shaped structure element
@@ -202,7 +205,7 @@ class OratUtils:
 
 
 		# Label the new morphologically operated image
-		lArray2, nFeat2 = label( cI3 )
+		lArray2, nFeat2 = label( cI3.astype( 'float' ) )
 		sizes2 = ndimage.sum( cI3, lArray2, range(1, nFeat2+1) )
 
 

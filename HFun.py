@@ -68,24 +68,11 @@ class HFun:
 	def remPatches( sizes, lArray, maxSize, nFeat ):
 		oIdxs = np.where( sizes <= maxSize )[0] + 1
 
-		##tic = timeit.default_timer()
-
 		idxs = np.zeros(nFeat + 1, np.uint8)
 		idxs[oIdxs] = 1
 		feats = idxs[lArray]
 
-		print lArray
-		print feats
-
 		bwimage = lArray ^ feats
-
-		#for i in range(len(oIdxs)):
-		#	lArray[ np.where( lArray == oIdxs[i] ) ] = 0
-
-		##toc = timeit.default_timer()
-		##print toc-tic
-
-		#bwimage = lArray
 		bwimage[ bwimage != 0 ] = 1
 
 		return bwimage
@@ -97,10 +84,10 @@ class HFun:
 
 
 	@staticmethod
-	def remHighPatches( image, height ):
+	def remHighPatches( im, height ):
 
 		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
-		#im = np.copy( image ) # Remember to change image to im if this is enabled
+		image = np.copy( im ) # Remember to change image to im if this is enabled
 		print image.dtype
 		print image
 
@@ -111,7 +98,7 @@ class HFun:
 			A = np.argwhere( lArrayTemp== i )
 			(y1, x1), (y2, x2) = A.min(0), A.max(0)
 			
-			if( y2-y1 > 70 ):
+			if( y2-y1 > height ):
 				lArrayTemp[ lArrayTemp == i ] = 0
 
 
