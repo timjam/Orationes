@@ -68,12 +68,13 @@ class HFun:
 	def remPatches( sizes, lArray, maxSize, nFeat ):
 		oIdxs = np.where( sizes <= maxSize )[0] + 1
 
-		idxs = np.zeros(nFeat + 1, np.uint8)
+		idxs = np.zeros(nFeat + 1, np.int64)
 		idxs[oIdxs] = 1
 		feats = idxs[lArray]
 
+		lArray[ lArray != 0 ] = 1
 		bwimage = lArray ^ feats
-		bwimage[ bwimage != 0 ] = 1
+		#bwimage[ bwimage != 0 ] = 1
 
 		return bwimage
 

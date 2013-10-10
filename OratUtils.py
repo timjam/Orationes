@@ -187,8 +187,6 @@ class OratUtils:
 		toc = timeit.default_timer()
 		print toc-tic
 
-		return
-
 		# Erode the image with vertical line shaped structure element
 		SEe = np.zeros((5,5)).astype('bool')
 		SEe[:,2] = 1
