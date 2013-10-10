@@ -13,47 +13,62 @@ def main():
 					[1, 0, 0, 0, 1, 0, 0],
 					[1, 1, 0, 0, 0, 1, 1]	], np.int64)
 
+	print "a"
 	print a
-	print
-
 	print a.dtype
+	print
 
 	labeled_array, numpatches = ndimage.label(a)
 
+	print "labeled_array"
 	print labeled_array
 	print
 
-	# sizes = ndimage.sum(a,labeled_array,range(1,numpatches+1))
-
-	# print sizes
+	# A = np.argwhere( labeled_array == [1,2] )
+	# print A
+	# print A.min(0)
+	# print A.max(0)
 	# print
 
-	# mp = np.where(sizes == sizes.max())[0]+1 
-	# print mp
-	# print
+	sizes = ndimage.sum(a,labeled_array,range(1,numpatches+1))
 
-	# max_index = np.zeros(numpatches + 1, np.int32)
-	# max_index[mp] = 1
-	# print max_index
-	# print
+	print "sizes"
+	print sizes
+	print
 
-	# max_feature = max_index[labeled_array]
-	# print max_feature
-	# print
+	mp = np.where(sizes < 4)[0]+1 
+	print "mp"
+	print mp
+	print
 
-	# fin = max_feature^a
+	max_index = np.zeros(numpatches + 1, np.int32)
+	print "max_index"
+	print max_index
+	print
 
-	# print fin
-	# print
+	max_index[mp] = 1
+	print "max_index after max_index[mp]"
+	print max_index
+	print
 
-	# print fin.dtype
-	# print
+	max_feature = max_index[labeled_array] # ndarray advanced indexing!
+	print "max_feature"
+	print max_feature
+	print
 
-	# lA, npa = ndimage.label( fin, None, None )
+	fin = max_feature^a
 
-	# print lA
-	# print lA.dtype
-	# print
+	print "fin"
+	print fin
+	print fin.dtype
+	print
+
+	lA, npa = ndimage.label( fin, None, None )
+
+	print "lA"
+	print lA
+	print lA.dtype
+	print
 
 
 
