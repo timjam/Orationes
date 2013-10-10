@@ -50,6 +50,10 @@ def main():
 
 	lA, npa = ndimage.label( fin, None, None )
 
+	print lA
+	print lA.dtype
+	print
+
 
 
 	return

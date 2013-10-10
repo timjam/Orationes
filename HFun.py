@@ -91,9 +91,6 @@ class HFun:
 
 		lArrayTemp, nFeatTemp = label( image )
 
-		print nFeatTemp
-		print
-
 		for i in range(1,nFeatTemp+1):
 
 			A = np.argwhere( lArrayTemp== i )
