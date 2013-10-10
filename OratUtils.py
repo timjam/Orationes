@@ -176,17 +176,11 @@ class OratUtils:
 
 		# Remove patches which size is smaller or equal to 50 pixels
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
-		compImtmp = HFun.remPatches( sizes, lArray, 50, nFeat ).astype( np.int64 )	# 52.7s with loop
-																					# 0.066 with byte masking
-		tic = timeit.default_timer()
+		compImtmp = HFun.remPatches( sizes, lArray, 50, nFeat )	# 52.7s with loop
 
 		# Remove all patches which height spans over 70 pixels
-		compIm2 = HFun.remHighPatches( compImtmp, 70 ).astype( np.bool )	# 32.7s if remPatches done with lopp
+		compIm2 = HFun.remHighPatches( compImtmp, 70 )	# 32.7s if remPatches done with lopp
 																			# 93.4s if remPatches done with byte masking
-
-		toc = timeit.default_timer()
-		print toc-tic
-
 		# Erode the image with vertical line shaped structure element
 		SEe = np.zeros((5,5)).astype('bool')
 		SEe[:,2] = 1
@@ -254,9 +248,6 @@ class OratUtils:
 		# Get unique bounding boxes thus removing the possible duplicate BBs
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
-
-		plt.imshow( cI4, cmap=cm.Greys_r )
-		plt.show()
 
 		return BBs
 

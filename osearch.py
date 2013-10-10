@@ -15,10 +15,12 @@ from HFun import HFun
 from scipy.misc import fromimage, toimage, imshow
 import numpy as np
 
+import timeit
+
 
 def osearch( img, txtf, sw ):
 
-	
+	tic = timeit.default_timer()
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -176,6 +178,9 @@ def osearch( img, txtf, sw ):
 		cIm[y2, x1:x2] = 0
 		cIm[y1:y2, x1] = 0
 		cIm[y1:y2, x2] = 0
+
+	toc = timeit.default_timer()
+	print toc - tic
 
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned

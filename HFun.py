@@ -76,7 +76,7 @@ class HFun:
 		bwimage = lArray ^ feats
 		#bwimage[ bwimage != 0 ] = 1
 
-		return bwimage
+		return bwimage.astype( np.int64 )
 
 
 	@staticmethod
@@ -105,7 +105,7 @@ class HFun:
 		image[ image != 0] = 1
 
 
-		return image
+		return image.astype( np.bool )
 
 
 
