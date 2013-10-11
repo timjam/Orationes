@@ -106,7 +106,15 @@ def osearch( img, txtf, sw ):
 		#print cBB
 		#print "*****\n"
 
-		temp = bboxes[:,bboxes[2,:] == bbYs[ cBB[0] ] ] #cBBYstarts before
+		try:
+			temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
+		except IndexError:
+			print cBB
+			print i
+			print minlim
+			print slines[i]
+			print bbYs
+
 
 		coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
 		coords[1,i] = temp[1]	# Sisältää kyseisen bounding boxin xstart koordinaatin

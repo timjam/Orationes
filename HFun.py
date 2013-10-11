@@ -94,7 +94,7 @@ class HFun:
 
 		for i in range(1,nFeatTemp+1):
 
-			A = np.argwhere( lArrayTemp== i )
+			A = np.argwhere( lArrayTemp == i )
 			(y1, x1), (y2, x2) = A.min(0), A.max(0)
 			
 			if( y2-y1 > height ):

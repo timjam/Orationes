@@ -180,7 +180,7 @@ class OratUtils:
 
 		# Remove all patches which height spans over 70 pixels
 		compIm2 = HFun.remHighPatches( compImtmp, 70 )	# 32.7s if remPatches done with lopp
-																			# 93.4s if remPatches done with byte masking
+
 		# Erode the image with vertical line shaped structure element
 		SEe = np.zeros((5,5)).astype('bool')
 		SEe[:,2] = 1

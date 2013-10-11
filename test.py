@@ -24,11 +24,19 @@ def main():
 	print labeled_array
 	print
 
+	labArYVals = np.where( labeled_array == 2)[0]
+	print labArYVals.max() - labArYVals.min()
+
 	# A = np.argwhere( labeled_array == [1,2] )
 	# print A
 	# print A.min(0)
 	# print A.max(0)
 	# print
+	sizes1 = np.array([0,1,2,3,4])[labeled_array]
+	print "sizes1"
+	print sizes1
+	print
+
 
 	sizes = ndimage.sum(a,labeled_array,range(1,numpatches+1))
 
