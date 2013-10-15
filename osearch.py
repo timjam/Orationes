@@ -20,7 +20,6 @@ import timeit
 
 def osearch( img, txtf, sw ):
 
-	tic = timeit.default_timer()
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -52,18 +51,15 @@ def osearch( img, txtf, sw ):
 	tI = fromimage(grayimage) # From PIL to scipy image
 	tI = HFun.im2float(tI) # From uint8 to float
 
-	tic = timeit.default_timer()
+
 	# Filter the image and convert it back to grayscale uint8 image
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )	
 	filteredIm = HFun.gray2uint8(filteredIm) # From float to uint8
 
-	toc = timeit.default_timer()
-	print toc-tic
-
-
 
 	# Stretch the contrast of the image
 	cIm = OratUtils.contStretch( filteredIm, 20 , ImHeight )
+
 
 	# Get the bounding boxes covering each line
 	# Put in its own thread?
@@ -181,9 +177,6 @@ def osearch( img, txtf, sw ):
 		cIm[y2, x1:x2] = 0
 		cIm[y1:y2, x1] = 0
 		cIm[y1:y2, x2] = 0
-
-	toc = timeit.default_timer()
-	print toc - tic
 
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned

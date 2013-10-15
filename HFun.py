@@ -75,7 +75,6 @@ class HFun:
 
 		lArray[ lArray != 0 ] = 1
 		bwimage = lArray ^ feats
-		#bwimage[ bwimage != 0 ] = 1
 
 		return bwimage.astype( np.int64 )
 
@@ -88,24 +87,8 @@ class HFun:
 	@staticmethod
 	def remHighPatches( image, height ):
 
-		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
-		#image = np.copy( im ) # Remember to change image to im if this is enabled
 
 		lArrayTemp, nFeatTemp = label( image )
-		# print image.shape[0]
-		# print nFeatTemp
-
-		# for i in range(1,nFeatTemp+1):
-
-		# 	A = np.argwhere( lArrayTemp == i ) # ~0.025s per kerta
-		# 	(y1, x1), (y2, x2) = A.min(0), A.max(0)
-			
-		# 	if( y2-y1 > height ):
-		# 		lArrayTemp[ lArrayTemp == i ] = 0
-
-
-		# image = lArrayTemp
-		# image[ image != 0] = 1
 
 		pixs = np.array([], np.int64)
 
@@ -121,7 +104,7 @@ class HFun:
 		fin = mf^image
 
 
-		return fin.astype( np.bool ) #image.astype...
+		return fin.astype( np.bool )
 
 
 

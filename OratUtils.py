@@ -117,7 +117,7 @@ class OratUtils:
 
 
 
-
+		
 		Xd = np.zeros( (h,l), np.float )
 		Yd = np.zeros( (l,h), np.float )
 		#Dd = np.zeros( (h,l), np.float )
@@ -126,21 +126,21 @@ class OratUtils:
 		Yd[:,:] = np.power( np.arange(h, dtype=np.float)-H/2,2 )
 		#Dd = np.power( Xd + np.transpose(Yd), 0.5 )
 
+		
 		F = 1/( 1 + np.power( D/np.power( Xd + np.transpose(Yd), 0.5 ),2*N ) )
 
 		aL = 0.949
 		aH = 1.51
 
-
 		F[:,:] = ( F[:,:] * (aH - aL) ) + aL
 
 		im_l = np.log( 1+img )
 
-		im_f = np.fft.fft2( im_l )
+		im_f = np.fft.fft2( im_l )	#2.7s
 
 		im_nf = im_f * F # Computes element by element multiplication c[0,0] = a[0,0]*b[0,0] etc
 
-		im_n = np.abs( np.fft.ifft2( im_nf ) )
+		im_n = np.abs( np.fft.ifft2( im_nf ) ) # 2.85s
 
 		im_e = np.exp( im_n )
 
