@@ -79,7 +79,7 @@ class OratUtils:
 
 		warnings.filterwarnings('error')
 
-		A = np.zeros( (h,l), np.float )
+		#A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
 		H = float(h)
@@ -87,19 +87,46 @@ class OratUtils:
 		D = float(d)
 		N = float(n)
 
-		for i in range(h):
-			for j in range(l):
-				try:
+		# for i in range(h):
+		# 	for j in range(l):
+		# 		try:
 					
-					I = float(i)
-					J = float(j)
+		# 			I = float(i)
+		# 			J = float(j)
 					
-					A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
-					F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
+		# 			A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
+		# 			F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
 					
-				except Warning:
-					print '***** Warning divide by zero happened in Butterworth filtering *****'
+		# 		except Warning:
+		# 			print '***** Warning divide by zero happened in Butterworth filtering *****'
 
+
+
+		# for i in range(h):
+		# 	try:
+		# 		I = float(i)
+		# 		#A[i,:] = float(   np.power(  np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 ), 0.5  )   )
+		# 		#F[i,:] = float(   1/(  1 + np.power(D/A[i,:], 2*N)  )   )
+
+		# 		#print np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 )
+		# 		#print np.power(  np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 ), 0.5  ).astype( np.float )
+
+		# 		F[i,:] = 1/(  1 + np.power(D/  np.power(  np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 ), 0.5  )  , 2*N)  )
+		# 	except Warning:
+		# 		print '***** Warning divide by zero happened in Butterworth filtering *****'
+
+
+
+
+		Xd = np.zeros( (h,l), np.float )
+		Yd = np.zeros( (l,h), np.float )
+		#Dd = np.zeros( (h,l), np.float )
+
+		Xd[:,:] = np.power( np.arange(l, dtype=np.float)-L/2,2 )
+		Yd[:,:] = np.power( np.arange(h, dtype=np.float)-H/2,2 )
+		#Dd = np.power( Xd + np.transpose(Yd), 0.5 )
+
+		F = 1/( 1 + np.power( D/np.power( Xd + np.transpose(Yd), 0.5 ),2*N ) )
 
 		aL = 0.949
 		aH = 1.51

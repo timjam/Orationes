@@ -114,10 +114,12 @@ class HFun:
 
 		# v is a list of all the starting y-coordinates in a vector
 
-		yDiff = np.zeros((len(v), len(v)), np.int16)
+		lenv = len(v)
+
+		yDiff = np.zeros((lenv, lenv), np.int16)
 		yDiff[:,:] = v
 
-		for i in range(len(v)):
+		for i in range(lenv):
 			yDiff[:,i] = yDiff[:,i]-v
 
 			# Sets the diagonal components to -1 so that if the difference between two values is zero, they are detected as values on the same y-coordinate

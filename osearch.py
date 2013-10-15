@@ -52,11 +52,13 @@ def osearch( img, txtf, sw ):
 	tI = fromimage(grayimage) # From PIL to scipy image
 	tI = HFun.im2float(tI) # From uint8 to float
 
-	
+	tic = timeit.default_timer()
 	# Filter the image and convert it back to grayscale uint8 image
 	filteredIm = OratUtils.hfilter( tI, 620, ImHeight, ImLength, 20 )	
 	filteredIm = HFun.gray2uint8(filteredIm) # From float to uint8
 
+	toc = timeit.default_timer()
+	print toc-tic
 
 
 
@@ -106,14 +108,7 @@ def osearch( img, txtf, sw ):
 		#print cBB
 		#print "*****\n"
 
-		try:
-			temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
-		except IndexError:
-			print cBB
-			print i
-			print minlim
-			print slines[i]
-			print bbYs
+		temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
 
 
 		coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
