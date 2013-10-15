@@ -3,6 +3,7 @@
 import math
 import numpy as np
 from scipy.ndimage.measurements import label
+from scipy import ndimage
 
 import timeit
 
@@ -91,21 +92,36 @@ class HFun:
 		#image = np.copy( im ) # Remember to change image to im if this is enabled
 
 		lArrayTemp, nFeatTemp = label( image )
+		# print image.shape[0]
+		# print nFeatTemp
 
-		for i in range(1,nFeatTemp+1):
+		# for i in range(1,nFeatTemp+1):
 
-			A = np.argwhere( lArrayTemp == i )
-			(y1, x1), (y2, x2) = A.min(0), A.max(0)
+		# 	A = np.argwhere( lArrayTemp == i ) # ~0.025s per kerta
+		# 	(y1, x1), (y2, x2) = A.min(0), A.max(0)
 			
-			if( y2-y1 > height ):
-				lArrayTemp[ lArrayTemp == i ] = 0
+		# 	if( y2-y1 > height ):
+		# 		lArrayTemp[ lArrayTemp == i ] = 0
 
 
-		image = lArrayTemp
-		image[ image != 0] = 1
+		# image = lArrayTemp
+		# image[ image != 0] = 1
+
+		pixs = np.array([], np.int64)
+
+		for i in range(lArrayTemp.shape[1]):
+
+			sizes = ndimage.sum(image[:,i], lArrayTemp[:,i], range(1,nFeatTemp+1))
+			p = np.where( sizes >= height )[0]+1
+			pixs = np.append( pixs, p )
+
+		mi = np.zeros( nFeatTemp+1, np.int64 )
+		mi[pixs] = 1
+		mf = mi[lArrayTemp]
+		fin = mf^image
 
 
-		return image.astype( np.bool )
+		return fin.astype( np.bool ) #image.astype...
 
 
 
