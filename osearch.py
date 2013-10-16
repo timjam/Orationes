@@ -75,18 +75,12 @@ def osearch( img, txtf, sw ):
 	# Get the lines that are used to search the possible hits
 	slines = OratUtils.padlines( imlines, rlines, charlines ) # slines - [a1, a2, ..., an], n == number of unique rlines
 
-	#print slines
-
 	# Find the correspondences between the lines which are used for searching and the bounding boxes
 
 	bbYs = bboxes[2,:]
 	rounds = slines.shape[0]
 
 	coords = np.zeros((7,rounds), np.int16)
-
-	#print bboxes
-
-	#print charcount
 
 	for i in range( rounds ):
 
@@ -99,10 +93,7 @@ def osearch( img, txtf, sw ):
 		cBBYstarts = bbYs[ bbYs > minlim ]
 		cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
 
-		#cBB = np.where( (bbYs > minlim) and (bbYs < slines[i]) )
 		cBB = HFun.indices( bbYs, lambda x: ( x > minlim and x < slines[i] ) )
-		#print cBB
-		#print "*****\n"
 
 		temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
 
@@ -153,13 +144,6 @@ def osearch( img, txtf, sw ):
 				
 			except IndexError:
 				pass
-				# print rightbound
-				# print leftbound
-				# print ccount
-				# print "Y: " + str(Y)
-				# print "X: " + str(X)
-				# print "Fail"
-				# print
 				
 
 			xx.append( X )
@@ -189,14 +173,6 @@ def osearch( img, txtf, sw ):
 
 	plt.imshow( oI )
 	plt.show()
-
-	# np.savetxt( 'testres1.txt', charcount, delimiter=",", fmt="%i" )
-	# np.savetxt( 'testres2.txt', imlines.astype( np.int16 ), delimiter=",", fmt="%i" )
-	# np.savetxt( 'testres3.txt', slines.astype( np.int16 ), delimiter=",", fmt="%i" )
-	# np.savetxt( 'testres4.txt', rlines.astype( np.int16 ), delimiter=",", fmt="%i" )
-	# np.savetxt( 'testres5.txt', bboxes.astype( np.int16 ), delimiter=",", fmt="%i" )
-	
-	
 
 	return
 

@@ -79,53 +79,18 @@ class OratUtils:
 
 		warnings.filterwarnings('error')
 
-		#A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
 		H = float(h)
 		L = float(l)
 		D = float(d)
 		N = float(n)
-
-		# for i in range(h):
-		# 	for j in range(l):
-		# 		try:
-					
-		# 			I = float(i)
-		# 			J = float(j)
-					
-		# 			A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
-		# 			F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
-					
-		# 		except Warning:
-		# 			print '***** Warning divide by zero happened in Butterworth filtering *****'
-
-
-
-		# for i in range(h):
-		# 	try:
-		# 		I = float(i)
-		# 		#A[i,:] = float(   np.power(  np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 ), 0.5  )   )
-		# 		#F[i,:] = float(   1/(  1 + np.power(D/A[i,:], 2*N)  )   )
-
-		# 		#print np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 )
-		# 		#print np.power(  np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 ), 0.5  ).astype( np.float )
-
-		# 		F[i,:] = 1/(  1 + np.power(D/  np.power(  np.power( I-H/2, 2 ) + np.power( np.arange(l, dtype=np.float) - L/2, 2 ), 0.5  )  , 2*N)  )
-		# 	except Warning:
-		# 		print '***** Warning divide by zero happened in Butterworth filtering *****'
-
-
-
-		
+	
 		Xd = np.zeros( (h,l), np.float )
 		Yd = np.zeros( (l,h), np.float )
-		#Dd = np.zeros( (h,l), np.float )
 
 		Xd[:,:] = np.power( np.arange(l, dtype=np.float)-L/2,2 )
 		Yd[:,:] = np.power( np.arange(h, dtype=np.float)-H/2,2 )
-		#Dd = np.power( Xd + np.transpose(Yd), 0.5 )
-
 		
 		F = 1/( 1 + np.power( D/np.power( Xd + np.transpose(Yd), 0.5 ),2*N ) )
 
@@ -322,7 +287,6 @@ class OratUtils:
 	@staticmethod
 	def processlines( charcount, imlines ):
 
-		#print imlines.shape[0]
 		linenum = len(charcount)
 		nofound = linenum - imlines.shape[0]
 
@@ -344,9 +308,6 @@ class OratUtils:
 		else:
 			return llines
 
-
-		#print charcount
-
 		return llines
 
 
@@ -366,9 +327,6 @@ class OratUtils:
 
 		# nlines is the number of lines calculated from the XML file
 		# The corrected lines are gathered into the rlines
-
-		#print llines.shape[0]
-		#print llines.shape[1]
 
 		nlines = llines.shape[0]
 		rlines = np.zeros((nlines, 1))
@@ -392,7 +350,6 @@ class OratUtils:
 				else:
 					rlines[i,0] = np.nan
 
-			#print rlines
 
 			# The F is happening here?
 			# Some sort of forcing the lines to be something if there are more lines in the xml than what's found from the image
@@ -404,12 +361,6 @@ class OratUtils:
 			# These values/indexes are used to choose only those lines that are needed in the search
 			cl = np.unique( np.asarray([item for sublist in charlines for item in sublist]) )
 
-			#print charlines
-			#print cl
-
 			wantedlines = imlines[ cl ]
-
-
-		#print wantedlines
 
 		return wantedlines
