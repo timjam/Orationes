@@ -3,6 +3,9 @@
 import math
 import numpy as np
 from scipy.ndimage.measurements import label
+from scipy import ndimage
+
+import timeit
 
 class HFun:
 
@@ -63,15 +66,17 @@ class HFun:
 
 
 	@staticmethod
-	def remPatches( sizes, lArray, maxSize ):
+	def remPatches( sizes, lArray, maxSize, nFeat ):
 		oIdxs = np.where( sizes <= maxSize )[0] + 1
-		for i in range(len(oIdxs)):
-			lArray[ np.where( lArray == oIdxs[i] ) ] = 0
 
-		bwimage = lArray
-		bwimage[ bwimage != 0 ] = 1
+		idxs = np.zeros(nFeat + 1, np.int64)
+		idxs[oIdxs] = 1
+		feats = idxs[lArray]
 
-		return bwimage
+		lArray[ lArray != 0 ] = 1
+		bwimage = lArray ^ feats
+
+		return bwimage.astype( np.int64 )
 
 
 	@staticmethod
@@ -82,25 +87,24 @@ class HFun:
 	@staticmethod
 	def remHighPatches( image, height ):
 
-		# No need to copy this array, because all the changes are made into the right memory array that is the compIm2
-		#im = np.copy( image ) # Remember to change image to im if this is enabled
 
 		lArrayTemp, nFeatTemp = label( image )
 
-		for i in range(1,nFeatTemp+1):
+		pixs = np.array([], np.int64)
 
-			A = np.argwhere( lArrayTemp== i )
-			(y1, x1), (y2, x2) = A.min(0), A.max(0)
-			
-			if( y2-y1 > 70 ):
-				lArrayTemp[ lArrayTemp == i ] = 0
+		for i in range(lArrayTemp.shape[1]):
+
+			sizes = ndimage.sum(image[:,i], lArrayTemp[:,i], range(1,nFeatTemp+1))
+			p = np.where( sizes >= height )[0]+1
+			pixs = np.append( pixs, p )
+
+		mi = np.zeros( nFeatTemp+1, np.int64 )
+		mi[pixs] = 1
+		mf = mi[lArrayTemp]
+		fin = mf^image
 
 
-		image = lArrayTemp
-		image[ image != 0] = 1
-
-
-		return image
+		return fin.astype( np.bool )
 
 
 
@@ -109,10 +113,12 @@ class HFun:
 
 		# v is a list of all the starting y-coordinates in a vector
 
-		yDiff = np.zeros((len(v), len(v)), np.int16)
+		lenv = len(v)
+
+		yDiff = np.zeros((lenv, lenv), np.int16)
 		yDiff[:,:] = v
 
-		for i in range(len(v)):
+		for i in range(lenv):
 			yDiff[:,i] = yDiff[:,i]-v
 
 			# Sets the diagonal components to -1 so that if the difference between two values is zero, they are detected as values on the same y-coordinate

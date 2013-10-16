@@ -11,6 +11,8 @@ from scipy.ndimage.measurements import label
 from scipy import ndimage, signal
 from HFun import HFun
 
+import timeit
+
 class OratUtils:
 
 
@@ -77,41 +79,33 @@ class OratUtils:
 
 		warnings.filterwarnings('error')
 
-		A = np.zeros( (h,l), np.float )
 		F = np.zeros( (h,l), np.float )
 
 		H = float(h)
 		L = float(l)
 		D = float(d)
 		N = float(n)
+	
+		Xd = np.zeros( (h,l), np.float )
+		Yd = np.zeros( (l,h), np.float )
 
-		for i in range(h):
-			for j in range(l):
-				try:
-					
-					I = float(i)
-					J = float(j)
-					
-					A[i,j] = float(math.sqrt( math.pow( ( I-H/2 ),2 ) + math.pow( ( J-L/2 ),2 ) )) # Distance from the center of the image
-					F[i,j] = float(1/( 1 + math.pow( ( D/( A[i,j] ) ) , (2*N) )))
-					
-				except Warning:
-					print '***** Warning divide by zero happened in Butterworth filtering *****'
-
+		Xd[:,:] = np.power( np.arange(l, dtype=np.float)-L/2,2 )
+		Yd[:,:] = np.power( np.arange(h, dtype=np.float)-H/2,2 )
+		
+		F = 1/( 1 + np.power( D/np.power( Xd + np.transpose(Yd), 0.5 ),2*N ) )
 
 		aL = 0.949
 		aH = 1.51
-
 
 		F[:,:] = ( F[:,:] * (aH - aL) ) + aL
 
 		im_l = np.log( 1+img )
 
-		im_f = np.fft.fft2( im_l )
+		im_f = np.fft.fft2( im_l )	#2.7s
 
 		im_nf = im_f * F # Computes element by element multiplication c[0,0] = a[0,0]*b[0,0] etc
 
-		im_n = np.abs( np.fft.ifft2( im_nf ) )
+		im_n = np.abs( np.fft.ifft2( im_nf ) ) # 2.85s
 
 		im_e = np.exp( im_n )
 
@@ -152,31 +146,32 @@ class OratUtils:
 		cIm = np.copy(image)
 
 		# Take histogram of the image
-		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False )
+		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False ) #0.16s
 
 		# Binarize the image and invert it to a complement image
-		bwI = HFun.im2bw(cIm, 0.95)
-		compIm = (bwI[:,:] - 1)**2
+		bwI = HFun.im2bw(cIm, 0.95)	#
+		compIm = (bwI[:,:] - 1)**2 	# 0.12s
+		compIm = compIm.astype( np.int64 )
 
 		# Calculate connected components from the image
-		lArray, nFeat = label(compIm)
-
+		lArray, nFeat = label(compIm)	# 0.078s
+	
 		# Calculate the sizes of each labeled patch
-		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
+		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )	#0.10s
 
 		# Remove the largest patch from the image
 		# It is assumed that the largest patch is always the are that's left outside of the margins
 		maxInd = np.where( sizes == sizes.max())[0] + 1 	# Find the index which points to largest patchs
 		maxPixs = np.where( lArray == maxInd )				# Find the pixels which have the maxInd as label from labeled image
 		lArray[ maxPixs ] = 0								# Set the pixels from the largest patch to zero
-
+		# ^0.047s
 
 		# Remove patches which size is smaller or equal to 50 pixels
 		# Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s
-		compIm2 = HFun.remPatches( sizes, lArray, 50 )
-		# Remove all patches which height spans over 70 pixels
-		compIm2 = HFun.remHighPatches( compIm2, 70 )
+		compImtmp = HFun.remPatches( sizes, lArray, 50, nFeat )	# 52.7s with loop
 
+		# Remove all patches which height spans over 70 pixels
+		compIm2 = HFun.remHighPatches( compImtmp, 70 )	# 32.7s if remPatches done with lopp
 
 		# Erode the image with vertical line shaped structure element
 		SEe = np.zeros((5,5)).astype('bool')
@@ -198,7 +193,7 @@ class OratUtils:
 
 
 		# Remove the dilated patches which size is smaller than 4000 pixels
-		cI4 = HFun.remPatches( sizes2, lArray2, 4000 )
+		cI4 = HFun.remPatches( sizes2, lArray2, 4000, nFeat2 )
 
 		# Label the latest binary image
 		lArray3, nFeat3 = label(cI4)
@@ -292,7 +287,6 @@ class OratUtils:
 	@staticmethod
 	def processlines( charcount, imlines ):
 
-		#print imlines.shape[0]
 		linenum = len(charcount)
 		nofound = linenum - imlines.shape[0]
 
@@ -314,9 +308,6 @@ class OratUtils:
 		else:
 			return llines
 
-
-		#print charcount
-
 		return llines
 
 
@@ -336,9 +327,6 @@ class OratUtils:
 
 		# nlines is the number of lines calculated from the XML file
 		# The corrected lines are gathered into the rlines
-
-		#print llines.shape[0]
-		#print llines.shape[1]
 
 		nlines = llines.shape[0]
 		rlines = np.zeros((nlines, 1))
@@ -362,7 +350,6 @@ class OratUtils:
 				else:
 					rlines[i,0] = np.nan
 
-			#print rlines
 
 			# The F is happening here?
 			# Some sort of forcing the lines to be something if there are more lines in the xml than what's found from the image
@@ -374,12 +361,6 @@ class OratUtils:
 			# These values/indexes are used to choose only those lines that are needed in the search
 			cl = np.unique( np.asarray([item for sublist in charlines for item in sublist]) )
 
-			#print charlines
-			#print cl
-
 			wantedlines = imlines[ cl ]
-
-
-		#print wantedlines
 
 		return wantedlines
