@@ -14,6 +14,7 @@ from OratUtils import OratUtils
 from HFun import HFun
 from scipy.misc import fromimage, toimage, imshow
 import numpy as np
+import json
 
 import timeit
 
@@ -136,14 +137,15 @@ def osearch( img, txtf, sw ):
 			X = charpos[i][j] * ( leftbound - rightbound )/ccount + rightbound
 			Y = linecenter
 
-			try:
-				oI[ Y-20, X-10:X+50] = [0, 255, 0]
-				oI[ Y+20, X-10:X+50] = [0, 255, 0]
-				oI[ Y-20:Y+20, X-10] = [0, 255, 0]
-				oI[ Y-20:Y+20, X+50] = [0, 255, 0]
+			#try:
+				#oI[ Y-20, X-10:X+50] = [0, 255, 0]
+				#oI[ Y+20, X-10:X+50] = [0, 255, 0]
+				#oI[ Y-20:Y+20, X-10] = [0, 255, 0]
+				#oI[ Y-20:Y+20, X+50] = [0, 255, 0]
+
 				
-			except IndexError:
-				pass
+			#except IndexError:
+			#	pass
 				
 
 			xx.append( X )
@@ -151,28 +153,37 @@ def osearch( img, txtf, sw ):
 
 
 
-	for i in range(bboxes.shape[1]):
-		x1 = bboxes[1,i]
-		y1 = bboxes[2,i]
-		x2 = bboxes[3,i]
-		y2 = bboxes[4,i]
+	#for i in range(bboxes.shape[1]):
+	#	x1 = bboxes[1,i]
+	#	y1 = bboxes[2,i]
+	#	x2 = bboxes[3,i]
+	#	y2 = bboxes[4,i]
 
-		cIm[y1, x1:x2] = 0
-		cIm[y2, x1:x2] = 0
-		cIm[y1:y2, x1] = 0
-		cIm[y1:y2, x2] = 0
+	#	cIm[y1, x1:x2] = 0
+	#	cIm[y2, x1:x2] = 0
+	#	cIm[y1:y2, x1] = 0
+	#	cIm[y1:y2, x2] = 0
 
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
 	# Encode the list into sensible json package or json-string
-	f = plt.figure()
-	f.add_subplot(1,2,1); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Eka ')
-	f.add_subplot(1,2,2); plt.imshow( cIm, cmap=cm.Greys_r ); plt.title(' Toka ')
-	plt.show()
+	startx = np.asarray(xx)-10
+	starty = np.asarray(yy)-20
+	endx = np.asarray(xx)+50
+	endy = np.asarray(yy)+20
 
-	plt.imshow( oI )
-	plt.show()
+	jsondata = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]
+	print json.dumps(jsondata)
+
+
+	#f = plt.figure()
+	#f.add_subplot(1,2,1); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Eka ')
+	#f.add_subplot(1,2,2); plt.imshow( cIm, cmap=cm.Greys_r ); plt.title(' Toka ')
+	#plt.show()
+
+	#plt.imshow( oI )
+	#plt.show()
 
 	return
 
