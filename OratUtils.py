@@ -248,7 +248,7 @@ class OratUtils:
 
 
 	@staticmethod
-	def poormanradon( image, iname, height ):
+	def poormanradon( image, iname, height, debug ):
 
 		img = np.copy(image) #HFun.im2bw(image, 0.95)
 
@@ -259,9 +259,15 @@ class OratUtils:
 				upLim = 290
 				downLim = 2400
 		except ValueError:
-			upLim = 200
-			downLim = 2440 # 2520
+			upLim = 320 #200
+			downLim = 2428 # 2520 # 2440
+			leftLim = 270
+			rightLim = 1460
 
+		img[0:upLim, :] = 255
+		img[downLim::,:] = 255
+		img[:, 0:leftLim] = 255
+		img[:, rightLim::]= 255
 
 		linesums = np.zeros((height,1))
 
@@ -269,15 +275,23 @@ class OratUtils:
 			linesums[i,0] = sum(img[i,:])
 
 		inv = (-1)*linesums
+		minv = inv.mean()
+		#inv[ inv > minv+30000 ] = minv-30000
 
-		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=20, delta=100 )
+		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=25, delta=1500 )
 		mp = np.asarray(max_peaks)[:,0]
 
 		mp = mp[ mp > upLim ]
 		mp = mp[ mp < downLim ]
 
-		#for j in range(len(mp)):
-		#	img[mp[j]-1:mp[j]+1,:] = 0
+		if( debug ):
+			#img2 = np.copy(image)
+			for j in range(len(mp)):
+				img[mp[j]-2:mp[j]+2,:] = 150
+			f = plt.figure()
+			idata = f.add_subplot(1,2,1); idata.set_autoscaley_on(False); idata.set_ylim( [0, len(inv)] ); idata.plot( inv[::-1], range( len(inv) ) )
+			f.add_subplot(1,2,2); plt.imshow(img, cmap=cm.Greys_r)
+			plt.show()
 
 		return mp
 
@@ -289,7 +303,7 @@ class OratUtils:
 
 		linenum = len(charcount)
 		nofound = linenum - imlines.shape[0]
-
+		print "\nnofound: " + str(nofound) + "\n"
 
 		llines = np.zeros((linenum,2))
 		llines[:,1] = 1
@@ -302,8 +316,9 @@ class OratUtils:
 		elif( nofound > 0):
 			
 			for i in range(nofound):
-				m = charcount[ charcount == min(charcount) ]
-				llines[m,2] = 0
+				m = charcount.index( min(charcount) )
+				#m = charcount[ charcount == min(charcount) ]
+				llines[m,1] = 0
 				charcount[m] += 1000
 		else:
 			return llines
@@ -330,7 +345,7 @@ class OratUtils:
 
 		nlines = llines.shape[0]
 		rlines = np.zeros((nlines, 1))
-		idx = 1
+		idx = 0
 
 		# Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
 		# tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
@@ -339,21 +354,25 @@ class OratUtils:
 		# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
 		# rivien indeksit osoittamaan aina oikeaan riviin.
 
+		print imlines
+
 		if( imlines.shape[0] < nlines ):
-			
+
 			for i in range(nlines):
 				
 				if(llines[i,1] == 1):
-					rlines[i,0] = imlines[idx,0]
+					rlines[i] = imlines[idx]
 					idx += 1
 
 				else:
 					rlines[i,0] = np.nan
 
-
+			print charlines
 			# The F is happening here?
 			# Some sort of forcing the lines to be something if there are more lines in the xml than what's found from the image
 			charlines[ charlines > nlines ] = nlines # rlines.shape[0] --> nlines
+			print rlines
+			print charlines
 			wantedlines = rlines[ charlines ]
 		else:
 

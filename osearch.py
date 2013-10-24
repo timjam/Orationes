@@ -21,6 +21,7 @@ import timeit
 
 def osearch( img, txtf, sw ):
 
+	debug = False
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -68,7 +69,7 @@ def osearch( img, txtf, sw ):
 
 
 	# Get the positions of lines according to the image and its radon transform
-	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight )
+	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight, debug )
 
 	# Get the rightlines according to the XML file and the image
 	rlines = OratUtils.processlines( charcount, imlines )
@@ -137,9 +138,18 @@ def osearch( img, txtf, sw ):
 			X = charpos[i][j] * ( leftbound - rightbound )/ccount + rightbound
 			Y = linecenter
 
+			if( debug ):
+				oI[Y-20, X-10:X+50] = [0,255,0]
+				oI[Y+20, X-10:X+50] = [0,255,0]
+				oI[Y-20:Y+20, X-10] = [0,255,0]
+				oI[Y-20:Y+20, X+50] = [0,255,0]
+
 			xx.append( X )
 			yy.append( Y )
 
+	if( debug ):
+		plt.imshow( oI )
+		plt.show()
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
 	# as a list to the main program that's calling this program
@@ -154,7 +164,8 @@ def osearch( img, txtf, sw ):
 
 	# The jsondata may have to be returned instead of just printed out. This depends heavily of the behavior of the calling program
 	# In this case we use a PHP site to call this program. Need to consult with Ilkka about how the PHP site will handle this file.
-	print jsondata
+	if( not debug ): 
+		print jsondata
 
 	return
 
