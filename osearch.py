@@ -137,32 +137,8 @@ def osearch( img, txtf, sw ):
 			X = charpos[i][j] * ( leftbound - rightbound )/ccount + rightbound
 			Y = linecenter
 
-			#try:
-				#oI[ Y-20, X-10:X+50] = [0, 255, 0]
-				#oI[ Y+20, X-10:X+50] = [0, 255, 0]
-				#oI[ Y-20:Y+20, X-10] = [0, 255, 0]
-				#oI[ Y-20:Y+20, X+50] = [0, 255, 0]
-
-				
-			#except IndexError:
-			#	pass
-				
-
 			xx.append( X )
 			yy.append( Y )
-
-
-
-	#for i in range(bboxes.shape[1]):
-	#	x1 = bboxes[1,i]
-	#	y1 = bboxes[2,i]
-	#	x2 = bboxes[3,i]
-	#	y2 = bboxes[4,i]
-
-	#	cIm[y1, x1:x2] = 0
-	#	cIm[y2, x1:x2] = 0
-	#	cIm[y1:y2, x1] = 0
-	#	cIm[y1:y2, x2] = 0
 
 
 	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
@@ -173,17 +149,12 @@ def osearch( img, txtf, sw ):
 	endx = np.asarray(xx)+50
 	endy = np.asarray(yy)+20
 
-	jsondata = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]
-	print json.dumps(jsondata)
+	data = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]
+	jsondata = json.dumps( data )
 
-
-	#f = plt.figure()
-	#f.add_subplot(1,2,1); plt.imshow( filteredIm, cmap=cm.Greys_r ); plt.title(' Eka ')
-	#f.add_subplot(1,2,2); plt.imshow( cIm, cmap=cm.Greys_r ); plt.title(' Toka ')
-	#plt.show()
-
-	#plt.imshow( oI )
-	#plt.show()
+	# The jsondata may have to be returned instead of just printed out. This depends heavily of the behavior of the calling program
+	# In this case we use a PHP site to call this program. Need to consult with Ilkka about how the PHP site will handle this file.
+	print jsondata
 
 	return
 
