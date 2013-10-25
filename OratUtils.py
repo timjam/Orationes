@@ -7,8 +7,10 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import peakdet
+import json
 from scipy.ndimage.measurements import label
 from scipy import ndimage, signal
+from scipy.misc import fromimage
 from HFun import HFun
 
 import timeit
@@ -141,7 +143,7 @@ class OratUtils:
 
 
 	@staticmethod
-	def boundingBox( image ):
+	def boundingBox( image, debug ):
 
 		cIm = np.copy(image)
 
@@ -241,6 +243,23 @@ class OratUtils:
 		vals, idx = np.unique( BBs[0,:], return_index=True )
 		BBs = BBs[:,idx]
 
+		if( debug ):
+
+			for i in range( len(BBs[2,:]) ):
+				sx = BBs[1,i]
+				ex = BBs[3,i]
+				sy = BBs[2,i]
+				ey = BBs[4,i]
+				
+				cIm[sy, sx:ex] = 0.5
+				cIm[ey, sx:ex] = 0.5
+				cIm[sy:ey, sx] = 0.5
+				cIm[sy:ey, ex] = 0.5
+
+			plt.imshow( (cIm*255).astype('uint8'), cmap=cm.Greys_r )
+			plt.show()
+
+
 		return BBs
 
 
@@ -303,17 +322,18 @@ class OratUtils:
 
 		linenum = len(charcount)
 		nofound = linenum - imlines.shape[0]
-		print "\nnofound: " + str(nofound) + "\n"
 
 		llines = np.zeros((linenum,2))
 		llines[:,1] = 1
 
 
 		if( nofound < 0 ):
+			# Found more lines from the image than what's found from the XML
 			# Do something
 			return llines
 
 		elif( nofound > 0):
+			# Found less lines from the image than what's found from the XML
 			
 			for i in range(nofound):
 				m = charcount.index( min(charcount) )
@@ -321,6 +341,8 @@ class OratUtils:
 				llines[m,1] = 0
 				charcount[m] += 1000
 		else:
+			# Found equal amount of lines from the image as what's found from the XML
+			# Lines are assumed to match
 			return llines
 
 		return llines
@@ -335,10 +357,10 @@ class OratUtils:
 		# Llines contains the information about the lines got from the XML and also it contains the 
 		# information of if some of the lines is longer or shorter than the mean length of the lines
 
-		temp = llines[:,1]
-		temp[ temp > np.mean(temp) ] = 1
-		temp[ temp != 1 ] = 0
-		llines[:,1] = temp
+		"""
+			llines contains only 1s and 0s. 1 meaning a line with enough letters to be recognized by pmr 
+			and 0 meaning a line which is probably undetected by pmr
+		"""
 
 		# nlines is the number of lines calculated from the XML file
 		# The corrected lines are gathered into the rlines
@@ -354,9 +376,24 @@ class OratUtils:
 		# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
 		# rivien indeksit osoittamaan aina oikeaan riviin.
 
-		print imlines
+		
 
 		if( imlines.shape[0] < nlines ):
+
+			"""
+				llines:		imlines:		rlines:
+				
+				[1 ---------->[100 -------->[100
+				 1 ----------> 200 --------> 200
+				 1 ----------> 300 --------> 300
+				 1 ----------> 400 --------> 400
+				 0 	.--------> 600 --------. NAN
+				 1 /.--------> 700 --------.'600
+				 1 / .-------> 900]-------. '700
+				 0  / 					   \ NAN
+				 1]/ 						'900]
+
+			"""
 
 			for i in range(nlines):
 				
@@ -367,13 +404,14 @@ class OratUtils:
 				else:
 					rlines[i,0] = np.nan
 
-			print charlines
-			# The F is happening here?
-			# Some sort of forcing the lines to be something if there are more lines in the xml than what's found from the image
-			charlines[ charlines > nlines ] = nlines # rlines.shape[0] --> nlines
-			print rlines
-			print charlines
-			wantedlines = rlines[ charlines ]
+			cl = np.unique( np.asarray([item for sublist in charlines for item in sublist]) )
+			to_be_removed = np.where( llines[:,1] == 0)[0] + 1 # Returns the line (in range [1, nlines]) which isn't detected
+			cl = np.delete(cl, np.where( cl == to_be_removed )[0]) # Discards the search from the lines which aren't detected
+
+			wantedlines = rlines[ cl ]
+
+			return wantedlines
+			
 		else:
 
 			# Flattens the list of lists (charlines) and takes only the unique values, which are number of the lines which has the matches of the word that's been searched
@@ -383,3 +421,119 @@ class OratUtils:
 			wantedlines = imlines[ cl ]
 
 		return wantedlines
+
+
+
+	@staticmethod
+	def findCorr( bboxes, slines, charcount, imlines ):
+
+		bbYs = bboxes[2,:]
+		rounds = slines.shape[0]
+
+		coords = np.zeros((7,rounds), np.int16)
+
+		for i in range( rounds ):
+
+			if( i==0 or ( slines[i] - slines[i-1] > 100 ) ):
+				minlim = slines[i] - 70
+
+			else:
+				minlim = slines[i-1]
+
+			cBBYstarts = bbYs[ bbYs > minlim ]
+			cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
+
+			cBB = HFun.indices( bbYs, lambda x: ( x > minlim and x < slines[i] ) )
+
+
+			try:
+				temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
+			except IndexError:
+				# Some images fails and goes here for some reason. That needs to be found out and see if it causes other errors
+				pass
+				#print cBB
+				#print bbYs
+				#print bboxes
+
+
+			coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
+			coords[1,i] = temp[1]	# Sisältää kyseisen bounding boxin xstart koordinaatin
+			coords[2,i] = temp[2]	# Sisältää kyseisen bounding boxin ystart koordinaatin
+			coords[3,i] = temp[3]	# Sisältää kyseisen bounding boxin xstop koordinaatin
+			coords[4,i] = temp[4]	# Sisältää kyseisen bounding boxin ystop koordinaatin
+			# print np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1]
+			# ^ Konvertoi ensin charcount listan numpy arrayksi
+			# Sen jälkeen haetaan bboxes numpy arrayn toiselta rivilta kaikki niiden sarakkeiden indeksit, joissa sarakkeen arvon on sama kuin temp listan toiset arvot, koska temp listan toisina arvoina on halutut y koordinaatit
+			# Sitten otetaan tästä np.where tuloksesta ensimmäinen alkio, koska se sisältää halutun indeksin ja lisätään siihen sitten yksi. Tämä sen takia, että labelit bboxissa on järjestetty 
+			# kasvavaan järjestykseen siten, että label on aina indeksi plus yksi ja sitten kaikki onkin ihan vitun sekavaa ... Kusee koska boksin label ei välttämättä ole sama kuin sitä vastaavan rivin järjnro!
+
+
+			#coords[5,i] = np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1] # Sisältää kyseisellä rivillä olevien kirjainten lukumäärän
+			#print np.where( imlines == slines[i] )
+			coords[5,i] = charcount[ np.where( imlines == slines[i] )[0] ]
+			coords[6,i] = slines[i]	# Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin
+
+
+		return coords
+
+	@staticmethod
+	def packCoordsToJson( slines, origimage, coords, charpos, debug ):
+
+		rounds = slines.shape[0]
+
+		xx = []
+		yy = []
+
+		if( debug ):
+			oI = fromimage( origimage )
+
+		for i in range( rounds ): # rounds
+
+
+			rightbound = coords[1,i]
+			leftbound = coords[3,i]
+			ccount = coords[5,i]
+			linecenter = coords[6,i]
+
+
+
+			for j in range( len(charpos[i])):
+
+				X = charpos[i][j] * ( leftbound - rightbound )/ccount + rightbound
+				Y = linecenter
+
+				if( debug ):
+					try:
+						oI[Y-20, X-10:X+50] = [0,255,0]
+						oI[Y+20, X-10:X+50] = [0,255,0]
+						oI[Y-20:Y+20, X-10] = [0,255,0]
+						oI[Y-20:Y+20, X+50] = [0,255,0]
+					except IndexError:
+						print rightbound
+						print leftbound
+						print ccount
+						print linecenter
+						print charpos[i][j]
+						print
+
+						#Kuvan 70 tapauksessa tässä ccount 37 ja charpos 62 ... eli sijainti suurempi kuin mitä rivillä kirjaimia... eli väärät rivit valikoituu jostain syystä
+
+				xx.append( X )
+				yy.append( Y )
+
+		if( debug ):
+			plt.imshow( oI )
+			plt.show()
+
+		# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
+		# as a list to the main program that's calling this program
+		# Encode the list into sensible json package or json-string
+		startx = np.asarray(xx)-10
+		starty = np.asarray(yy)-20
+		endx = np.asarray(xx)+50
+		endy = np.asarray(yy)+20
+
+		data = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]
+		jsondata = json.dumps( data )
+
+		return jsondata

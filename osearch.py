@@ -8,20 +8,16 @@
 import os
 import sys
 import Image as Im
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
+import timeit
 from OratUtils import OratUtils
 from HFun import HFun
-from scipy.misc import fromimage, toimage, imshow
+from scipy.misc import fromimage
 import numpy as np
-import json
-
-import timeit
 
 
 def osearch( img, txtf, sw ):
 
-	debug = False
+	debug = True
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -65,7 +61,7 @@ def osearch( img, txtf, sw ):
 
 	# Get the bounding boxes covering each line
 	# Put in its own thread?
-	bboxes = OratUtils.boundingBox( cIm )
+	bboxes = OratUtils.boundingBox( cIm, debug )
 
 
 	# Get the positions of lines according to the image and its radon transform
@@ -78,94 +74,14 @@ def osearch( img, txtf, sw ):
 	slines = OratUtils.padlines( imlines, rlines, charlines ) # slines - [a1, a2, ..., an], n == number of unique rlines
 
 	# Find the correspondences between the lines which are used for searching and the bounding boxes
+	coords = OratUtils.findCorr( bboxes, slines, charcount, imlines )
 
-	bbYs = bboxes[2,:]
-	rounds = slines.shape[0]
+	jsondata = OratUtils.packCoordsToJson( slines, origimage, coords, charpos, debug )
 
-	coords = np.zeros((7,rounds), np.int16)
-
-	for i in range( rounds ):
-
-		if( i==0 or ( slines[i] - slines[i-1] > 100 ) ):
-			minlim = slines[i] - 70
-
-		else:
-			minlim = slines[i-1]
-
-		cBBYstarts = bbYs[ bbYs > minlim ]
-		cBBYstarts = cBBYstarts[ cBBYstarts < slines[i] ]
-
-		cBB = HFun.indices( bbYs, lambda x: ( x > minlim and x < slines[i] ) )
-
-		temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
-
-
-		coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
-		coords[1,i] = temp[1]	# Sisältää kyseisen bounding boxin xstart koordinaatin
-		coords[2,i] = temp[2]	# Sisältää kyseisen bounding boxin ystart koordinaatin
-		coords[3,i] = temp[3]	# Sisältää kyseisen bounding boxin xstop koordinaatin
-		coords[4,i] = temp[4]	# Sisältää kyseisen bounding boxin ystop koordinaatin
-		# print np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1]
-		# ^ Konvertoi ensin charcount listan numpy arrayksi
-		# Sen jälkeen haetaan bboxes numpy arrayn toiselta rivilta kaikki niiden sarakkeiden indeksit, joissa sarakkeen arvon on sama kuin temp listan toiset arvot, koska temp listan toisina arvoina on halutut y koordinaatit
-		# Sitten otetaan tästä np.where tuloksesta ensimmäinen alkio, koska se sisältää halutun indeksin ja lisätään siihen sitten yksi. Tämä sen takia, että labelit bboxissa on järjestetty 
-		# kasvavaan järjestykseen siten, että label on aina indeksi plus yksi ja sitten kaikki onkin ihan vitun sekavaa ... Kusee koska boksin label ei välttämättä ole sama kuin sitä vastaavan rivin järjnro!
-
-
-		#coords[5,i] = np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1] # Sisältää kyseisellä rivillä olevien kirjainten lukumäärän
-		#print np.where( imlines == slines[i] )
-		coords[5,i] = charcount[ np.where( imlines == slines[i] )[0] ]
-		coords[6,i] = slines[i]	# Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin
-
-
-	xx = []
-	yy = []
-
-	oI = fromimage( origimage )
-
-	for i in range( rounds ): # rounds
-
-
-		rightbound = coords[1,i]
-		leftbound = coords[3,i]
-		ccount = coords[5,i]
-		linecenter = coords[6,i]
-
-
-
-		for j in range( len(charpos[i])):
-
-			X = charpos[i][j] * ( leftbound - rightbound )/ccount + rightbound
-			Y = linecenter
-
-			if( debug ):
-				oI[Y-20, X-10:X+50] = [0,255,0]
-				oI[Y+20, X-10:X+50] = [0,255,0]
-				oI[Y-20:Y+20, X-10] = [0,255,0]
-				oI[Y-20:Y+20, X+50] = [0,255,0]
-
-			xx.append( X )
-			yy.append( Y )
-
-	if( debug ):
-		plt.imshow( oI )
-		plt.show()
-
-	# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
-	# as a list to the main program that's calling this program
-	# Encode the list into sensible json package or json-string
-	startx = np.asarray(xx)-10
-	starty = np.asarray(yy)-20
-	endx = np.asarray(xx)+50
-	endy = np.asarray(yy)+20
-
-	data = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]
-	jsondata = json.dumps( data )
+	print jsondata
 
 	# The jsondata may have to be returned instead of just printed out. This depends heavily of the behavior of the calling program
 	# In this case we use a PHP site to call this program. Need to consult with Ilkka about how the PHP site will handle this file.
-	if( not debug ): 
-		print jsondata
 
 	return
 
