@@ -17,14 +17,46 @@ import timeit
 
 class OratUtils:
 
+	r""" This class contains only static utility methods that are called directly from the main program 'osearch.py'. """
 
 
 
 
-	# Performs case sensitive search for text file tfile with string or character c on default.
-	# Argument c can be any regular expression
+
+
 	@staticmethod
 	def stringparser( tfile, c ):
+		r"""
+			Performs case sensitive search for text file tfile with string or character c (char on default).
+			Argument c can be any regular expression
+
+			:param tfile: The name of the cleaned XML file
+			:type tfile: string
+			:param c: The letter or string that is searched from the tfile
+			:type c: string/char/regular expression
+			:returns: list -- charcount
+			:returns: list of lists -- charpos 
+			:returns: list of lists -- charlines
+			:returns: list of lists -- wordlens
+
+			* *Charcount* is a list containing the lengths of each line.
+
+				* ``[63, 60, 4, 65, 66, 37, 66, ...]``
+
+			* *Charpos* is a list containing lists including the positions of the found characters or the first letters of the found words.
+
+				* ``[[52], [10, 47, 62], [19, 62], [51], ...]``
+
+			* *Charlines* is a list of lists where the length of each sublist tells the number of hits on that line and the element values representing the line number from the XML file.
+
+				* ``[[3], [4, 4, 4], [6, 6], [7], ...]``
+
+			* *Wordlens* is a list containing lists containing the lengths of the words on each line.
+
+				* ``[[3], [3, 3, 3], [3, 3], [3], ...]``
+
+
+		"""
 
 		charcount = [] 	# Holds the lengths of each line
 		charlines = []	# 
@@ -71,29 +103,55 @@ class OratUtils:
 
 
 	@staticmethod
-	def hfilter( image, d, h, l, n ):
+	def hfilter( image, diameter, height, length, n ):
+
+		r"""
+			This function performs homomorphic filtering on grayscale images.
+
+			:param image: 2-dimensional ndarray
+			:type image: ndarray
+			:param diameter: filter diameter
+			:type diameter: int
+			:param height: Height of the image
+			:type height: int
+			:param length: Length of the image
+			:type length: int
+			:param n: Filter order
+			:type n: int
+			:returns: ndarray -- homomorphically filtered image
+
+			The image must in ndarray format. In osearch PIL images are converted to scipy images which 
+			are in ndarray format. Ndarray format allows easy and fast direct access to the pixel values 
+			and this function is written entirely only for the ndarrays.
+
+
+		"""
 
 		img = np.copy(image)
 
-		# img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format
-		# h = height
-		# l = length
-
 		warnings.filterwarnings('error')
 
-		F = np.zeros( (h,l), np.float )
+		F = np.zeros( (height,length), np.float )
 
-		H = float(h)
-		L = float(l)
-		D = float(d)
+		H = float(height)
+		L = float(length)
+		D = float(diameter)
 		N = float(n)
 	
-		Xd = np.zeros( (h,l), np.float )
-		Yd = np.zeros( (l,h), np.float )
+		Xd = np.zeros( (H,L), np.float )
+		Yd = np.zeros( (L,H), np.float )
 
-		Xd[:,:] = np.power( np.arange(l, dtype=np.float)-L/2,2 )
-		Yd[:,:] = np.power( np.arange(h, dtype=np.float)-H/2,2 )
+		if( L%2 == 0):
+			Xd[:,:] = np.power( np.arange(L, dtype=np.float)-(L-1)/2,2 )
+		else:
+			Xd[:,:] = np.power( np.arange(L, dtype=np.float)-L/2,2 )
+
+		if( H%2 == 0):
+			Yd[:,:] = np.power( np.arange(H, dtype=np.float)-(H-1)/2,2 )
+		else:
+			Yd[:,:] = np.power( np.arange(H, dtype=np.float)-H/2,2 )
 		
+
 		F = 1/( 1 + np.power( D/np.power( Xd + np.transpose(Yd), 0.5 ),2*N ) )
 
 		aL = 0.949
@@ -120,6 +178,41 @@ class OratUtils:
 
 	@staticmethod
 	def contStretch( im, a, h ):
+		r"""
+			Performs contrast stretching for grayscale images. Pixel intensities are set to 
+			differ 'a' times the average intensity from the original intensity values. The new 
+			intensity values are sliced to stay between [0, 255].
+
+			.. math::
+				I_{stretched} = I_{old} + a*( I_{old} - I_{average} )
+
+				I_{new} =
+				\left\{
+				\begin{array}[l]{ll}
+				  0, & I_{stretched} < 0 \\
+				  I_{stretched}, & 0 \leq I_{stretched} \leq 255\\
+				  255, & I_{stretched} > 255
+				\end{array}
+				\right.
+				
+
+			:param im: The image which contrast is to be stretched
+			:type im: ndarray
+			:param a: multiplication coefficient
+			:type a: int
+			:param h: The height of image. Used as partial image average switch
+			:type h: int
+			:returns: ndarray -- contrast stretched image
+
+			Parameter *h* is a switch which could be used to determine if the average intensity 
+			is calculated over the whole image or from a small portion of it. Currently it is 
+			defaulted in the code to newer happen. Originally the idea was that if the image 
+			is very big, the intensity average would be taken from a small sample. To make the 
+			function more generic and also because of the nature of the images in Orationes 
+			project, it was decided that the average is always calculated over the whole image.
+
+
+		"""
 
 		image = np.copy(im)
 
@@ -144,6 +237,77 @@ class OratUtils:
 
 	@staticmethod
 	def boundingBox( image, debug ):
+
+		r"""
+			This functions tries to determine the bounding boxes for each text line.
+
+			:param image: the processed image
+			:type image: ndarray
+			:param debug: debug switch
+			:type debug: bool
+			:returns: ndarray -- bboxes
+
+			.. math::
+				bboxes_{nxm} = 
+				\begin{bmatrix}
+					\text{patch label numbers}\\
+					\text{starting x-coordinates}\\
+					\text{starting y-coordinates}\\
+					\text{ending x-coordinates}\\
+					\text{ending y-coordinates}
+				\end{bmatrix}
+
+
+			*debug* switch can be used to plot the results of the bounding box 
+			founding method and to see whether it is working correctly.
+
+			Process pipeline:
+
+			#. Calculate the histogram from the image
+			#. Binarize image with threshold 0.95
+			#. Label all the patched in on the binarized image
+			#. Calculate the sizes of the patches
+			#. Remove unnecessary patches
+
+				#. Remove the largest patch. The largest patch is always the patch consisting of the borders and marginals.
+				#. Remove patches which size is smaller or equal to 50 pixels
+				#. Remove all the patches which are higher than 70 pixels. This removes the possible remaining marginal patches which weren't connected to the major marginal and border patch.
+
+			#. Perform morpholig operations to clean the image and bind the text lines together
+
+				#. Perform erosion with a cross like structure element
+
+					.. math::
+						SEe_{5,5} = 
+						\begin{bmatrix}
+							0 & 0 & 1 & 0 & 0 \\
+							0 & 0 & 1 & 0 & 0 \\
+							0 & 1 & 1 & 1 & 0 \\
+							0 & 0 & 1 & 0 & 0 \\
+							0 & 0 & 1 & 0 & 0
+						\end{bmatrix}
+
+				#. Perform dilation with a long vertical line. (needs a 70x70 size structure element)
+
+					.. math::
+						SEd_{70,70} = 
+						\begin{bmatrix}
+							0 & 0 & \dots & 0 & 0 \\
+							  & \vdots & & \vdots & \\
+							1 & 1 & \dots & 1 & 1 \\
+							  & \vdots & & \vdots & \\
+							0 & 0 & \dots & 0 & 0
+						\end{bmatrix}
+
+			#. Label the morphologically operated image
+			#. Remove patches which size is less or equal to 4000 pixels
+			#. Label the image again with new labels
+			#. Calculate the extreme dimensions of each patch. These values are used as the limiting bounding boxes.
+			#. Combine the boxes which are horizontally too close as they are thought to be separate boxes on the same textline.
+			#. Return the bounding boxes
+
+
+		"""
 
 		cIm = np.copy(image)
 
@@ -178,6 +342,7 @@ class OratUtils:
 		# Erode the image with vertical line shaped structure element
 		SEe = np.zeros((5,5)).astype('bool')
 		SEe[:,2] = 1
+		SEe[2,1:3] = 1
 
 		cI3 = ndimage.binary_erosion(compIm2, structure=SEe).astype(compIm2.dtype)
 
@@ -196,6 +361,13 @@ class OratUtils:
 
 		# Remove the dilated patches which size is smaller than 4000 pixels
 		cI4 = HFun.remPatches( sizes2, lArray2, 4000, nFeat2 )
+
+		if( debug ):
+			f = plt.figure()
+			f.add_subplot(1,3,1); plt.imshow( (compIm2*255).astype( 'uint8' ), cmap=cm.Greys_r )
+			f.add_subplot(1,3,2); plt.imshow( (cI3*255).astype( 'uint8' ), cmap=cm.Greys_r )
+			f.add_subplot(1,3,3); plt.imshow( (cI4*255).astype( 'uint8' ), cmap=cm.Greys_r )
+			plt.show()
 
 		# Label the latest binary image
 		lArray3, nFeat3 = label(cI4)
@@ -269,14 +441,32 @@ class OratUtils:
 	@staticmethod
 	def poormanradon( image, iname, height, debug ):
 
+		r"""
+			Performs a naive radon-transform on the binarized and contrast stretched image and 
+			tries to determine where the text lines are in the image
+
+			:param image: Image
+			:type image: ndarray
+			:param iname: Image name
+			:type iname: string
+			:param height: Image height
+			:type height: int
+			:param debug: Debug switch
+			:type debug: bool
+			:returns: ndarray -- Array containing the lines which are found using radon transform
+
+		"""
+
 		img = np.copy(image) #HFun.im2bw(image, 0.95)
 
 		# Check if the imagename contains (2) or not
 		# Very bad way to choose the area to find lines from, but at the moment there's no other method to do this. Needs to be improved somehow!
 		try:
 			if( iname.index('(2)') >= 0 ):
-				upLim = 290
-				downLim = 2400
+				upLim = 260
+				downLim = 2490
+				leftLim = 262
+				rightLim = 1530
 		except ValueError:
 			upLim = 320 #200
 			downLim = 2428 # 2520 # 2440
@@ -330,22 +520,29 @@ class OratUtils:
 		if( nofound < 0 ):
 			# Found more lines from the image than what's found from the XML
 			# Do something
-			return llines
+			return llines, imlines
 
 		elif( nofound > 0):
 			# Found less lines from the image than what's found from the XML
 			
 			for i in range(nofound):
 				m = charcount.index( min(charcount) )
-				#m = charcount[ charcount == min(charcount) ]
+				
 				llines[m,1] = 0
 				charcount[m] += 1000
+
+				# Imlines needs to be padded as well. Non found lines are set tot NAN
+				templines = imlines[0:m]
+				templines2 = imlines[m::]
+				nimlines = np.append( templines, np.nan )
+				imlines = np.append( nimlines, templines2 )
+
 		else:
 			# Found equal amount of lines from the image as what's found from the XML
 			# Lines are assumed to match
-			return llines
+			return llines, imlines
 
-		return llines
+		return llines, imlines
 
 
 
@@ -353,31 +550,70 @@ class OratUtils:
 	@staticmethod
 	def padlines( imlines, llines, charlines ):
 
-		# Imlines contains the lines got from the image by radontrasnform
-		# Llines contains the information about the lines got from the XML and also it contains the 
-		# information of if some of the lines is longer or shorter than the mean length of the lines
+		""" 
+		:param imlines: n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform
+		:type imlines: ndarray
+		:param llines: n*2 size ndarray containing the length information of the lines
+		:type llines: ndarray
+		:param charlines: list of lists telling the position(s) of searched character(s)/word(s) on each line
+		:type charlines: list
+		:returns: ndarray -- wantedlines
 
-		"""
-			llines contains only 1s and 0s. 1 meaning a line with enough letters to be recognized by pmr 
-			and 0 meaning a line which is probably undetected by pmr
-		"""
+		Long:
+		Llines contains the information about the lines got from the XML and also it contains the 
+		information if some of the lines are remarkably shorter than other lines. That means that, if there are some lines that 
+		are not found from the image, it is assumed that those non-found lines are the shortest lines according to the XML and 
+		character count. Those lines are marked as 0 in the second column in llines.
 
-		# nlines is the number of lines calculated from the XML file
-		# The corrected lines are gathered into the rlines
+		Short:
+		Llines[:,1] contains only 1s and 0s. 1 meaning a line with enough letters to be recognized by poormanradon (pmr) 
+		and 0 meaning a line which is probably undetected by pmr
 
-		nlines = llines.shape[0]
-		rlines = np.zeros((nlines, 1))
-		idx = 0
+		
+		Behavior:
+			Number of lines found from the image using pmr is larger than 
+			the number of lines calculated from XML:
 
+				TODO! Currently this case is not handled!
+
+			Number of lines found from the image using pmr is smaller than
+			the number of lines calculated from XML:
+
+				Pad the lines according to the information in llines[:,1]
+		
+
+				llines:		imlines:		rlines:
+				
+				[1 ---------->[100 -------->[100
+				 1 ----------> 200 --------> 200
+				 1 ----------> 300 --------> 300
+				 1 ----------> 400 --------> 400
+				 0 	.--------> 600 --------. NAN
+				 1 /.--------> 700 --------.'600
+				 1 / .-------> 900]-------. '700
+				 0  / 					   \ NAN
+				 1]/ 						'900]
+
+			Number of lines found from the image using pmr equals to
+			the number of lines calculated from XML:
+
+				Pick unique lines from imlines and return them as lines 
+				the interesting lines.
+			
+		
 		# Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
 		# tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
 		# rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän
 		# kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne
 		# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
 		# rivien indeksit osoittamaan aina oikeaan riviin.
+		"""
 
+
+		nlines = llines.shape[0]		# nlines is the number of lines calculated from the XML file
+		rlines = np.zeros((nlines, 1))	# The corrected lines are gathered into the rlines
+		idx = 0
 		
-
 		if( imlines.shape[0] < nlines ):
 
 			"""
@@ -405,13 +641,17 @@ class OratUtils:
 					rlines[i,0] = np.nan
 
 			cl = np.unique( np.asarray([item for sublist in charlines for item in sublist]) )
-			to_be_removed = np.where( llines[:,1] == 0)[0] + 1 # Returns the line (in range [1, nlines]) which isn't detected
+			to_be_removed = np.where( llines[:,1] == 0)[0] + 1 #: Returns the line (in range [1, nlines]) which isn't detected
 			cl = np.delete(cl, np.where( cl == to_be_removed )[0]) # Discards the search from the lines which aren't detected
 
 			wantedlines = rlines[ cl ]
 
-			return wantedlines
-			
+		elif( imlines.shape[0] > nlines ):
+			# TODO! 
+			# Currently identical to the case where imlines.shape[0] == nlines
+			cl = np.unique( np.asarray([item for sublist in charlines for item in sublist]) )
+			wantedlines = imlines[ cl ]
+
 		else:
 
 			# Flattens the list of lists (charlines) and takes only the unique values, which are number of the lines which has the matches of the word that's been searched
@@ -425,7 +665,7 @@ class OratUtils:
 
 
 	@staticmethod
-	def findCorr( bboxes, slines, charcount, imlines ):
+	def findCorr( bboxes, slines, charcount, imlines, debug ):
 
 		bbYs = bboxes[2,:]
 		rounds = slines.shape[0]
@@ -450,10 +690,14 @@ class OratUtils:
 				temp = bboxes[:,bbYs == bbYs[ cBB[0] ] ] #cBBYstarts before
 			except IndexError:
 				# Some images fails and goes here for some reason. That needs to be found out and see if it causes other errors
-				pass
-				#print cBB
-				#print bbYs
-				#print bboxes
+				
+				if( debug ):
+					print "Failed to find correspondences between bboxes and imlines"
+					print cBB
+					print bbYs
+					print bboxes
+				else:
+					pass
 
 
 			coords[0,i] = temp[0]	# Sisältää kyseistä bounding boxia vastaavan patching labelin
@@ -477,12 +721,14 @@ class OratUtils:
 		return coords
 
 	@staticmethod
-	def packCoordsToJson( slines, origimage, coords, charpos, debug ):
+	def packCoordsToJson( slines, origimage, coords, charpos, wordlens, debug ):
 
 		rounds = slines.shape[0]
 
 		xx = []
 		yy = []
+
+		wl = 20*wordlens[0][0]-10
 
 		if( debug ):
 			oI = fromimage( origimage )
@@ -504,16 +750,23 @@ class OratUtils:
 
 				if( debug ):
 					try:
-						oI[Y-20, X-10:X+50] = [0,255,0]
-						oI[Y+20, X-10:X+50] = [0,255,0]
+						oI[Y-20, X-10:X+wl] = [0,255,0]
+						oI[Y+20, X-10:X+wl] = [0,255,0]
 						oI[Y-20:Y+20, X-10] = [0,255,0]
-						oI[Y-20:Y+20, X+50] = [0,255,0]
+						oI[Y-20:Y+20, X+wl] = [0,255,0]
 					except IndexError:
+
 						print rightbound
 						print leftbound
 						print ccount
 						print linecenter
 						print charpos[i][j]
+						print i
+						print j
+						print
+						print charpos
+						print
+						print slines
 						print
 
 						#Kuvan 70 tapauksessa tässä ccount 37 ja charpos 62 ... eli sijainti suurempi kuin mitä rivillä kirjaimia... eli väärät rivit valikoituu jostain syystä
@@ -530,7 +783,7 @@ class OratUtils:
 		# Encode the list into sensible json package or json-string
 		startx = np.asarray(xx)-10
 		starty = np.asarray(yy)-20
-		endx = np.asarray(xx)+50
+		endx = np.asarray(xx)+wl
 		endy = np.asarray(yy)+20
 
 		data = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]

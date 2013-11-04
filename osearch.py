@@ -16,8 +16,23 @@ import numpy as np
 
 
 def osearch( img, txtf, sw ):
+	"""
+		The main program that only calls the processing methods from OratUtils and HFun classes.
 
-	debug = True
+		:param img: The name of the image.
+		:type img: string
+		:param txtf: The name of the cleaned XML file.
+		:type txtf: string
+		:param sw: The word or letter that is searched.
+		:type sw: string
+		:returns: nothing or JSON string
+
+		The return option have to be chosen between returning the string as a return code or 
+		is it just printed out for the calling PHP program. Currently it is being printed.
+
+	"""
+
+	debug = False
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -62,21 +77,22 @@ def osearch( img, txtf, sw ):
 	# Get the bounding boxes covering each line
 	# Put in its own thread?
 	bboxes = OratUtils.boundingBox( cIm, debug )
+	print bboxes
 
 
 	# Get the positions of lines according to the image and its radon transform
 	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight, debug )
 
 	# Get the rightlines according to the XML file and the image
-	rlines = OratUtils.processlines( charcount, imlines )
+	rlines, imlines = OratUtils.processlines( charcount, imlines )
 
 	# Get the lines that are used to search the possible hits
 	slines = OratUtils.padlines( imlines, rlines, charlines ) # slines - [a1, a2, ..., an], n == number of unique rlines
 
 	# Find the correspondences between the lines which are used for searching and the bounding boxes
-	coords = OratUtils.findCorr( bboxes, slines, charcount, imlines )
+	coords = OratUtils.findCorr( bboxes, slines, charcount, imlines, debug )
 
-	jsondata = OratUtils.packCoordsToJson( slines, origimage, coords, charpos, debug )
+	jsondata = OratUtils.packCoordsToJson( slines, origimage, coords, charpos, wordlens, debug )
 
 	print jsondata
 

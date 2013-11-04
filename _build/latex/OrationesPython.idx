@@ -1,0 +1,10 @@
+\indexentry{osearch (module)|hyperpage}{3}
+\indexentry{osearch() (in module osearch)|hyperpage}{3}
+\indexentry{OratUtils (class in osearch)|hyperpage}{3}
+\indexentry{boundingBox() (osearch.OratUtils static method)|hyperpage}{3}
+\indexentry{contStretch() (osearch.OratUtils static method)|hyperpage}{4}
+\indexentry{hfilter() (osearch.OratUtils static method)|hyperpage}{5}
+\indexentry{padlines() (osearch.OratUtils static method)|hyperpage}{5}
+\indexentry{poormanradon() (osearch.OratUtils static method)|hyperpage}{6}
+\indexentry{stringparser() (osearch.OratUtils static method)|hyperpage}{6}
+\indexentry{HFun (class in osearch)|hyperpage}{7}

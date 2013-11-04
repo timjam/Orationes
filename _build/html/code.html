@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Documentation for the Code &mdash; OrationesPython 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="OrationesPython 1.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to OrationesPython’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to OrationesPython’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">OrationesPython 1.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="documentation-for-the-code">
+<h1>Documentation for the Code<a class="headerlink" href="#documentation-for-the-code" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-osearch">
+<span id="orationes-search"></span><h2>Orationes Search<a class="headerlink" href="#module-osearch" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="osearch.osearch">
+<tt class="descclassname">osearch.</tt><tt class="descname">osearch</tt><big>(</big><em>img</em>, <em>txtf</em>, <em>sw</em><big>)</big><a class="reference internal" href="_modules/osearch.html#osearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osearch.osearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main program that only calls the processing methods from OratUtils and HFun classes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>string</em>) &#8211; The name of the image.</li>
+<li><strong>txtf</strong> (<em>string</em>) &#8211; The name of the cleaned XML file.</li>
+<li><strong>sw</strong> (<em>string</em>) &#8211; The word or letter that is searched.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nothing or JSON string</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The return option have to be chosen between returning the string as a return code or 
+is it just printed out for the calling PHP program. Currently it is being printed.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="oratutils">
+<h2>OratUtils<a class="headerlink" href="#oratutils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="osearch.OratUtils">
+<em class="property">class </em><tt class="descclassname">osearch.</tt><tt class="descname">OratUtils</tt><a class="headerlink" href="#osearch.OratUtils" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class contains only static utility methods that are called directly from the main program &#8216;osearch.py&#8217;.</p>
+<dl class="staticmethod">
+<dt id="osearch.OratUtils.boundingBox">
+<em class="property">static </em><tt class="descname">boundingBox</tt><big>(</big><em>image</em>, <em>debug</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.boundingBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions tries to determine the bounding boxes for each text line.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) &#8211; the processed image</li>
+<li><strong>debug</strong> (<em>bool</em>) &#8211; debug switch</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; bboxes</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="math">
+\[\begin{split}bboxes_{nxm} = 
+\begin{bmatrix}
+        \text{patch label numbers}\\
+        \text{starting x-coordinates}\\
+        \text{starting y-coordinates}\\
+        \text{ending x-coordinates}\\
+        \text{ending y-coordinates}
+\end{bmatrix}\end{split}\]</div>
+<p><em>debug</em> switch can be used to plot the results of the bounding box 
+founding method and to see whether it is working correctly.</p>
+<p>Process pipeline:</p>
+<ol class="arabic">
+<li><p class="first">Calculate the histogram from the image</p>
+</li>
+<li><p class="first">Binarize image with threshold 0.95</p>
+</li>
+<li><p class="first">Label all the patched in on the binarized image</p>
+</li>
+<li><p class="first">Calculate the sizes of the patches</p>
+</li>
+<li><p class="first">Remove unnecessary patches</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Remove the largest patch. The largest patch is always the patch consisting of the borders and marginals.</li>
+<li>Remove patches which size is smaller or equal to 50 pixels</li>
+<li>Remove all the patches which are higher than 70 pixels. This removes the possible remaining marginal patches which weren&#8217;t connected to the major marginal and border patch.</li>
+</ol>
+</div></blockquote>
+</li>
+<li><p class="first">Perform morpholig operations to clean the image and bind the text lines together</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">Perform erosion with a cross like structure element</p>
+<blockquote>
+<div><div class="math">
+\[\begin{split}SEe_{5,5} = 
+\begin{bmatrix}
+        0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+        0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+        0 &amp; 1 &amp; 1 &amp; 1 &amp; 0 \\
+        0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+        0 &amp; 0 &amp; 1 &amp; 0 &amp; 0
+\end{bmatrix}\end{split}\]</div>
+</div></blockquote>
+</li>
+<li><p class="first">Perform dilation with a long vertical line. (needs a 70x70 size structure element)</p>
+<blockquote>
+<div><div class="math">
+\[\begin{split}SEd_{70,70} = 
+\begin{bmatrix}
+        0 &amp; 0 &amp; \dots &amp; 0 &amp; 0 \\
+          &amp; \vdots &amp; &amp; \vdots &amp; \\
+        1 &amp; 1 &amp; \dots &amp; 1 &amp; 1 \\
+          &amp; \vdots &amp; &amp; \vdots &amp; \\
+        0 &amp; 0 &amp; \dots &amp; 0 &amp; 0
+\end{bmatrix}\end{split}\]</div>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+</li>
+<li><p class="first">Label the morphologically operated image</p>
+</li>
+<li><p class="first">Remove patches which size is less or equal to 4000 pixels</p>
+</li>
+<li><p class="first">Label the image again with new labels</p>
+</li>
+<li><p class="first">Calculate the extreme dimensions of each patch. These values are used as the limiting bounding boxes.</p>
+</li>
+<li><p class="first">Combine the boxes which are horizontally too close as they are thought to be separate boxes on the same textline.</p>
+</li>
+<li><p class="first">Return the bounding boxes</p>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="osearch.OratUtils.contStretch">
+<em class="property">static </em><tt class="descname">contStretch</tt><big>(</big><em>im</em>, <em>a</em>, <em>h</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.contStretch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs contrast stretching for grayscale images. Pixel intensities are set to 
+differ &#8216;a&#8217; times the average intensity from the original intensity values. The new 
+intensity values are sliced to stay between [0, 255].</p>
+<div class="math">
+\[I_{stretched} = I_{old} + a*( I_{old} - I_{average} )\]\[\begin{split}I_{new} =
+\left\{
+\begin{array}[l]{ll}
+  0, &amp; I_{stretched} &lt; 0 \\
+  I_{stretched}, &amp; 0 \leq I_{stretched} \leq 255\\
+  255, &amp; I_{stretched} &gt; 255
+\end{array}
+\right.\end{split}\]</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>im</strong> (<em>ndarray</em>) &#8211; The image which contrast is to be stretched</li>
+<li><strong>a</strong> (<em>int</em>) &#8211; multiplication coefficient</li>
+<li><strong>h</strong> (<em>int</em>) &#8211; The height of image. Used as partial image average switch</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; contrast stretched image</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Parameter <em>h</em> is a switch which could be used to determine if the average intensity 
+is calculated over the whole image or from a small portion of it. Currently it is 
+defaulted in the code to newer happen. Originally the idea was that if the image 
+is very big, the intensity average would be taken from a small sample. To make the 
+function more generic and also because of the nature of the images in Orationes 
+project, it was decided that the average is always calculated over the whole image.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="osearch.OratUtils.hfilter">
+<em class="property">static </em><tt class="descname">hfilter</tt><big>(</big><em>image</em>, <em>diameter</em>, <em>height</em>, <em>length</em>, <em>n</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.hfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function performs homomorphic filtering on grayscale images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) &#8211; 2-dimensional ndarray</li>
+<li><strong>diameter</strong> (<em>int</em>) &#8211; filter diameter</li>
+<li><strong>height</strong> (<em>int</em>) &#8211; Height of the image</li>
+<li><strong>length</strong> (<em>int</em>) &#8211; Length of the image</li>
+<li><strong>n</strong> (<em>int</em>) &#8211; Filter order</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; homomorphically filtered image</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The image must in ndarray format. In osearch PIL images are converted to scipy images which 
+are in ndarray format. Ndarray format allows easy and fast direct access to the pixel values 
+and this function is written entirely only for the ndarrays.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="osearch.OratUtils.padlines">
+<em class="property">static </em><tt class="descname">padlines</tt><big>(</big><em>imlines</em>, <em>llines</em>, <em>charlines</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.padlines" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>imlines</strong> (<em>ndarray</em>) &#8211; n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform</li>
+<li><strong>llines</strong> (<em>ndarray</em>) &#8211; n*2 size ndarray containing the length information of the lines</li>
+<li><strong>charlines</strong> (<em>list</em>) &#8211; list of lists telling the position(s) of searched character(s)/word(s) on each line</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; wantedlines</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Long:
+Llines contains the information about the lines got from the XML and also it contains the 
+information if some of the lines are remarkably shorter than other lines. That means that, if there are some lines that 
+are not found from the image, it is assumed that those non-found lines are the shortest lines according to the XML and 
+character count. Those lines are marked as 0 in the second column in llines.</p>
+<p>Short:
+Llines[:,1] contains only 1s and 0s. 1 meaning a line with enough letters to be recognized by poormanradon (pmr) 
+and 0 meaning a line which is probably undetected by pmr</p>
+<dl class="docutils">
+<dt>Behavior:</dt>
+<dd><p class="first">Number of lines found from the image using pmr is larger than 
+the number of lines calculated from XML:</p>
+<blockquote>
+<div>TODO! Currently this case is not handled!</div></blockquote>
+<p>Number of lines found from the image using pmr is smaller than
+the number of lines calculated from XML:</p>
+<blockquote>
+<div><p>Pad the lines according to the information in llines[:,1]</p>
+<p>llines:         imlines:                rlines:</p>
+<dl class="docutils">
+<dt>[1 &#8212;&#8212;&#8212;-&gt;[100 &#8212;&#8212;&#8211;&gt;[100</dt>
+<dd>1 &#8212;&#8212;&#8212;-&gt; 200 &#8212;&#8212;&#8211;&gt; 200
+1 &#8212;&#8212;&#8212;-&gt; 300 &#8212;&#8212;&#8211;&gt; 300
+1 &#8212;&#8212;&#8212;-&gt; 400 &#8212;&#8212;&#8211;&gt; 400
+0      .&#8212;&#8212;&#8211;&gt; 600 &#8212;&#8212;&#8211;. NAN
+1 /.&#8212;&#8212;&#8211;&gt; 700 &#8212;&#8212;&#8211;.&#8216;600
+1 / .&#8212;&#8212;-&gt; 900]&#8212;&#8212;-. &#8216;700
+0  /                                      NAN
+1]/                                            &#8216;900]</dd>
+</dl>
+</div></blockquote>
+<p>Number of lines found from the image using pmr equals to
+the number of lines calculated from XML:</p>
+<blockquote class="last">
+<div>Pick unique lines from imlines and return them as lines 
+the interesting lines.</div></blockquote>
+</dd>
+</dl>
+<p># Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
+# tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
+# rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän
+# kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne
+# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
+# rivien indeksit osoittamaan aina oikeaan riviin.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="osearch.OratUtils.poormanradon">
+<em class="property">static </em><tt class="descname">poormanradon</tt><big>(</big><em>image</em>, <em>iname</em>, <em>height</em>, <em>debug</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.poormanradon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a naive radon-transform on the binarized and contrast stretched image and 
+tries to determine where the text lines are in the image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) &#8211; Image</li>
+<li><strong>iname</strong> (<em>string</em>) &#8211; Image name</li>
+<li><strong>height</strong> (<em>int</em>) &#8211; Image height</li>
+<li><strong>debug</strong> (<em>bool</em>) &#8211; Debug switch</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; Array containing the lines which are found using radon transform</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="osearch.OratUtils.stringparser">
+<em class="property">static </em><tt class="descname">stringparser</tt><big>(</big><em>tfile</em>, <em>c</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.stringparser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs case sensitive search for text file tfile with string or character c (char on default).
+Argument c can be any regular expression</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tfile</strong> (<em>string</em>) &#8211; The name of the cleaned XML file</li>
+<li><strong>c</strong> (<em>string/char/regular expression</em>) &#8211; The letter or string that is searched from the tfile</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list &#8211; charcount</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of lists &#8211; charpos</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of lists &#8211; charlines</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of lists &#8211; wordlens</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p class="first"><em>Charcount</em> is a list containing the lengths of each line.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[63,</span> <span class="pre">60,</span> <span class="pre">4,</span> <span class="pre">65,</span> <span class="pre">66,</span> <span class="pre">37,</span> <span class="pre">66,</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Charpos</em> is a list containing lists including the positions of the found characters or the first letters of the found words.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[[52],</span> <span class="pre">[10,</span> <span class="pre">47,</span> <span class="pre">62],</span> <span class="pre">[19,</span> <span class="pre">62],</span> <span class="pre">[51],</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Charlines</em> is a list of lists where the length of each sublist tells the number of hits on that line and the element values representing the line number from the XML file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[[3],</span> <span class="pre">[4,</span> <span class="pre">4,</span> <span class="pre">4],</span> <span class="pre">[6,</span> <span class="pre">6],</span> <span class="pre">[7],</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Wordlens</em> is a list containing lists containing the lengths of the words on each line.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[[3],</span> <span class="pre">[3,</span> <span class="pre">3,</span> <span class="pre">3],</span> <span class="pre">[3,</span> <span class="pre">3],</span> <span class="pre">[3],</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="helper-functions">
+<h2>Helper Functions<a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="osearch.HFun">
+<em class="property">class </em><tt class="descclassname">osearch.</tt><tt class="descname">HFun</tt><a class="headerlink" href="#osearch.HFun" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Documentation for the Code</a><ul>
+<li><a class="reference internal" href="#module-osearch">Orationes Search</a></li>
+<li><a class="reference internal" href="#oratutils">OratUtils</a></li>
+<li><a class="reference internal" href="#helper-functions">Helper Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to OrationesPython&#8217;s documentation!</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/code.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to OrationesPython’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">OrationesPython 1.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Timo Mätäsaho.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

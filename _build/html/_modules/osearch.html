@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>osearch &mdash; OrationesPython 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="OrationesPython 1.0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">OrationesPython 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for osearch</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: UTF-8 -*-</span>
+<span class="c"># Uses Anaconda 1.6.2 64-bit distribution package with Python 2.7.5</span>
+<span class="c">#</span>
+<span class="c"># Timo Mätäsaho</span>
+<span class="c"># University of Oulu</span>
+<span class="c"># 2013</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">Image</span> <span class="kn">as</span> <span class="nn">Im</span>
+<span class="kn">import</span> <span class="nn">timeit</span>
+<span class="kn">from</span> <span class="nn">OratUtils</span> <span class="kn">import</span> <span class="n">OratUtils</span>
+<span class="kn">from</span> <span class="nn">HFun</span> <span class="kn">import</span> <span class="n">HFun</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">fromimage</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<div class="viewcode-block" id="osearch"><a class="viewcode-back" href="../code.html#osearch.osearch">[docs]</a><span class="k">def</span> <span class="nf">osearch</span><span class="p">(</span> <span class="n">img</span><span class="p">,</span> <span class="n">txtf</span><span class="p">,</span> <span class="n">sw</span> <span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		The main program that only calls the processing methods from OratUtils and HFun classes.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
+
+	<span class="c"># Open the image and text file with their absolute paths to ensure that the right files from</span>
+	<span class="c"># the right place are opened</span>
+	<span class="n">curDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span> <span class="n">__file__</span> <span class="p">))</span>
+	<span class="n">imagename</span> <span class="o">=</span> <span class="n">curDir</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">Images</span><span class="se">\\</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">img</span>
+	<span class="n">tfile</span> <span class="o">=</span> <span class="n">curDir</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">Texts</span><span class="se">\\</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">txtf</span>
+
+
+	<span class="c"># Parse the XML file. The XML file must be formatted to raw text with no XML tags. </span>
+	<span class="c"># Should be done separately outside of this program unless this program is updated</span>
+	<span class="c"># to do that as well.</span>
+	<span class="n">charcount</span><span class="p">,</span> <span class="n">charpos</span><span class="p">,</span> <span class="n">charlines</span><span class="p">,</span> <span class="n">wordlens</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">stringparser</span><span class="p">(</span> <span class="n">tfile</span><span class="p">,</span> <span class="n">sw</span> <span class="p">)</span>
+
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">charpos</span><span class="p">:</span>
+		<span class="k">print</span> <span class="s">&quot;Couldn&#39;t find string </span><span class="se">\&#39;</span><span class="si">%s</span><span class="se">\&#39;</span><span class="s"> from page </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">sw</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+		<span class="k">return</span> <span class="mi">0</span>
+
+
+	<span class="c"># Open the original image and convert it to grayscale</span>
+	<span class="n">origimage</span> <span class="o">=</span> <span class="n">Im</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">imagename</span><span class="p">)</span>
+	<span class="n">grayimage</span> <span class="o">=</span> <span class="n">origimage</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s">&quot;L&quot;</span><span class="p">)</span> <span class="c"># Conversion from RGB to Grayscale</span>
+
+
+	<span class="c"># Get the dimensions of the image</span>
+	<span class="n">ImLength</span><span class="p">,</span> <span class="n">ImHeight</span> <span class="o">=</span> <span class="n">origimage</span><span class="o">.</span><span class="n">size</span>
+
+
+	<span class="c"># Conversion from PIL image to scipy image and then from uint8 to float</span>
+	<span class="n">tI</span> <span class="o">=</span> <span class="n">fromimage</span><span class="p">(</span><span class="n">grayimage</span><span class="p">)</span> <span class="c"># From PIL to scipy image</span>
+	<span class="n">tI</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">im2float</span><span class="p">(</span><span class="n">tI</span><span class="p">)</span> <span class="c"># From uint8 to float</span>
+
+
+	<span class="c"># Filter the image and convert it back to grayscale uint8 image</span>
+	<span class="n">filteredIm</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">hfilter</span><span class="p">(</span> <span class="n">tI</span><span class="p">,</span> <span class="mi">620</span><span class="p">,</span> <span class="n">ImHeight</span><span class="p">,</span> <span class="n">ImLength</span><span class="p">,</span> <span class="mi">20</span> <span class="p">)</span>	
+	<span class="n">filteredIm</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">gray2uint8</span><span class="p">(</span><span class="n">filteredIm</span><span class="p">)</span> <span class="c"># From float to uint8</span>
+
+
+	<span class="c"># Stretch the contrast of the image</span>
+	<span class="n">cIm</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">contStretch</span><span class="p">(</span> <span class="n">filteredIm</span><span class="p">,</span> <span class="mi">20</span> <span class="p">,</span> <span class="n">ImHeight</span> <span class="p">)</span>
+
+
+	<span class="c"># Get the bounding boxes covering each line</span>
+	<span class="c"># Put in its own thread?</span>
+	<span class="n">bboxes</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">boundingBox</span><span class="p">(</span> <span class="n">cIm</span><span class="p">,</span> <span class="n">debug</span> <span class="p">)</span>
+
+
+	<span class="c"># Get the positions of lines according to the image and its radon transform</span>
+	<span class="n">imlines</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">poormanradon</span><span class="p">(</span> <span class="n">cIm</span><span class="p">,</span> <span class="n">imagename</span><span class="p">,</span> <span class="n">ImHeight</span><span class="p">,</span> <span class="n">debug</span> <span class="p">)</span>
+
+	<span class="c"># Get the rightlines according to the XML file and the image</span>
+	<span class="n">rlines</span><span class="p">,</span> <span class="n">imlines</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">processlines</span><span class="p">(</span> <span class="n">charcount</span><span class="p">,</span> <span class="n">imlines</span> <span class="p">)</span>
+
+	<span class="c"># Get the lines that are used to search the possible hits</span>
+	<span class="n">slines</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">padlines</span><span class="p">(</span> <span class="n">imlines</span><span class="p">,</span> <span class="n">rlines</span><span class="p">,</span> <span class="n">charlines</span> <span class="p">)</span> <span class="c"># slines - [a1, a2, ..., an], n == number of unique rlines</span>
+
+	<span class="c"># Find the correspondences between the lines which are used for searching and the bounding boxes</span>
+	<span class="n">coords</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">findCorr</span><span class="p">(</span> <span class="n">bboxes</span><span class="p">,</span> <span class="n">slines</span><span class="p">,</span> <span class="n">charcount</span><span class="p">,</span> <span class="n">imlines</span><span class="p">,</span> <span class="n">debug</span> <span class="p">)</span>
+
+	<span class="n">jsondata</span> <span class="o">=</span> <span class="n">OratUtils</span><span class="o">.</span><span class="n">packCoordsToJson</span><span class="p">(</span> <span class="n">slines</span><span class="p">,</span> <span class="n">origimage</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charpos</span><span class="p">,</span> <span class="n">debug</span> <span class="p">)</span>
+
+	<span class="k">print</span> <span class="n">jsondata</span>
+
+	<span class="c"># The jsondata may have to be returned instead of just printed out. This depends heavily of the behavior of the calling program</span>
+	<span class="c"># In this case we use a PHP site to call this program. Need to consult with Ilkka about how the PHP site will handle this file.</span>
+
+	<span class="k">return</span>
+
+
+
+
+
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+		<span class="n">osearch</span><span class="p">(</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">print</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">Wrong amount of parameters. Need following arguments: &quot;</span>
+		<span class="k">print</span> <span class="s">&quot;Name of the image, name of the correspoding raw text file, word that&#39;s being searched</span><span class="se">\n</span><span class="s">&quot;</span>
+		<span class="k">print</span> <span class="s">&quot;For example use:    python osearch.py </span><span class="se">\&quot;</span><span class="s">Lit_Ms_E_41 070r.jpg</span><span class="se">\&quot;</span><span class="s"> </span><span class="se">\&quot;</span><span class="s">070</span><span class="se">\&quot;</span><span class="s"> </span><span class="se">\&quot;</span><span class="s">King</span><span class="se">\&quot;</span><span class="s"> &quot;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">OrationesPython 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Timo Mätäsaho.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

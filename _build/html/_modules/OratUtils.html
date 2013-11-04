@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OratUtils &mdash; OrationesPython 1.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="OrationesPython 1.0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">OrationesPython 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for OratUtils</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: UTF-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="kn">as</span> <span class="nn">cm</span>
+<span class="kn">import</span> <span class="nn">peakdet</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage.measurements</span> <span class="kn">import</span> <span class="n">label</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span><span class="p">,</span> <span class="n">signal</span>
+<span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">fromimage</span>
+<span class="kn">from</span> <span class="nn">HFun</span> <span class="kn">import</span> <span class="n">HFun</span>
+
+<span class="kn">import</span> <span class="nn">timeit</span>
+
+<div class="viewcode-block" id="OratUtils"><a class="viewcode-back" href="../code.html#OratUtils.OratUtils">[docs]</a><span class="k">class</span> <span class="nc">OratUtils</span><span class="p">:</span>
+
+	<span class="sd">&quot;&quot;&quot; This class contains only static utility methods that are called directly from the main program &#39;osearch.py&#39;. &quot;&quot;&quot;</span>
+
+
+
+
+
+	<span class="c"># Performs case sensitive search for text file tfile with string or character c on default.</span>
+	<span class="c"># Argument c can be any regular expression</span>
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="OratUtils.stringparser"><a class="viewcode-back" href="../code.html#OratUtils.OratUtils.stringparser">[docs]</a>	<span class="k">def</span> <span class="nf">stringparser</span><span class="p">(</span> <span class="n">tfile</span><span class="p">,</span> <span class="n">c</span> <span class="p">):</span>
+
+		<span class="n">charcount</span> <span class="o">=</span> <span class="p">[]</span> 	<span class="c"># Holds the lengths of each line</span>
+		<span class="n">charlines</span> <span class="o">=</span> <span class="p">[]</span>	<span class="c"># </span>
+		<span class="n">charpos</span> <span class="o">=</span> <span class="p">[]</span>	<span class="c"># The positions of the found characters or the first letters of the found words</span>
+		<span class="n">wordlens</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+
+		<span class="n">fid</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span> <span class="n">tfile</span><span class="p">,</span> <span class="s">&#39;r&#39;</span> <span class="p">)</span>
+
+		<span class="n">lines</span> <span class="o">=</span> <span class="n">fid</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+		<span class="n">fid</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+		
+		<span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+
+			<span class="c"># Each string needs to be decoded to utf-8 as the files are saved in utf-8 format. </span>
+			<span class="c"># Without decoding matching would be done to ascii decoding and that causes the </span>
+			<span class="c"># strings to contain extra characters.</span>
+			<span class="c"># Also the newline characters are removed so that the length of the lines are </span>
+			<span class="c"># correct</span>
+
+			<span class="n">s</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">,</span> <span class="s">&#39;ignore&#39;</span><span class="p">)</span>	
+			<span class="n">charindlist</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">charcount</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+			
+			<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+				<span class="n">charindlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">())</span>
+			
+			<span class="k">if</span> <span class="n">charindlist</span><span class="p">:</span>	
+				<span class="n">charpos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">charindlist</span><span class="p">)</span>
+				
+				<span class="n">tempv1</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">charindlist</span><span class="p">)</span>		<span class="c"># These two temporary values are needed to append right amount of linenumbers and wordlenght numbers</span>
+				<span class="n">tempv2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">charindlist</span><span class="p">)</span>	<span class="c"># into their respective vectors</span>
+				
+				<span class="n">charlines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempv1</span><span class="p">)</span>
+				<span class="n">wordlens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempv2</span><span class="p">)</span>
+
+			<span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+		<span class="k">return</span> <span class="n">charcount</span><span class="p">,</span> <span class="n">charpos</span><span class="p">,</span> <span class="n">charlines</span><span class="p">,</span> <span class="n">wordlens</span>
+
+
+
+</div>
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">hfilter</span><span class="p">(</span> <span class="n">image</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">n</span> <span class="p">):</span>
+
+		<span class="c"># tI, 620, ImHeight, ImLength, 20</span>
+
+		<span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+		<span class="c"># img must be in ndarray format. Inside osearch PIL images are converted to scipy images which are in ndarray format</span>
+		<span class="c"># h = height</span>
+		<span class="c"># l = length</span>
+
+		<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s">&#39;error&#39;</span><span class="p">)</span>
+
+		<span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">l</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span> <span class="p">)</span>
+
+		<span class="n">H</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+		<span class="n">L</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+		<span class="n">D</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+		<span class="n">N</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+	
+		<span class="n">Xd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">l</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span> <span class="p">)</span>
+		<span class="n">Yd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="n">h</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span> <span class="p">)</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">L</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">Xd</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">L</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span> <span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">Xd</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">-</span><span class="n">L</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span> <span class="p">)</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">H</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="n">Yd</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">H</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span> <span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">Yd</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">-</span><span class="n">H</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span> <span class="p">)</span>
+		
+
+		<span class="n">F</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="n">D</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span> <span class="n">Xd</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Yd</span><span class="p">),</span> <span class="mf">0.5</span> <span class="p">),</span><span class="mi">2</span><span class="o">*</span><span class="n">N</span> <span class="p">)</span> <span class="p">)</span>
+
+		<span class="n">aL</span> <span class="o">=</span> <span class="mf">0.949</span>
+		<span class="n">aH</span> <span class="o">=</span> <span class="mf">1.51</span>
+
+		<span class="n">F</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">F</span><span class="p">[:,:]</span> <span class="o">*</span> <span class="p">(</span><span class="n">aH</span> <span class="o">-</span> <span class="n">aL</span><span class="p">)</span> <span class="p">)</span> <span class="o">+</span> <span class="n">aL</span>
+
+		<span class="n">im_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span> <span class="mi">1</span><span class="o">+</span><span class="n">img</span> <span class="p">)</span>
+
+		<span class="n">im_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft2</span><span class="p">(</span> <span class="n">im_l</span> <span class="p">)</span>	<span class="c">#2.7s</span>
+
+		<span class="n">im_nf</span> <span class="o">=</span> <span class="n">im_f</span> <span class="o">*</span> <span class="n">F</span> <span class="c"># Computes element by element multiplication c[0,0] = a[0,0]*b[0,0] etc</span>
+
+		<span class="n">im_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifft2</span><span class="p">(</span> <span class="n">im_nf</span> <span class="p">)</span> <span class="p">)</span> <span class="c"># 2.85s</span>
+
+		<span class="n">im_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="n">im_n</span> <span class="p">)</span>
+
+		<span class="n">filteredImage</span> <span class="o">=</span> <span class="n">im_e</span> <span class="o">-</span> <span class="mi">1</span>
+
+		<span class="k">return</span> <span class="n">filteredImage</span>
+
+
+
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">contStretch</span><span class="p">(</span> <span class="n">im</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">h</span> <span class="p">):</span>
+
+		<span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="mi">30000</span><span class="p">:</span>
+			<span class="c"># This part was supposed to take average sample from the background</span>
+			<span class="c"># The limit is set to 30000 to ensure that at this point this will never</span>
+			<span class="c"># happen.</span>
+			<span class="n">temp</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span> <span class="mi">600</span><span class="p">:</span><span class="mi">800</span><span class="p">]</span>
+			<span class="n">i_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">i_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+		<span class="n">resI</span> <span class="o">=</span> <span class="n">image</span><span class="p">[:,:]</span> <span class="o">+</span> <span class="n">a</span><span class="o">*</span><span class="p">(</span> <span class="n">image</span><span class="p">[:,:]</span> <span class="o">-</span> <span class="n">i_avg</span> <span class="p">)</span>
+
+		<span class="n">resI</span><span class="p">[</span><span class="n">resI</span><span class="o">&gt;</span><span class="mi">255</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+		<span class="n">resI</span><span class="p">[</span><span class="n">resI</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+		<span class="k">return</span> <span class="n">resI</span>
+
+
+
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">boundingBox</span><span class="p">(</span> <span class="n">image</span><span class="p">,</span> <span class="n">debug</span> <span class="p">):</span>
+
+		<span class="n">cIm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+		<span class="c"># Take histogram of the image</span>
+		<span class="n">hist</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span> <span class="n">cIm</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="bp">False</span> <span class="p">)</span> <span class="c">#0.16s</span>
+
+		<span class="c"># Binarize the image and invert it to a complement image</span>
+		<span class="n">bwI</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">im2bw</span><span class="p">(</span><span class="n">cIm</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">)</span>	<span class="c">#</span>
+		<span class="n">compIm</span> <span class="o">=</span> <span class="p">(</span><span class="n">bwI</span><span class="p">[:,:]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> 	<span class="c"># 0.12s</span>
+		<span class="n">compIm</span> <span class="o">=</span> <span class="n">compIm</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span> <span class="p">)</span>
+
+		<span class="c"># Calculate connected components from the image</span>
+		<span class="n">lArray</span><span class="p">,</span> <span class="n">nFeat</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">compIm</span><span class="p">)</span>	<span class="c"># 0.078s</span>
+	
+		<span class="c"># Calculate the sizes of each labeled patch</span>
+		<span class="n">sizes</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">compIm</span><span class="p">,</span> <span class="n">lArray</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nFeat</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>	<span class="c">#0.10s</span>
+
+		<span class="c"># Remove the largest patch from the image</span>
+		<span class="c"># It is assumed that the largest patch is always the are that&#39;s left outside of the margins</span>
+		<span class="n">maxInd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">sizes</span> <span class="o">==</span> <span class="n">sizes</span><span class="o">.</span><span class="n">max</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> 	<span class="c"># Find the index which points to largest patchs</span>
+		<span class="n">maxPixs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">lArray</span> <span class="o">==</span> <span class="n">maxInd</span> <span class="p">)</span>				<span class="c"># Find the pixels which have the maxInd as label from labeled image</span>
+		<span class="n">lArray</span><span class="p">[</span> <span class="n">maxPixs</span> <span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>								<span class="c"># Set the pixels from the largest patch to zero</span>
+		<span class="c"># ^0.047s</span>
+
+		<span class="c"># Remove patches which size is smaller or equal to 50 pixels</span>
+		<span class="c"># Make the labeled image with the patches removed as the new complement image and change all the labels to 1 and 0s</span>
+		<span class="n">compImtmp</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">remPatches</span><span class="p">(</span> <span class="n">sizes</span><span class="p">,</span> <span class="n">lArray</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">nFeat</span> <span class="p">)</span>	<span class="c"># 52.7s with loop</span>
+
+		<span class="c"># Remove all patches which height spans over 70 pixels</span>
+		<span class="n">compIm2</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">remHighPatches</span><span class="p">(</span> <span class="n">compImtmp</span><span class="p">,</span> <span class="mi">70</span> <span class="p">)</span>	<span class="c"># 32.7s if remPatches done with lopp</span>
+
+		<span class="c"># Erode the image with vertical line shaped structure element</span>
+		<span class="n">SEe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;bool&#39;</span><span class="p">)</span>
+		<span class="n">SEe</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+		<span class="n">SEe</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+		<span class="n">cI3</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">compIm2</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">SEe</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">compIm2</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+
+		<span class="c"># Dilate the image with horizontal line shaped structure element</span>
+		<span class="n">SEd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">70</span><span class="p">,</span><span class="mi">70</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;bool&#39;</span><span class="p">)</span> <span class="c"># 60 60 ja 30</span>
+		<span class="n">SEd</span><span class="p">[</span><span class="mi">35</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">1</span>
+
+		<span class="n">cI3</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span><span class="n">cI3</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">SEd</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">cI3</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+
+		<span class="c"># Label the new morphologically operated image</span>
+		<span class="n">lArray2</span><span class="p">,</span> <span class="n">nFeat2</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span> <span class="n">cI3</span> <span class="p">)</span>
+		<span class="n">sizes2</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">cI3</span><span class="p">,</span> <span class="n">lArray2</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nFeat2</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+
+
+		<span class="c"># Remove the dilated patches which size is smaller than 4000 pixels</span>
+		<span class="n">cI4</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">remPatches</span><span class="p">(</span> <span class="n">sizes2</span><span class="p">,</span> <span class="n">lArray2</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="n">nFeat2</span> <span class="p">)</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+			<span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="p">(</span><span class="n">compIm2</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="s">&#39;uint8&#39;</span> <span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Greys_r</span> <span class="p">)</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="p">(</span><span class="n">cI3</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="s">&#39;uint8&#39;</span> <span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Greys_r</span> <span class="p">)</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="p">(</span><span class="n">cI4</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span> <span class="s">&#39;uint8&#39;</span> <span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Greys_r</span> <span class="p">)</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+		<span class="c"># Label the latest binary image</span>
+		<span class="n">lArray3</span><span class="p">,</span> <span class="n">nFeat3</span> <span class="o">=</span> <span class="n">label</span><span class="p">(</span><span class="n">cI4</span><span class="p">)</span>
+
+		<span class="n">BBs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="n">nFeat3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+
+		<span class="c"># Calculate the dimensions of the bounding boxes</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">nFeat3</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+			<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span> <span class="n">lArray3</span><span class="o">==</span><span class="n">i</span> <span class="p">)</span>
+			<span class="p">(</span><span class="n">ystart</span><span class="p">,</span> <span class="n">xstart</span><span class="p">),(</span><span class="n">ystop</span><span class="p">,</span> <span class="n">xstop</span><span class="p">)</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">B</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c"># Rajaa siten, että bounding boxin reunaviiva osuu reunimmaisten pikseleiden päälle. Jos halutaan niiden jäävän myös boxin sisään niin pitää molempiin lisätä 1</span>
+			<span class="n">BBs</span><span class="p">[:,</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">xstart</span><span class="p">,</span> <span class="n">ystart</span><span class="p">,</span> <span class="n">xstop</span><span class="p">,</span> <span class="n">ystop</span><span class="p">]</span>
+
+
+		<span class="c"># Calculate the difference matrix for the starting y-coordinates between all bounding boxes</span>
+		<span class="n">yDiff</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">diffMat</span><span class="p">(</span> <span class="n">BBs</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span> <span class="p">)</span>
+
+		<span class="n">sameBBs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span> <span class="n">yDiff</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">)</span> <span class="c"># Eli sisältää tosiaan tarpeeksi lähellä olevien BB:iden indeksit BBs listassa</span>
+
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">sameBBs</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])):</span>
+			<span class="c"># sameBBs sisältää pareja, jotka ovat tarpeeksi lähekkäin olevien BB:iden indeksejä BBs arrayssa</span>
+			<span class="c"># Haetaan siis näitä indeksejä vastaavat BB:iden tiedot muuttujiin a ja b ja yhdistetään ne</span>
+			<span class="c"># a and b are [label, xstart, ystart, xstop, ystop]</span>
+
+			<span class="n">a</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[:,</span><span class="n">sameBBs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span>
+			<span class="n">b</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[:,</span><span class="n">sameBBs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+			<span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+			<span class="c"># Make new leftmost BB start coordinate by taking the leftmost x coordinate and highest ( lowest index ) y-coordinate</span>
+			<span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>
+			<span class="n">c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">)</span>
+
+			<span class="c"># Make new rightmost BB stop coordinate by taking the rightmost x coordinate and lowest ( highest index ) y-coordinate</span>
+			<span class="n">c</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="p">)</span>
+			<span class="n">c</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span> <span class="n">a</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="p">)</span>
+
+			<span class="c"># Set the label of the new BBs to the same as the label of a</span>
+			<span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+			<span class="n">BBs</span><span class="p">[:,</span><span class="n">sameBBs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">c</span>
+			<span class="n">BBs</span><span class="p">[:,</span><span class="n">sameBBs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">c</span>
+
+
+		<span class="c"># Get unique bounding boxes thus removing the possible duplicate BBs</span>
+		<span class="n">vals</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">BBs</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">return_index</span><span class="o">=</span><span class="bp">True</span> <span class="p">)</span>
+		<span class="n">BBs</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">BBs</span><span class="p">[</span><span class="mi">2</span><span class="p">,:])</span> <span class="p">):</span>
+				<span class="n">sx</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+				<span class="n">ex</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+				<span class="n">sy</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+				<span class="n">ey</span> <span class="o">=</span> <span class="n">BBs</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+				
+				<span class="n">cIm</span><span class="p">[</span><span class="n">sy</span><span class="p">,</span> <span class="n">sx</span><span class="p">:</span><span class="n">ex</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+				<span class="n">cIm</span><span class="p">[</span><span class="n">ey</span><span class="p">,</span> <span class="n">sx</span><span class="p">:</span><span class="n">ex</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+				<span class="n">cIm</span><span class="p">[</span><span class="n">sy</span><span class="p">:</span><span class="n">ey</span><span class="p">,</span> <span class="n">sx</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+				<span class="n">cIm</span><span class="p">[</span><span class="n">sy</span><span class="p">:</span><span class="n">ey</span><span class="p">,</span> <span class="n">ex</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+			<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="p">(</span><span class="n">cIm</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;uint8&#39;</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Greys_r</span> <span class="p">)</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+		<span class="k">return</span> <span class="n">BBs</span>
+
+
+
+
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">poormanradon</span><span class="p">(</span> <span class="n">image</span><span class="p">,</span> <span class="n">iname</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">debug</span> <span class="p">):</span>
+
+		<span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span> <span class="c">#HFun.im2bw(image, 0.95)</span>
+
+		<span class="c"># Check if the imagename contains (2) or not</span>
+		<span class="c"># Very bad way to choose the area to find lines from, but at the moment there&#39;s no other method to do this. Needs to be improved somehow!</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="k">if</span><span class="p">(</span> <span class="n">iname</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&#39;(2)&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="p">):</span>
+				<span class="n">upLim</span> <span class="o">=</span> <span class="mi">260</span>
+				<span class="n">downLim</span> <span class="o">=</span> <span class="mi">2490</span>
+				<span class="n">leftLim</span> <span class="o">=</span> <span class="mi">262</span>
+				<span class="n">rightLim</span> <span class="o">=</span> <span class="mi">1530</span>
+		<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+			<span class="n">upLim</span> <span class="o">=</span> <span class="mi">320</span> <span class="c">#200</span>
+			<span class="n">downLim</span> <span class="o">=</span> <span class="mi">2428</span> <span class="c"># 2520 # 2440</span>
+			<span class="n">leftLim</span> <span class="o">=</span> <span class="mi">270</span>
+			<span class="n">rightLim</span> <span class="o">=</span> <span class="mi">1460</span>
+
+		<span class="n">img</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">upLim</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">255</span>
+		<span class="n">img</span><span class="p">[</span><span class="n">downLim</span><span class="p">::,:]</span> <span class="o">=</span> <span class="mi">255</span>
+		<span class="n">img</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">leftLim</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+		<span class="n">img</span><span class="p">[:,</span> <span class="n">rightLim</span><span class="p">::]</span><span class="o">=</span> <span class="mi">255</span>
+
+		<span class="n">linesums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">height</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">height</span><span class="p">):</span>
+			<span class="n">linesums</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span>
+
+		<span class="n">inv</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">linesums</span>
+		<span class="n">minv</span> <span class="o">=</span> <span class="n">inv</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+		<span class="c">#inv[ inv &gt; minv+30000 ] = minv-30000</span>
+
+		<span class="n">max_peaks</span><span class="p">,</span> <span class="n">min_peaks</span> <span class="o">=</span> <span class="n">peakdet</span><span class="o">.</span><span class="n">peakdetect</span><span class="p">(</span> <span class="n">inv</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">lookahead</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mi">1500</span> <span class="p">)</span>
+		<span class="n">mp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">max_peaks</span><span class="p">)[:,</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">mp</span> <span class="o">=</span> <span class="n">mp</span><span class="p">[</span> <span class="n">mp</span> <span class="o">&gt;</span> <span class="n">upLim</span> <span class="p">]</span>
+		<span class="n">mp</span> <span class="o">=</span> <span class="n">mp</span><span class="p">[</span> <span class="n">mp</span> <span class="o">&lt;</span> <span class="n">downLim</span> <span class="p">]</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+			<span class="c">#img2 = np.copy(image)</span>
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mp</span><span class="p">)):</span>
+				<span class="n">img</span><span class="p">[</span><span class="n">mp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="n">mp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">150</span>
+			<span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+			<span class="n">idata</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="n">idata</span><span class="o">.</span><span class="n">set_autoscaley_on</span><span class="p">(</span><span class="bp">False</span><span class="p">);</span> <span class="n">idata</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">inv</span><span class="p">)]</span> <span class="p">);</span> <span class="n">idata</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">inv</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">inv</span><span class="p">)</span> <span class="p">)</span> <span class="p">)</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Greys_r</span><span class="p">)</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+		<span class="k">return</span> <span class="n">mp</span>
+
+
+
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">processlines</span><span class="p">(</span> <span class="n">charcount</span><span class="p">,</span> <span class="n">imlines</span> <span class="p">):</span>
+
+		<span class="n">linenum</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">charcount</span><span class="p">)</span>
+		<span class="n">nofound</span> <span class="o">=</span> <span class="n">linenum</span> <span class="o">-</span> <span class="n">imlines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">llines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">linenum</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+		<span class="n">llines</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">nofound</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">):</span>
+			<span class="c"># Found more lines from the image than what&#39;s found from the XML</span>
+			<span class="c"># Do something</span>
+			<span class="k">return</span> <span class="n">llines</span><span class="p">,</span> <span class="n">imlines</span>
+
+		<span class="k">elif</span><span class="p">(</span> <span class="n">nofound</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+			<span class="c"># Found less lines from the image than what&#39;s found from the XML</span>
+			
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nofound</span><span class="p">):</span>
+				<span class="n">m</span> <span class="o">=</span> <span class="n">charcount</span><span class="o">.</span><span class="n">index</span><span class="p">(</span> <span class="nb">min</span><span class="p">(</span><span class="n">charcount</span><span class="p">)</span> <span class="p">)</span>
+				
+				<span class="n">llines</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+				<span class="n">charcount</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1000</span>
+
+				<span class="c"># Imlines needs to be padded as well. Non found lines are set tot NAN</span>
+				<span class="n">templines</span> <span class="o">=</span> <span class="n">imlines</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">m</span><span class="p">]</span>
+				<span class="n">templines2</span> <span class="o">=</span> <span class="n">imlines</span><span class="p">[</span><span class="n">m</span><span class="p">::]</span>
+				<span class="n">nimlines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">templines</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="p">)</span>
+				<span class="n">imlines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">nimlines</span><span class="p">,</span> <span class="n">templines2</span> <span class="p">)</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c"># Found equal amount of lines from the image as what&#39;s found from the XML</span>
+			<span class="c"># Lines are assumed to match</span>
+			<span class="k">return</span> <span class="n">llines</span><span class="p">,</span> <span class="n">imlines</span>
+
+		<span class="k">return</span> <span class="n">llines</span><span class="p">,</span> <span class="n">imlines</span>
+
+
+
+
+	<span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="OratUtils.padlines"><a class="viewcode-back" href="../code.html#OratUtils.OratUtils.padlines">[docs]</a>	<span class="k">def</span> <span class="nf">padlines</span><span class="p">(</span> <span class="n">imlines</span><span class="p">,</span> <span class="n">llines</span><span class="p">,</span> <span class="n">charlines</span> <span class="p">):</span>
+
+		<span class="c"># Imlines contains the lines got from the image by radontrasnform</span>
+		<span class="c"># Llines contains the information about the lines got from the XML and also it contains the </span>
+		<span class="c"># information of if some of the lines is longer or shorter than the mean length of the lines</span>
+
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			llines contains only 1s and 0s. 1 meaning a line with enough letters to be recognized by pmr </span>
+<span class="sd">			and 0 meaning a line which is probably undetected by pmr</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="c"># nlines is the number of lines calculated from the XML file</span>
+		<span class="c"># The corrected lines are gathered into the rlines</span>
+
+		<span class="n">nlines</span> <span class="o">=</span> <span class="n">llines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="n">rlines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nlines</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+		<span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+
+		<span class="c"># Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä</span>
+		<span class="c"># tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita</span>
+		<span class="c"># rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän</span>
+		<span class="c"># kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne</span>
+		<span class="c"># hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan</span>
+		<span class="c"># rivien indeksit osoittamaan aina oikeaan riviin.</span>
+
+		
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">imlines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nlines</span> <span class="p">):</span>
+
+			<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">				llines:		imlines:		rlines:</span>
+<span class="sd">				</span>
+<span class="sd">				[1 ----------&gt;[100 --------&gt;[100</span>
+<span class="sd">				 1 ----------&gt; 200 --------&gt; 200</span>
+<span class="sd">				 1 ----------&gt; 300 --------&gt; 300</span>
+<span class="sd">				 1 ----------&gt; 400 --------&gt; 400</span>
+<span class="sd">				 0 	.--------&gt; 600 --------. NAN</span>
+<span class="sd">				 1 /.--------&gt; 700 --------.&#39;600</span>
+<span class="sd">				 1 / .-------&gt; 900]-------. &#39;700</span>
+<span class="sd">				 0  / 					   \ NAN</span>
+<span class="sd">				 1]/ 						&#39;900]</span>
+
+<span class="sd">			&quot;&quot;&quot;</span>
+
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlines</span><span class="p">):</span>
+				
+				<span class="k">if</span><span class="p">(</span><span class="n">llines</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+					<span class="n">rlines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">imlines</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+					<span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">rlines</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+			<span class="n">cl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">charlines</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">])</span> <span class="p">)</span>
+			<span class="n">to_be_removed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">llines</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="c"># Returns the line (in range [1, nlines]) which isn&#39;t detected</span>
+			<span class="n">cl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">cl</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">cl</span> <span class="o">==</span> <span class="n">to_be_removed</span> <span class="p">)[</span><span class="mi">0</span><span class="p">])</span> <span class="c"># Discards the search from the lines which aren&#39;t detected</span>
+
+			<span class="n">wantedlines</span> <span class="o">=</span> <span class="n">rlines</span><span class="p">[</span> <span class="n">cl</span> <span class="p">]</span>
+			
+		<span class="k">else</span><span class="p">:</span>
+
+			<span class="c"># Flattens the list of lists (charlines) and takes only the unique values, which are number of the lines which has the matches of the word that&#39;s been searched</span>
+			<span class="c"># These values/indexes are used to choose only those lines that are needed in the search</span>
+			<span class="n">cl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">item</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">charlines</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">])</span> <span class="p">)</span>
+
+			<span class="n">wantedlines</span> <span class="o">=</span> <span class="n">imlines</span><span class="p">[</span> <span class="n">cl</span> <span class="p">]</span>
+
+		<span class="k">return</span> <span class="n">wantedlines</span>
+
+
+</div>
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">findCorr</span><span class="p">(</span> <span class="n">bboxes</span><span class="p">,</span> <span class="n">slines</span><span class="p">,</span> <span class="n">charcount</span><span class="p">,</span> <span class="n">imlines</span><span class="p">,</span> <span class="n">debug</span> <span class="p">):</span>
+
+		<span class="n">bbYs</span> <span class="o">=</span> <span class="n">bboxes</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+		<span class="n">rounds</span> <span class="o">=</span> <span class="n">slines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span><span class="n">rounds</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">rounds</span> <span class="p">):</span>
+
+			<span class="k">if</span><span class="p">(</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="p">)</span> <span class="p">):</span>
+				<span class="n">minlim</span> <span class="o">=</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">70</span>
+
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">minlim</span> <span class="o">=</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+			<span class="n">cBBYstarts</span> <span class="o">=</span> <span class="n">bbYs</span><span class="p">[</span> <span class="n">bbYs</span> <span class="o">&gt;</span> <span class="n">minlim</span> <span class="p">]</span>
+			<span class="n">cBBYstarts</span> <span class="o">=</span> <span class="n">cBBYstarts</span><span class="p">[</span> <span class="n">cBBYstarts</span> <span class="o">&lt;</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">]</span>
+
+			<span class="n">cBB</span> <span class="o">=</span> <span class="n">HFun</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span> <span class="n">bbYs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">minlim</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+
+
+			<span class="k">try</span><span class="p">:</span>
+				<span class="n">temp</span> <span class="o">=</span> <span class="n">bboxes</span><span class="p">[:,</span><span class="n">bbYs</span> <span class="o">==</span> <span class="n">bbYs</span><span class="p">[</span> <span class="n">cBB</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">]</span> <span class="p">]</span> <span class="c">#cBBYstarts before</span>
+			<span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+				<span class="c"># Some images fails and goes here for some reason. That needs to be found out and see if it causes other errors</span>
+				
+				<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+					<span class="k">print</span> <span class="s">&quot;Failed to find correspondences between bboxes and imlines&quot;</span>
+					<span class="k">print</span> <span class="n">cBB</span>
+					<span class="k">print</span> <span class="n">bbYs</span>
+					<span class="k">print</span> <span class="n">bboxes</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">pass</span>
+
+
+			<span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>	<span class="c"># Sisältää kyseistä bounding boxia vastaavan patching labelin</span>
+			<span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>	<span class="c"># Sisältää kyseisen bounding boxin xstart koordinaatin</span>
+			<span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>	<span class="c"># Sisältää kyseisen bounding boxin ystart koordinaatin</span>
+			<span class="n">coords</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>	<span class="c"># Sisältää kyseisen bounding boxin xstop koordinaatin</span>
+			<span class="n">coords</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>	<span class="c"># Sisältää kyseisen bounding boxin ystop koordinaatin</span>
+			<span class="c"># print np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1]</span>
+			<span class="c"># ^ Konvertoi ensin charcount listan numpy arrayksi</span>
+			<span class="c"># Sen jälkeen haetaan bboxes numpy arrayn toiselta rivilta kaikki niiden sarakkeiden indeksit, joissa sarakkeen arvon on sama kuin temp listan toiset arvot, koska temp listan toisina arvoina on halutut y koordinaatit</span>
+			<span class="c"># Sitten otetaan tästä np.where tuloksesta ensimmäinen alkio, koska se sisältää halutun indeksin ja lisätään siihen sitten yksi. Tämä sen takia, että labelit bboxissa on järjestetty </span>
+			<span class="c"># kasvavaan järjestykseen siten, että label on aina indeksi plus yksi ja sitten kaikki onkin ihan vitun sekavaa ... Kusee koska boksin label ei välttämättä ole sama kuin sitä vastaavan rivin järjnro!</span>
+
+
+			<span class="c">#coords[5,i] = np.asarray(charcount)[np.where( bboxes[2,:] == temp[2] )[0] +1] # Sisältää kyseisellä rivillä olevien kirjainten lukumäärän</span>
+			<span class="c">#print np.where( imlines == slines[i] )</span>
+			<span class="n">coords</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">charcount</span><span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span> <span class="n">imlines</span> <span class="o">==</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="p">]</span>
+			<span class="n">coords</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">slines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>	<span class="c"># Sisältää kyseistä bounding boxia vastaan rivin radonmuunnoksesta saadun keskikohdan y-koordinaatin</span>
+
+
+		<span class="k">return</span> <span class="n">coords</span>
+
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">packCoordsToJson</span><span class="p">(</span> <span class="n">slines</span><span class="p">,</span> <span class="n">origimage</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charpos</span><span class="p">,</span> <span class="n">debug</span> <span class="p">):</span>
+
+		<span class="n">rounds</span> <span class="o">=</span> <span class="n">slines</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+		<span class="n">xx</span> <span class="o">=</span> <span class="p">[]</span>
+		<span class="n">yy</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+			<span class="n">oI</span> <span class="o">=</span> <span class="n">fromimage</span><span class="p">(</span> <span class="n">origimage</span> <span class="p">)</span>
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="n">rounds</span> <span class="p">):</span> <span class="c"># rounds</span>
+
+
+			<span class="n">rightbound</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+			<span class="n">leftbound</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+			<span class="n">ccount</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+			<span class="n">linecenter</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+
+
+
+			<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">charpos</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+
+				<span class="n">X</span> <span class="o">=</span> <span class="n">charpos</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span> <span class="n">leftbound</span> <span class="o">-</span> <span class="n">rightbound</span> <span class="p">)</span><span class="o">/</span><span class="n">ccount</span> <span class="o">+</span> <span class="n">rightbound</span>
+				<span class="n">Y</span> <span class="o">=</span> <span class="n">linecenter</span>
+
+				<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+					<span class="k">try</span><span class="p">:</span>
+						<span class="n">oI</span><span class="p">[</span><span class="n">Y</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="n">X</span><span class="o">-</span><span class="mi">10</span><span class="p">:</span><span class="n">X</span><span class="o">+</span><span class="mi">50</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+						<span class="n">oI</span><span class="p">[</span><span class="n">Y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">X</span><span class="o">-</span><span class="mi">10</span><span class="p">:</span><span class="n">X</span><span class="o">+</span><span class="mi">50</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+						<span class="n">oI</span><span class="p">[</span><span class="n">Y</span><span class="o">-</span><span class="mi">20</span><span class="p">:</span><span class="n">Y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">X</span><span class="o">-</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+						<span class="n">oI</span><span class="p">[</span><span class="n">Y</span><span class="o">-</span><span class="mi">20</span><span class="p">:</span><span class="n">Y</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">X</span><span class="o">+</span><span class="mi">50</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+					<span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+
+						<span class="k">print</span> <span class="n">rightbound</span>
+						<span class="k">print</span> <span class="n">leftbound</span>
+						<span class="k">print</span> <span class="n">ccount</span>
+						<span class="k">print</span> <span class="n">linecenter</span>
+						<span class="k">print</span> <span class="n">charpos</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+						<span class="k">print</span> <span class="n">i</span>
+						<span class="k">print</span> <span class="n">j</span>
+						<span class="k">print</span>
+						<span class="k">print</span> <span class="n">charpos</span>
+						<span class="k">print</span>
+						<span class="k">print</span> <span class="n">slines</span>
+						<span class="k">print</span>
+
+						<span class="c">#Kuvan 70 tapauksessa tässä ccount 37 ja charpos 62 ... eli sijainti suurempi kuin mitä rivillä kirjaimia... eli väärät rivit valikoituu jostain syystä</span>
+
+				<span class="n">xx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">X</span> <span class="p">)</span>
+				<span class="n">yy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">Y</span> <span class="p">)</span>
+
+		<span class="k">if</span><span class="p">(</span> <span class="n">debug</span> <span class="p">):</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="n">oI</span> <span class="p">)</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+		<span class="c"># Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned</span>
+		<span class="c"># as a list to the main program that&#39;s calling this program</span>
+		<span class="c"># Encode the list into sensible json package or json-string</span>
+		<span class="n">startx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span><span class="o">-</span><span class="mi">10</span>
+		<span class="n">starty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span><span class="o">-</span><span class="mi">20</span>
+		<span class="n">endx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span><span class="o">+</span><span class="mi">50</span>
+		<span class="n">endy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span><span class="o">+</span><span class="mi">20</span>
+
+		<span class="n">data</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;startx&quot;</span><span class="p">:</span><span class="n">startx</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="s">&quot;starty&quot;</span><span class="p">:</span><span class="n">starty</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="s">&quot;endx&quot;</span><span class="p">:</span><span class="n">endx</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="s">&quot;endy&quot;</span><span class="p">:</span><span class="n">endy</span><span class="o">.</span><span class="n">tolist</span><span class="p">()}]</span>
+		<span class="n">jsondata</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span> <span class="n">data</span> <span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">jsondata</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">OrationesPython 1.0.1 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Timo Mätäsaho.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
