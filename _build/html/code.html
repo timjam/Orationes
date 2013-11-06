@@ -80,15 +80,15 @@ is it just printed out for the calling PHP program. Currently it is being printe
 </dd></dl>
 
 </div>
-<div class="section" id="oratutils">
-<h2>OratUtils<a class="headerlink" href="#oratutils" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-OratUtils">
+<span id="oratutils"></span><h2>OratUtils<a class="headerlink" href="#module-OratUtils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="osearch.OratUtils">
-<em class="property">class </em><tt class="descclassname">osearch.</tt><tt class="descname">OratUtils</tt><a class="headerlink" href="#osearch.OratUtils" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.OratUtils">
+<em class="property">class </em><tt class="descclassname">OratUtils.</tt><tt class="descname">OratUtils</tt><a class="reference internal" href="_modules/OratUtils.html#OratUtils"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class contains only static utility methods that are called directly from the main program &#8216;osearch.py&#8217;.</p>
 <dl class="staticmethod">
-<dt id="osearch.OratUtils.boundingBox">
-<em class="property">static </em><tt class="descname">boundingBox</tt><big>(</big><em>image</em>, <em>debug</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.boundingBox" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.OratUtils.boundingBox">
+<em class="property">static </em><tt class="descname">boundingBox</tt><big>(</big><em>image</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.boundingBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.boundingBox" title="Permalink to this definition">¶</a></dt>
 <dd><p>This functions tries to determine the bounding boxes for each text line.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -183,8 +183,8 @@ founding method and to see whether it is working correctly.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="osearch.OratUtils.contStretch">
-<em class="property">static </em><tt class="descname">contStretch</tt><big>(</big><em>im</em>, <em>a</em>, <em>h</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.contStretch" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.OratUtils.contStretch">
+<em class="property">static </em><tt class="descname">contStretch</tt><big>(</big><em>im</em>, <em>a</em>, <em>h</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.contStretch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.contStretch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs contrast stretching for grayscale images. Pixel intensities are set to 
 differ &#8216;a&#8217; times the average intensity from the original intensity values. The new 
 intensity values are sliced to stay between [0, 255].</p>
@@ -222,8 +222,32 @@ project, it was decided that the average is always calculated over the whole ima
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="osearch.OratUtils.hfilter">
-<em class="property">static </em><tt class="descname">hfilter</tt><big>(</big><em>image</em>, <em>diameter</em>, <em>height</em>, <em>length</em>, <em>n</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.hfilter" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.OratUtils.findCorr">
+<em class="property">static </em><tt class="descname">findCorr</tt><big>(</big><em>bboxes</em>, <em>slines</em>, <em>charcount</em>, <em>imlines</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.findCorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.findCorr" title="Permalink to this definition">¶</a></dt>
+<dd><p>asdasdasd</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bboxes</strong> (<em>ndarray</em>) &#8211; </li>
+<li><strong>slines</strong> (<em>ndarray</em>) &#8211; </li>
+<li><strong>charcount</strong> (<em>list</em>) &#8211; </li>
+<li><strong>imlines</strong> (<em>ndarray</em>) &#8211; </li>
+<li><strong>debug</strong> (<em>bool</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; m*n ndarray containing the starting and ending coordinates of hits</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="OratUtils.OratUtils.hfilter">
+<em class="property">static </em><tt class="descname">hfilter</tt><big>(</big><em>image</em>, <em>diameter</em>, <em>height</em>, <em>length</em>, <em>n</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.hfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.hfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function performs homomorphic filtering on grayscale images.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -249,8 +273,33 @@ and this function is written entirely only for the ndarrays.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="osearch.OratUtils.padlines">
-<em class="property">static </em><tt class="descname">padlines</tt><big>(</big><em>imlines</em>, <em>llines</em>, <em>charlines</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.padlines" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.OratUtils.packCoordsToJson">
+<em class="property">static </em><tt class="descname">packCoordsToJson</tt><big>(</big><em>slines</em>, <em>origimage</em>, <em>coords</em>, <em>charpos</em>, <em>wordlens</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.packCoordsToJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.packCoordsToJson" title="Permalink to this definition">¶</a></dt>
+<dd><p>asdasdasd</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>slines</strong> (<em>ndarray</em>) &#8211; </li>
+<li><strong>origimage</strong> (<em>ndarray</em>) &#8211; </li>
+<li><strong>coords</strong> (<em>ndarray</em>) &#8211; </li>
+<li><strong>charpos</strong> (<em>list of lists</em>) &#8211; </li>
+<li><strong>wordlens</strong> (<em>list of lists</em>) &#8211; </li>
+<li><strong>debug</strong> (<em>bool</em>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">json-string &#8211; JSON packed string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="OratUtils.OratUtils.padlines">
+<em class="property">static </em><tt class="descname">padlines</tt><big>(</big><em>imlines</em>, <em>llines</em>, <em>charlines</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.padlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.padlines" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -284,20 +333,14 @@ the number of lines calculated from XML:</p>
 <p>Number of lines found from the image using pmr is smaller than
 the number of lines calculated from XML:</p>
 <blockquote>
-<div><p>Pad the lines according to the information in llines[:,1]</p>
-<p>llines:         imlines:                rlines:</p>
-<dl class="docutils">
-<dt>[1 &#8212;&#8212;&#8212;-&gt;[100 &#8212;&#8212;&#8211;&gt;[100</dt>
-<dd>1 &#8212;&#8212;&#8212;-&gt; 200 &#8212;&#8212;&#8211;&gt; 200
-1 &#8212;&#8212;&#8212;-&gt; 300 &#8212;&#8212;&#8211;&gt; 300
-1 &#8212;&#8212;&#8212;-&gt; 400 &#8212;&#8212;&#8211;&gt; 400
-0      .&#8212;&#8212;&#8211;&gt; 600 &#8212;&#8212;&#8211;. NAN
-1 /.&#8212;&#8212;&#8211;&gt; 700 &#8212;&#8212;&#8211;.&#8216;600
-1 / .&#8212;&#8212;-&gt; 900]&#8212;&#8212;-. &#8216;700
-0  /                                      NAN
-1]/                                            &#8216;900]</dd>
-</dl>
-</div></blockquote>
+<div>Pad the lines according to the information in <em>llines[:,1]</em>:</div></blockquote>
+<div class="math">
+\[\begin{split}\stackrel{\mbox{llines}}{ \begin{bmatrix} 1 \\ 1 \\ 1 \\ 1 \\ 0 \\ 1 \\ 1 \\ 0 \\ 1 \end{bmatrix} }
+\begin{matrix} \searrow \\ \searrow \\ \searrow \\ \searrow \\ ~ \\ \longrightarrow \\ \longrightarrow \\ ~ \\ \nearrow \end{matrix}
+\stackrel{\mbox{imlines}}{ \begin{bmatrix} 100 \\ 200 \\ 300 \\ 400 \\ 600 \\ 700 \\ 900 \end{bmatrix} }
+\begin{matrix} \nearrow \\ \nearrow \\ \nearrow \\ \nearrow \\ ~ \\ \longrightarrow \\ \longrightarrow \\ ~ \\ \searrow \end{matrix}
+\stackrel{\mbox{rlines}}{ \begin{bmatrix} 100 \\ 200 \\ 300 \\ 400 \\ NAN \\ 600 \\ 700 \\ NAN \\ 900 \end{bmatrix} } \\
+\\ ~\end{split}\]</div>
 <p>Number of lines found from the image using pmr equals to
 the number of lines calculated from XML:</p>
 <blockquote class="last">
@@ -305,19 +348,14 @@ the number of lines calculated from XML:</p>
 the interesting lines.</div></blockquote>
 </dd>
 </dl>
-<p># Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
-# tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
-# rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän
-# kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne
-# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
-# rivien indeksit osoittamaan aina oikeaan riviin.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="osearch.OratUtils.poormanradon">
-<em class="property">static </em><tt class="descname">poormanradon</tt><big>(</big><em>image</em>, <em>iname</em>, <em>height</em>, <em>debug</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.poormanradon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs a naive radon-transform on the binarized and contrast stretched image and 
-tries to determine where the text lines are in the image</p>
+<dt id="OratUtils.OratUtils.poormanradon">
+<em class="property">static </em><tt class="descname">poormanradon</tt><big>(</big><em>image</em>, <em>iname</em>, <em>height</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.poormanradon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.poormanradon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a naive radon-transform and peak detection on the binarized 
+and contrast stretched image and tries to determine where the text 
+lines are in the image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -335,11 +373,80 @@ tries to determine where the text lines are in the image</p>
 </tr>
 </tbody>
 </table>
+<p>Calculates the intensity sums over each vertical line. The sums are then inverted and 
+peaks are detected from the inverted data. Data inversion wouldn&#8217;t be necessary in the 
+python code, but this convetion comes from the Matlab code that was ported to python.</p>
+<p>Before the transform, the image is cleaned so that by using static values ( very bad, 
+should be dynamic, but so far there hasn&#8217;t been time to do that ) the marginals and 
+everything outside them is erased and turned to white. Because the distance between 
+the camera and the page differs in each image, the marginals aren&#8217;t always on the 
+same position. This combined with static values causes inaccuracy in the erasing 
+process and might cause inaccuracy when detecting the peaks and the lines.</p>
+<p>In the peak detection, it is assumed that a spike is considered a peak if it&#8217;s 25 units 
+away from a previous detected peak and also if its value difference is at least 1500 
+to its previous value.</p>
+<p><em>upLim</em> in the source means upper limit in the image coordinates, which increase when 
+going down in the image. That&#8217;s why <em>upLim</em> is small. Respectively the 
+<em>downLim</em> means the bottom limit in the image coordinates and that&#8217;s why it&#8217;s bigger 
+than the upper limit.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="osearch.OratUtils.stringparser">
-<em class="property">static </em><tt class="descname">stringparser</tt><big>(</big><em>tfile</em>, <em>c</em><big>)</big><a class="headerlink" href="#osearch.OratUtils.stringparser" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.OratUtils.processlines">
+<em class="property">static </em><tt class="descname">processlines</tt><big>(</big><em>charcount</em>, <em>imlines</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.processlines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.processlines" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions compares the number of lines found from the image to the 
+number of lines found from the XML file and creates a logical vector 
+telling which lines are probably found and which are not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>charcount</strong> (<em>list</em>) &#8211; Contains the lengths of each line</li>
+<li><strong>imlines</strong> (<em>ndarray</em>) &#8211; Contains the textlines which are found in &#8216;poormanradon&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">ndarray &#8211; llines</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ndarray &#8211; imlines</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p><em>llines</em> is a n*2 vector, where the llines[:,1] is a logical vector 
+containing the information of the probably found and non-found lines.</p>
+<div class="math">
+\[[1,1,1,1,0,1,0,1, \dots ]^t\]</div>
+<p><em>imlines</em> is a ndarray containing the y-coordinates of the textlines 
+found from the image with poormanradon. When padding some of the 
+coordinates are removed ( nofound &lt; 0, not used ), some NAN 
+values are added in between some coordinates ( nofound &gt; 0 ) or 
+it is returned unchanged ( nofound == 0 ).</p>
+<p>We calculate a number &#8216;nofound&#8217;</p>
+<div class="math">
+\[\operatorname{nofound}=\operatorname{lines}_{XML}-\operatorname{lines}_{image}\]</div>
+<p>Naturally there are three cases.</p>
+<dl class="docutils">
+<dt>nofound &lt; 0:</dt>
+<dd>This means that there are more lines found from the image than there 
+actually are. Currently nothing&#8217;s done here to compensate this 
+behavior.</dd>
+<dt>nofound &gt; 0:</dt>
+<dd>This means there aren&#8217;t enough lines found from the image. Usually the 
+non-found lines are assumed to be the very short lines. When padding 
+the indices of the lines, the shortest lines are always set to be 
+the non-found lines.</dd>
+<dt>nofound == 0:</dt>
+<dd>It is assumed that all the textlines were found correctly and the 
+imlines will be returned unchanged.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="OratUtils.OratUtils.stringparser">
+<em class="property">static </em><tt class="descname">stringparser</tt><big>(</big><em>tfile</em>, <em>c</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.stringparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.stringparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs case sensitive search for text file tfile with string or character c (char on default).
 Argument c can be any regular expression</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -404,8 +511,8 @@ Argument c can be any regular expression</p>
 <div class="section" id="helper-functions">
 <h2>Helper Functions<a class="headerlink" href="#helper-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="osearch.HFun">
-<em class="property">class </em><tt class="descclassname">osearch.</tt><tt class="descname">HFun</tt><a class="headerlink" href="#osearch.HFun" title="Permalink to this definition">¶</a></dt>
+<dt id="OratUtils.HFun">
+<em class="property">class </em><tt class="descclassname">OratUtils.</tt><tt class="descname">HFun</tt><a class="headerlink" href="#OratUtils.HFun" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -421,7 +528,7 @@ Argument c can be any regular expression</p>
   <ul>
 <li><a class="reference internal" href="#">Documentation for the Code</a><ul>
 <li><a class="reference internal" href="#module-osearch">Orationes Search</a></li>
-<li><a class="reference internal" href="#oratutils">OratUtils</a></li>
+<li><a class="reference internal" href="#module-OratUtils">OratUtils</a></li>
 <li><a class="reference internal" href="#helper-functions">Helper Functions</a></li>
 </ul>
 </li>

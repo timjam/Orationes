@@ -77,7 +77,6 @@ def osearch( img, txtf, sw ):
 	# Get the bounding boxes covering each line
 	# Put in its own thread?
 	bboxes = OratUtils.boundingBox( cIm, debug )
-	print bboxes
 
 
 	# Get the positions of lines according to the image and its radon transform

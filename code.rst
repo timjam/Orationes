@@ -10,7 +10,7 @@ Orationes Search
 OratUtils
 =========
 
-.. autoclass:: OratUtils
+.. automodule:: OratUtils
 	:members:
 
 Helper Functions

@@ -442,8 +442,9 @@ class OratUtils:
 	def poormanradon( image, iname, height, debug ):
 
 		r"""
-			Performs a naive radon-transform on the binarized and contrast stretched image and 
-			tries to determine where the text lines are in the image
+			Performs a naive radon-transform and peak detection on the binarized 
+			and contrast stretched image and tries to determine where the text 
+			lines are in the image.
 
 			:param image: Image
 			:type image: ndarray
@@ -454,6 +455,26 @@ class OratUtils:
 			:param debug: Debug switch
 			:type debug: bool
 			:returns: ndarray -- Array containing the lines which are found using radon transform
+
+			Calculates the intensity sums over each vertical line. The sums are then inverted and 
+			peaks are detected from the inverted data. Data inversion wouldn't be necessary in the 
+			python code, but this convetion comes from the Matlab code that was ported to python.
+
+			Before the transform, the image is cleaned so that by using static values ( very bad, 
+			should be dynamic, but so far there hasn't been time to do that ) the marginals and 
+			everything outside them is erased and turned to white. Because the distance between 
+			the camera and the page differs in each image, the marginals aren't always on the 
+			same position. This combined with static values causes inaccuracy in the erasing 
+			process and might cause inaccuracy when detecting the peaks and the lines.
+
+			In the peak detection, it is assumed that a spike is considered a peak if it's 25 units 
+			away from a previous detected peak and also if its value difference is at least 1500 
+			to its previous value.
+
+			*upLim* in the source means upper limit in the image coordinates, which increase when 
+			going down in the image. That's why *upLim* is small. Respectively the 
+			*downLim* means the bottom limit in the image coordinates and that's why it's bigger 
+			than the upper limit.
 
 		"""
 
@@ -509,6 +530,53 @@ class OratUtils:
 
 	@staticmethod
 	def processlines( charcount, imlines ):
+		r"""
+			This functions compares the number of lines found from the image to the 
+			number of lines found from the XML file and creates a logical vector 
+			telling which lines are probably found and which are not.
+
+			:param charcount: Contains the lengths of each line
+			:type charcount: list
+			:param imlines: Contains the textlines which are found in 'poormanradon'
+			:type imlines: ndarray
+			:returns: ndarray -- llines
+			:returns: ndarray -- imlines
+
+			*llines* is a n*2 vector, where the llines[:,1] is a logical vector 
+			containing the information of the probably found and non-found lines.
+			
+			.. math::
+				[1,1,1,1,0,1,0,1, \dots ]^t
+
+			*imlines* is a ndarray containing the y-coordinates of the textlines 
+			found from the image with poormanradon. When padding some of the 
+			coordinates are removed ( nofound < 0, not used ), some NAN 
+			values are added in between some coordinates ( nofound > 0 ) or 
+			it is returned unchanged ( nofound == 0 ).
+
+			We calculate a number 'nofound'
+			
+			.. math::
+				\operatorname{nofound}=\operatorname{lines}_{XML}-\operatorname{lines}_{image}
+			
+			Naturally there are three cases.
+
+			nofound < 0:
+				This means that there are more lines found from the image than there 
+				actually are. Currently nothing's done here to compensate this 
+				behavior.
+
+			nofound > 0:
+				This means there aren't enough lines found from the image. Usually the 
+				non-found lines are assumed to be the very short lines. When padding 
+				the indices of the lines, the shortest lines are always set to be 
+				the non-found lines.
+
+			nofound == 0:
+				It is assumed that all the textlines were found correctly and the 
+				imlines will be returned unchanged.
+
+		"""
 
 		linenum = len(charcount)
 		nofound = linenum - imlines.shape[0]
@@ -550,7 +618,7 @@ class OratUtils:
 	@staticmethod
 	def padlines( imlines, llines, charlines ):
 
-		""" 
+		r""" 
 		:param imlines: n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform
 		:type imlines: ndarray
 		:param llines: n*2 size ndarray containing the length information of the lines
@@ -579,20 +647,15 @@ class OratUtils:
 			Number of lines found from the image using pmr is smaller than
 			the number of lines calculated from XML:
 
-				Pad the lines according to the information in llines[:,1]
-		
+				Pad the lines according to the information in *llines[:,1]*:
 
-				llines:		imlines:		rlines:
-				
-				[1 ---------->[100 -------->[100
-				 1 ----------> 200 --------> 200
-				 1 ----------> 300 --------> 300
-				 1 ----------> 400 --------> 400
-				 0 	.--------> 600 --------. NAN
-				 1 /.--------> 700 --------.'600
-				 1 / .-------> 900]-------. '700
-				 0  / 					   \ NAN
-				 1]/ 						'900]
+			.. math::
+				\stackrel{\mbox{llines}}{ \begin{bmatrix} 1 \\ 1 \\ 1 \\ 1 \\ 0 \\ 1 \\ 1 \\ 0 \\ 1 \end{bmatrix} }
+				\begin{matrix} \searrow \\ \searrow \\ \searrow \\ \searrow \\ ~ \\ \longrightarrow \\ \longrightarrow \\ ~ \\ \nearrow \end{matrix}
+				\stackrel{\mbox{imlines}}{ \begin{bmatrix} 100 \\ 200 \\ 300 \\ 400 \\ 600 \\ 700 \\ 900 \end{bmatrix} }
+				\begin{matrix} \nearrow \\ \nearrow \\ \nearrow \\ \nearrow \\ ~ \\ \longrightarrow \\ \longrightarrow \\ ~ \\ \searrow \end{matrix}
+				\stackrel{\mbox{rlines}}{ \begin{bmatrix} 100 \\ 200 \\ 300 \\ 400 \\ NAN \\ 600 \\ 700 \\ NAN \\ 900 \end{bmatrix} } \\
+				\\ ~
 
 			Number of lines found from the image using pmr equals to
 			the number of lines calculated from XML:
@@ -601,12 +664,6 @@ class OratUtils:
 				the interesting lines.
 			
 		
-		# Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
-		# tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
-		# rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän
-		# kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne
-		# hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
-		# rivien indeksit osoittamaan aina oikeaan riviin.
 		"""
 
 
@@ -617,6 +674,14 @@ class OratUtils:
 		if( imlines.shape[0] < nlines ):
 
 			"""
+				Jos löydettyjä rivejä on vähemmän kuin xml:ssä rivejä, pitää rivejä
+				tasata ja niiden indeksejä vastaamaan mahdollisimman paljon oikeita
+				rivejä. Oletuksena on, että rivit, joissa on keskimääräistä vähemmän
+				kirjiamia, ei tunnistu poormanradonissa, joten ne jää välistä pois ja ne
+				hylätään kokonaan. Tätä oletusta hyväksi käyttäen kuitenkin korjataan
+				rivien indeksit osoittamaan aina oikeaan riviin.
+
+
 				llines:		imlines:		rlines:
 				
 				[1 ---------->[100 -------->[100
@@ -666,6 +731,22 @@ class OratUtils:
 
 	@staticmethod
 	def findCorr( bboxes, slines, charcount, imlines, debug ):
+
+		"""
+			asdasdasd
+
+			:param bboxes:
+			:type bboxes: ndarray
+			:param slines:
+			:type slines: ndarray
+			:param charcount:
+			:type charcount: list
+			:param imlines:
+			:type imlines: ndarray
+			:param debug:
+			:type debug: bool
+			:returns: ndarray -- m*n ndarray containing the starting and ending coordinates of hits
+		"""
 
 		bbYs = bboxes[2,:]
 		rounds = slines.shape[0]
@@ -722,6 +803,23 @@ class OratUtils:
 
 	@staticmethod
 	def packCoordsToJson( slines, origimage, coords, charpos, wordlens, debug ):
+		"""
+			asdasdasd
+
+			:param slines:
+			:type slines: ndarray
+			:param origimage:
+			:type origimage: ndarray
+			:param coords:
+			:type coords: ndarray
+			:param charpos:
+			:type charpos: list of lists
+			:param wordlens:
+			:type wordlens: list of lists
+			:param debug:
+			:type debug: bool
+			:returns: json-string -- JSON packed string
+		"""
 
 		rounds = slines.shape[0]
 
