@@ -91,7 +91,7 @@ def osearch( img, txtf, sw ):
 	# Find the correspondences between the lines which are used for searching and the bounding boxes
 	coords = OratUtils.findCorr( bboxes, slines, charcount, imlines, debug )
 
-	jsondata = OratUtils.packCoordsToJson( slines, origimage, coords, charpos, wordlens, debug )
+	jsondata = OratUtils.packCoordsToJson( slines, origimage, coords, charpos, wordlens, bboxes, debug )
 
 	print jsondata
 

@@ -802,7 +802,7 @@ class OratUtils:
 		return coords
 
 	@staticmethod
-	def packCoordsToJson( slines, origimage, coords, charpos, wordlens, debug ):
+	def packCoordsToJson( slines, origimage, coords, charpos, wordlens, bboxes, debug ):
 		"""
 			asdasdasd
 
@@ -816,6 +816,8 @@ class OratUtils:
 			:type charpos: list of lists
 			:param wordlens:
 			:type wordlens: list of lists
+			:param bboxes:
+			:type bboxes:
 			:param debug:
 			:type debug: bool
 			:returns: json-string -- JSON packed string
@@ -876,15 +878,31 @@ class OratUtils:
 			plt.imshow( oI )
 			plt.show()
 
-		# Show the current result. Only for debug purpose. In final version the cooridnates of matches are returned
-		# as a list to the main program that's calling this program
-		# Encode the list into sensible json package or json-string
-		startx = np.asarray(xx)-10
-		starty = np.asarray(yy)-20
-		endx = np.asarray(xx)+wl
-		endy = np.asarray(yy)+20
 
-		data = [{"startx":startx.tolist(), "starty":starty.tolist(), "endx":endx.tolist(), "endy":endy.tolist()}]
+		# Encode the list into sensible json package or json-string
+
+		rds = len( bboxes[0,:] )
+		bbs0 = bboxes[1,:].tolist()
+		bbs1 = bboxes[2,:].tolist()
+		bbs2 = bboxes[3,:].tolist()
+		bbs3 = bboxes[4,:].tolist()
+
+		startx = (np.asarray(xx)-10).tolist()
+		starty = (np.asarray(yy)-20).tolist()
+		endx = (np.asarray(xx)+wl).tolist()
+		endy = (np.asarray(yy)+20).tolist()
+
+
+		data = { "bounding boxes" : [ {	"x1" : bbs0[i], 
+											"y1" : bbs1[i], 
+											"x2" : bbs2[i], 
+											"y2" : bbs3[i]} 
+											for i in range( rds ) ],
+					"hits" : [ {			"x1":startx[j], 
+											"y1":starty[j], 
+											"x2":endx[j], 
+											"y2":endy[j]}
+											for j in range( len( startx ) ) ] }
 		jsondata = json.dumps( data )
 
 		return jsondata
