@@ -15,7 +15,7 @@ from scipy.misc import fromimage
 import numpy as np
 
 
-def osearch( img, txtf, sw ):
+def osearch( img, switch, txtf, sw ):
 	"""
 		The main program that only calls the processing methods from OratUtils and HFun classes.
 
@@ -32,7 +32,7 @@ def osearch( img, txtf, sw ):
 
 	"""
 
-	debug = False
+	debug = True
 
 	# Open the image and text file with their absolute paths to ensure that the right files from
 	# the right place are opened
@@ -44,7 +44,11 @@ def osearch( img, txtf, sw ):
 	# Parse the XML file. The XML file must be formatted to raw text with no XML tags. 
 	# Should be done separately outside of this program unless this program is updated
 	# to do that as well.
-	charcount, charpos, charlines, wordlens = OratUtils.stringparser( tfile, sw )
+	if( switch == "-f" ):
+		charcount, charpos, charlines, wordlens = OratUtils.txtfparser( tfile, sw )
+
+	if( switch == "-s" ):
+		charcount, charpos, charlines, wordlens = OratUtils.stringparser( txtf, sw )
 
 	if not charpos:
 		print "Couldn't find string \'%s\' from page %s" %(sw, img)
@@ -98,7 +102,7 @@ def osearch( img, txtf, sw ):
 	# The jsondata may have to be returned instead of just printed out. This depends heavily of the behavior of the calling program
 	# In this case we use a PHP site to call this program. Need to consult with Ilkka about how the PHP site will handle this file.
 
-	return
+	return 1
 
 
 
@@ -108,10 +112,26 @@ def osearch( img, txtf, sw ):
 
 if __name__ == "__main__":
 
-	if len(sys.argv) == 4:
-		osearch( sys.argv[1], sys.argv[2], sys.argv[3] )
+	if len(sys.argv) == 5:
+
+		if( sys.argv[2] == "-f" ):
+			osearch( sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4] )
+		elif( sys.argv[2] == "-s" ):
+			osearch( sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4] )
+		else:
+			print "Wrong parameters"
+			print
+			print "Use python osearch.py \"imagename\" -switch \"textfilename or string\" \"word\""
+			print
+			print "As a switch you can use:"
+			print "\t-f \t read the text for this page from a file." 
+			print "\t\t With this switch you must use the text file name."
+			print
+			print "\t-s \t use the given string as the text input." 
+			print "\t\t With this switch you must pass a string containing the text as a third parameter."
+
 	else:
 		print "\nWrong amount of parameters. Need following arguments: "
 		print "Name of the image, name of the correspoding raw text file, word that's being searched\n"
-		print "For example use:    python osearch.py \"Lit_Ms_E_41 070r.jpg\" \"070\" \"King\" "
+		print "For example use:    python osearch.py \"Lit_Ms_E_41 070r.jpg\" -f \"070\" \"King\" "
 

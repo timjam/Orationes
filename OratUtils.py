@@ -25,7 +25,7 @@ class OratUtils:
 
 
 	@staticmethod
-	def stringparser( tfile, c ):
+	def txtfparser( tfile, c ):
 		r"""
 			Performs case sensitive search for text file tfile with string or character c (char on default).
 			Argument c can be any regular expression
@@ -95,6 +95,82 @@ class OratUtils:
 				wordlens.append(tempv2)
 
 			k += 1
+
+
+		return charcount, charpos, charlines, wordlens
+
+
+
+	@staticmethod
+	def stringparser( tfile, c ):
+		r"""
+			Performs case sensitive search for text file tfile with string or character c (char on default).
+			Argument c can be any regular expression
+
+			:param tfile: The string containing the cleaned XML file as a string
+			:type tfile: string
+			:param c: The letter or string that is searched from the tfile
+			:type c: string/char/regular expression
+			:returns: list -- charcount
+			:returns: list of lists -- charpos 
+			:returns: list of lists -- charlines
+			:returns: list of lists -- wordlens
+
+			* *Charcount* is a list containing the lengths of each line.
+
+				* ``[63, 60, 4, 65, 66, 37, 66, ...]``
+
+			* *Charpos* is a list containing lists including the positions of the found characters or the first letters of the found words.
+
+				* ``[[52], [10, 47, 62], [19, 62], [51], ...]``
+
+			* *Charlines* is a list of lists where the length of each sublist tells the number of hits on that line and the element values representing the line number from the XML file.
+
+				* ``[[3], [4, 4, 4], [6, 6], [7], ...]``
+
+			* *Wordlens* is a list containing lists containing the lengths of the words on each line.
+
+				* ``[[3], [3, 3, 3], [3, 3], [3], ...]``
+
+
+		"""
+
+
+		charcount = [] 	# Holds the lengths of each line
+		charlines = []	# 
+		charpos = []	# The positions of the found characters or the first letters of the found words
+		wordlens = []
+		k = 0
+
+		
+		for string in tfile.split("\\n"):
+
+
+			# Each string needs to be decoded to utf-8 as the files are saved in utf-8 format. 
+			# Without decoding matching would be done to ascii decoding and that causes the 
+			# strings to contain extra characters.
+			# Also the newline characters are removed so that the length of the lines are 
+			# correct
+
+			s = string.rstrip('\n').decode('utf-8', 'ignore')	
+			charindlist = []
+			charcount.append(len(s))
+			
+			for m in re.finditer(c, s):
+				charindlist.append(m.start())
+			
+			if charindlist:	
+				charpos.append(charindlist)
+				
+				tempv1 = [k]*len(charindlist)		# These two temporary values are needed to append right amount of linenumbers and wordlenght numbers
+				tempv2 = [len(c)]*len(charindlist)	# into their respective vectors
+				
+				charlines.append(tempv1)
+				wordlens.append(tempv2)
+
+			k += 1
+
+		print k
 
 
 		return charcount, charpos, charlines, wordlens
@@ -894,15 +970,40 @@ class OratUtils:
 
 
 		data = { "bounding boxes" : [ {	"x1" : bbs0[i], 
-											"y1" : bbs1[i], 
-											"x2" : bbs2[i], 
-											"y2" : bbs3[i]} 
-											for i in range( rds ) ],
-					"hits" : [ {			"x1":startx[j], 
-											"y1":starty[j], 
-											"x2":endx[j], 
-											"y2":endy[j]}
-											for j in range( len( startx ) ) ] }
-		jsondata = json.dumps( data )
+										"y1" : bbs1[i], 
+										"x2" : bbs2[i], 
+										"y2" : bbs3[i]} 
+										for i in range( rds ) ],
+
+					"hits" : [ {		"x1":startx[j], 
+										"y1":starty[j], 
+										"x2":endx[j], 
+										"y2":endy[j]}
+										for j in range( len( startx ) ) ] }
+
+		jsondata = json.dumps( data, indent=2 )
+
+		return jsondata
+
+
+
+	@staticmethod
+	def packBoxesAndLines( bboxes, lines ):
+
+		rds = len( bboxes[0,:] )
+		bbs0 = bboxes[1,:].tolist()
+		bbs1 = bboxes[2,:].tolist()
+		bbs2 = bboxes[3,:].tolist()
+		bbs3 = bboxes[4,:].tolist()
+
+		data = { "bounding boxes" : [ { "x1" : bbs0[i],
+										"y1" : bbs1[i], 
+										"x2" : bbs2[i], 
+										"y2" : bbs3[i]} 
+										for i in range( rds ) ],
+
+					"lines" : [ lines[j] for j in range( len(lines) ) ] }
+
+		jsondata = json.dumps( data, indent=2 )
 
 		return jsondata

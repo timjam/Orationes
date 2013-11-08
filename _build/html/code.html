@@ -57,7 +57,7 @@
 <span id="orationes-search"></span><h2>Orationes Search<a class="headerlink" href="#module-osearch" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="osearch.osearch">
-<tt class="descclassname">osearch.</tt><tt class="descname">osearch</tt><big>(</big><em>img</em>, <em>txtf</em>, <em>sw</em><big>)</big><a class="reference internal" href="_modules/osearch.html#osearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osearch.osearch" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">osearch.</tt><tt class="descname">osearch</tt><big>(</big><em>img</em>, <em>switch</em>, <em>txtf</em>, <em>sw</em><big>)</big><a class="reference internal" href="_modules/osearch.html#osearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osearch.osearch" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main program that only calls the processing methods from OratUtils and HFun classes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -274,7 +274,7 @@ and this function is written entirely only for the ndarrays.</p>
 
 <dl class="staticmethod">
 <dt id="OratUtils.OratUtils.packCoordsToJson">
-<em class="property">static </em><tt class="descname">packCoordsToJson</tt><big>(</big><em>slines</em>, <em>origimage</em>, <em>coords</em>, <em>charpos</em>, <em>wordlens</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.packCoordsToJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.packCoordsToJson" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">packCoordsToJson</tt><big>(</big><em>slines</em>, <em>origimage</em>, <em>coords</em>, <em>charpos</em>, <em>wordlens</em>, <em>bboxes</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.packCoordsToJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.packCoordsToJson" title="Permalink to this definition">¶</a></dt>
 <dd><p>asdasdasd</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -286,6 +286,7 @@ and this function is written entirely only for the ndarrays.</p>
 <li><strong>coords</strong> (<em>ndarray</em>) &#8211; </li>
 <li><strong>charpos</strong> (<em>list of lists</em>) &#8211; </li>
 <li><strong>wordlens</strong> (<em>list of lists</em>) &#8211; </li>
+<li><strong>bboxes</strong> &#8211; </li>
 <li><strong>debug</strong> (<em>bool</em>) &#8211; </li>
 </ul>
 </td>
@@ -447,6 +448,67 @@ imlines will be returned unchanged.</dd>
 <dl class="staticmethod">
 <dt id="OratUtils.OratUtils.stringparser">
 <em class="property">static </em><tt class="descname">stringparser</tt><big>(</big><em>tfile</em>, <em>c</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.stringparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.stringparser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs case sensitive search for text file tfile with string or character c (char on default).
+Argument c can be any regular expression</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tfile</strong> (<em>string</em>) &#8211; The string containing the cleaned XML file as a string</li>
+<li><strong>c</strong> (<em>string/char/regular expression</em>) &#8211; The letter or string that is searched from the tfile</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list &#8211; charcount</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of lists &#8211; charpos</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of lists &#8211; charlines</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of lists &#8211; wordlens</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p class="first"><em>Charcount</em> is a list containing the lengths of each line.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[63,</span> <span class="pre">60,</span> <span class="pre">4,</span> <span class="pre">65,</span> <span class="pre">66,</span> <span class="pre">37,</span> <span class="pre">66,</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Charpos</em> is a list containing lists including the positions of the found characters or the first letters of the found words.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[[52],</span> <span class="pre">[10,</span> <span class="pre">47,</span> <span class="pre">62],</span> <span class="pre">[19,</span> <span class="pre">62],</span> <span class="pre">[51],</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Charlines</em> is a list of lists where the length of each sublist tells the number of hits on that line and the element values representing the line number from the XML file.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[[3],</span> <span class="pre">[4,</span> <span class="pre">4,</span> <span class="pre">4],</span> <span class="pre">[6,</span> <span class="pre">6],</span> <span class="pre">[7],</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><em>Wordlens</em> is a list containing lists containing the lengths of the words on each line.</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">[[3],</span> <span class="pre">[3,</span> <span class="pre">3,</span> <span class="pre">3],</span> <span class="pre">[3,</span> <span class="pre">3],</span> <span class="pre">[3],</span> <span class="pre">...]</span></tt></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="OratUtils.OratUtils.txtfparser">
+<em class="property">static </em><tt class="descname">txtfparser</tt><big>(</big><em>tfile</em>, <em>c</em><big>)</big><a class="headerlink" href="#OratUtils.OratUtils.txtfparser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs case sensitive search for text file tfile with string or character c (char on default).
 Argument c can be any regular expression</p>
 <table class="docutils field-list" frame="void" rules="none">
