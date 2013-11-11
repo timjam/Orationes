@@ -80,8 +80,11 @@ is it just printed out for the calling PHP program. Currently it is being printe
 </dd></dl>
 
 </div>
+<div class="section" id="module-getBoxes">
+<span id="orationes-getboxes"></span><h2>Orationes getBoxes<a class="headerlink" href="#module-getBoxes" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="module-OratUtils">
-<span id="oratutils"></span><h2>OratUtils<a class="headerlink" href="#module-OratUtils" title="Permalink to this headline">¶</a></h2>
+<span id="utility-functions"></span><h2>Utility functions<a class="headerlink" href="#module-OratUtils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="OratUtils.OratUtils">
 <em class="property">class </em><tt class="descclassname">OratUtils.</tt><tt class="descname">OratUtils</tt><a class="reference internal" href="_modules/OratUtils.html#OratUtils"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils" title="Permalink to this definition">¶</a></dt>
@@ -224,17 +227,17 @@ project, it was decided that the average is always calculated over the whole ima
 <dl class="staticmethod">
 <dt id="OratUtils.OratUtils.findCorr">
 <em class="property">static </em><tt class="descname">findCorr</tt><big>(</big><em>bboxes</em>, <em>slines</em>, <em>charcount</em>, <em>imlines</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.findCorr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.findCorr" title="Permalink to this definition">¶</a></dt>
-<dd><p>asdasdasd</p>
+<dd><p>Used to find out which bounding box and which line are the same.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>bboxes</strong> (<em>ndarray</em>) &#8211; </li>
-<li><strong>slines</strong> (<em>ndarray</em>) &#8211; </li>
-<li><strong>charcount</strong> (<em>list</em>) &#8211; </li>
-<li><strong>imlines</strong> (<em>ndarray</em>) &#8211; </li>
-<li><strong>debug</strong> (<em>bool</em>) &#8211; </li>
+<li><strong>bboxes</strong> (<em>ndarray</em>) &#8211; Ndarray containing the coordinates of the bounding boxes</li>
+<li><strong>slines</strong> (<em>ndarray</em>) &#8211; A vector containing the y-coordinates of the interesting lines</li>
+<li><strong>charcount</strong> (<em>list</em>) &#8211; Contains the lengths of each line</li>
+<li><strong>imlines</strong> (<em>ndarray</em>) &#8211; n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform</li>
+<li><strong>debug</strong> (<em>bool</em>) &#8211; Debug switch</li>
 </ul>
 </td>
 </tr>
@@ -273,25 +276,46 @@ and this function is written entirely only for the ndarrays.</p>
 </dd></dl>
 
 <dl class="staticmethod">
+<dt id="OratUtils.OratUtils.packBoxesAndLines">
+<em class="property">static </em><tt class="descname">packBoxesAndLines</tt><big>(</big><em>bboxes</em>, <em>imlines</em><big>)</big><a class="headerlink" href="#OratUtils.OratUtils.packBoxesAndLines" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bboxes</strong> (<em>ndarray</em>) &#8211; Ndarray containing the coordinates of the bounding boxes</li>
+<li><strong>imlines</strong> (<em>ndarray</em>) &#8211; n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">jsondata &#8211; JSON packed string containing the found bounding boxes and lines</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="OratUtils.OratUtils.packCoordsToJson">
 <em class="property">static </em><tt class="descname">packCoordsToJson</tt><big>(</big><em>slines</em>, <em>origimage</em>, <em>coords</em>, <em>charpos</em>, <em>wordlens</em>, <em>bboxes</em>, <em>debug</em><big>)</big><a class="reference internal" href="_modules/OratUtils.html#OratUtils.packCoordsToJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#OratUtils.OratUtils.packCoordsToJson" title="Permalink to this definition">¶</a></dt>
-<dd><p>asdasdasd</p>
+<dd><p>This function is used to pack the hit coordinates and bounding box coordinates 
+into a JSON string which is returned to the calling PHP site.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>slines</strong> (<em>ndarray</em>) &#8211; </li>
-<li><strong>origimage</strong> (<em>ndarray</em>) &#8211; </li>
-<li><strong>coords</strong> (<em>ndarray</em>) &#8211; </li>
-<li><strong>charpos</strong> (<em>list of lists</em>) &#8211; </li>
-<li><strong>wordlens</strong> (<em>list of lists</em>) &#8211; </li>
-<li><strong>bboxes</strong> &#8211; </li>
-<li><strong>debug</strong> (<em>bool</em>) &#8211; </li>
+<li><strong>slines</strong> (<em>ndarray</em>) &#8211; A vector containing the y-coordinates of the interesting lines</li>
+<li><strong>origimage</strong> (<em>ndarray</em>) &#8211; Original image. Used when debugging</li>
+<li><strong>coords</strong> (<em>ndarray</em>) &#8211; A ndarray containing the coordinates of the hits</li>
+<li><strong>charpos</strong> (<em>list of lists</em>) &#8211; List of the character positions got from the XML</li>
+<li><strong>wordlens</strong> (<em>list of lists</em>) &#8211; List of wordlengths</li>
+<li><strong>bboxes</strong> (<em>ndarray</em>) &#8211; Ndarray containing the coordinates of the bounding boxes</li>
+<li><strong>debug</strong> (<em>bool</em>) &#8211; Debug switch</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">json-string &#8211; JSON packed string</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">json-string &#8211; JSON packed string containing the hits and the bounding boxes</p>
 </td>
 </tr>
 </tbody>
@@ -575,7 +599,24 @@ Argument c can be any regular expression</p>
 <dl class="class">
 <dt id="OratUtils.HFun">
 <em class="property">class </em><tt class="descclassname">OratUtils.</tt><tt class="descname">HFun</tt><a class="headerlink" href="#OratUtils.HFun" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Contains helper functions that are used in various places</p>
+<dl class="staticmethod">
+<dt id="OratUtils.HFun.im2float">
+<em class="property">static </em><tt class="descname">im2float</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#OratUtils.HFun.im2float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes uint8 type images to float64 images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>image</strong> (<em>ndarray( uint8 )</em>) &#8211; The image to be converted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ndarray( float64 ) &#8211; I</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 </div>
@@ -590,7 +631,8 @@ Argument c can be any regular expression</p>
   <ul>
 <li><a class="reference internal" href="#">Documentation for the Code</a><ul>
 <li><a class="reference internal" href="#module-osearch">Orationes Search</a></li>
-<li><a class="reference internal" href="#module-OratUtils">OratUtils</a></li>
+<li><a class="reference internal" href="#module-getBoxes">Orationes getBoxes</a></li>
+<li><a class="reference internal" href="#module-OratUtils">Utility functions</a></li>
 <li><a class="reference internal" href="#helper-functions">Helper Functions</a></li>
 </ul>
 </li>

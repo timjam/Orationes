@@ -9,9 +9,19 @@ import timeit
 
 class HFun:
 
+	r""" Contains helper functions that are used in various places"""
+
 
 	@staticmethod
 	def im2float( image ):
+		"""
+			Changes uint8 type images to float64 images.
+
+			:param image: The image to be converted
+			:type image: ndarray( uint8 )
+			:returns: ndarray( float64 ) -- im		
+		"""
+
 		I = image.astype( 'float' )
 		minI = 0.0
 		maxI = 255.0
