@@ -809,17 +809,17 @@ class OratUtils:
 	def findCorr( bboxes, slines, charcount, imlines, debug ):
 
 		"""
-			asdasdasd
+			Used to find out which bounding box and which line are the same.
 
-			:param bboxes:
+			:param bboxes: Ndarray containing the coordinates of the bounding boxes
 			:type bboxes: ndarray
-			:param slines:
+			:param slines: A vector containing the y-coordinates of the interesting lines
 			:type slines: ndarray
-			:param charcount:
+			:param charcount: Contains the lengths of each line
 			:type charcount: list
-			:param imlines:
+			:param imlines: n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform
 			:type imlines: ndarray
-			:param debug:
+			:param debug: Debug switch
 			:type debug: bool
 			:returns: ndarray -- m*n ndarray containing the starting and ending coordinates of hits
 		"""
@@ -880,23 +880,24 @@ class OratUtils:
 	@staticmethod
 	def packCoordsToJson( slines, origimage, coords, charpos, wordlens, bboxes, debug ):
 		"""
-			asdasdasd
+			This function is used to pack the hit coordinates and bounding box coordinates 
+			into a JSON string which is returned to the calling PHP site.
 
-			:param slines:
+			:param slines: A vector containing the y-coordinates of the interesting lines
 			:type slines: ndarray
-			:param origimage:
+			:param origimage: Original image. Used when debugging
 			:type origimage: ndarray
-			:param coords:
+			:param coords: A ndarray containing the coordinates of the hits
 			:type coords: ndarray
-			:param charpos:
+			:param charpos: List of the character positions got from the XML
 			:type charpos: list of lists
-			:param wordlens:
+			:param wordlens: List of wordlengths
 			:type wordlens: list of lists
-			:param bboxes:
-			:type bboxes:
-			:param debug:
+			:param bboxes: Ndarray containing the coordinates of the bounding boxes
+			:type bboxes: ndarray
+			:param debug: Debug switch
 			:type debug: bool
-			:returns: json-string -- JSON packed string
+			:returns: json-string -- JSON packed string containing the hits and the bounding boxes
 		"""
 
 		rounds = slines.shape[0]
@@ -988,7 +989,14 @@ class OratUtils:
 
 
 	@staticmethod
-	def packBoxesAndLines( bboxes, lines ):
+	def packBoxesAndLines( bboxes, imlines ):
+		"""
+			:param bboxes: Ndarray containing the coordinates of the bounding boxes
+			:type bboxes: ndarray
+			:param imlines: n*1 size ndarray containing the lines (or rather their y-position) got from the image by radontransform
+			:type imlines: ndarray
+			:returns: jsondata -- JSON packed string containing the found bounding boxes and lines
+		"""
 
 		rds = len( bboxes[0,:] )
 		bbs0 = bboxes[1,:].tolist()
@@ -1002,7 +1010,7 @@ class OratUtils:
 										"y2" : bbs3[i]} 
 										for i in range( rds ) ],
 
-					"lines" : [ lines[j] for j in range( len(lines) ) ] }
+					"lines" : [ imlines[j] for j in range( len(imlines) ) ] }
 
 		jsondata = json.dumps( data, indent=2 )
 
