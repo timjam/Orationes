@@ -16,6 +16,17 @@ import numpy as np
 
 
 def getBoxesAndLines( img ):
+	r"""
+		Optional directly callable program that can be used to extract the bounding box
+		and line location information from an image.
+
+		:param img: The name of the image.
+		:type img: string
+		:returns: JSON string
+
+		Returns a JSON array containing the possible locations of the text lines and 
+		bounding boxes.
+	"""
 	
 	debug = Debug
 

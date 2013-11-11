@@ -16,7 +16,7 @@ import numpy as np
 
 
 def osearch( img, switch, txtf, sw ):
-	"""
+	r"""
 		The main program that only calls the processing methods from OratUtils and HFun classes.
 
 		:param img: The name of the image.
@@ -56,7 +56,15 @@ def osearch( img, switch, txtf, sw ):
 
 
 	# Open the original image and convert it to grayscale
-	origimage = Im.open(imagename)
+	try:
+		origimage = Im.open(imagename)
+	except IOError:
+		print "Errno 2: No such file or directory or cannot identify image file \n%s \nCheck the spelling of the filename or ensure name points to an image file." %(imagename)
+		return 2
+	except:
+		print "Unknown error while trying to open file %s" %(imagename)
+		return 9
+		
 	grayimage = origimage.copy().convert("L") # Conversion from RGB to Grayscale
 
 

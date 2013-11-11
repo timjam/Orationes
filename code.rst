@@ -7,8 +7,13 @@ Orationes Search
 .. automodule:: osearch
 	:members:
 
-OratUtils
-=========
+Orationes getBoxes
+==================
+
+.. automodule:: getBoxes
+
+Utility functions
+=================
 
 .. automodule:: OratUtils
 	:members:
