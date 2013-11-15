@@ -19,7 +19,7 @@ class HFun:
 
 			:param image: The image to be converted
 			:type image: ndarray( uint8 )
-			:returns: ndarray( float64 ) -- im		
+			:returns: ndarray( float64 ) -- I		
 		"""
 
 		I = image.astype( 'float' )
@@ -33,6 +33,13 @@ class HFun:
 
 	@staticmethod
 	def gray2uint8( image ):
+		"""
+			Converts grasycale images to uint8 type
+
+			:param image: The grayscale image to converted
+			:type image: ndarray
+			:returns: ndarray( uint8 ) - I
+		"""
 
 		I = image
 		I[I>1] = 1
