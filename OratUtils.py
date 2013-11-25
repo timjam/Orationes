@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 import peakdet
 import json
 from scipy.ndimage.measurements import label
-from scipy import ndimage, signal
+from scipy import ndimage, signal, fft, ifft
 from scipy.misc import fromimage
 from HFun import HFun
 
@@ -580,7 +580,13 @@ class OratUtils:
 		for i in range(height):
 			linesums[i,0] = sum(img[i,:])
 
-		inv = (-1)*linesums
+		invorig = (-1)*linesums
+
+		yyy = fft(invorig[:,0])
+		ddd = yyy
+		ddd[60:-1] = 0 		# Once again there's a static number doing something. Leaving only the first 60 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
+		inv = (-1)*abs(ifft(ddd))
+
 		minv = inv.mean()
 		#inv[ inv > minv+30000 ] = minv-30000
 
@@ -590,11 +596,13 @@ class OratUtils:
 		mp = mp[ mp > upLim ]
 		mp = mp[ mp < downLim ]
 
+
 		if( debug ):
-			#img2 = np.copy(image)
+
 			for j in range(len(mp)):
 				img[mp[j]-2:mp[j]+2,:] = 150
 			f = plt.figure()
+
 			idata = f.add_subplot(1,2,1); idata.set_autoscaley_on(False); idata.set_ylim( [0, len(inv)] ); idata.plot( inv[::-1], range( len(inv) ) )
 			f.add_subplot(1,2,2); plt.imshow(img, cmap=cm.Greys_r)
 			plt.show()
