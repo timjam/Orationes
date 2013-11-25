@@ -584,7 +584,8 @@ class OratUtils:
 
 		yyy = fft(invorig[:,0])
 		ddd = yyy
-		ddd[60:-1] = 0 		# Once again there's a static number doing something. Leaving only the first 60 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
+		#ddd[0:2] = 0
+		ddd[55:] = 0 		# Once again there's a static number doing something. Leaving only the first 60 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
 		inv = (-1)*abs(ifft(ddd))
 
 		minv = inv.mean()
