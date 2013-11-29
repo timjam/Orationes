@@ -583,10 +583,19 @@ class OratUtils:
 		invorig = (-1)*linesums
 
 		yyy = fft(invorig[:,0])
-		ddd = yyy
-		#ddd[0:2] = 0
-		ddd[55:] = 0 		# Once again there's a static number doing something. Leaving only the first 60 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
+		ddd = np.copy(yyy)
+		ti = np.copy(yyy)
+		#ddd[1:] = 0
+		ddd[65:] = 0 		# Once again there's a static number doing something. Leaving only the first 55 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
+		#ddd[61:] = 0
+		#ddd[49:60] = np.multiply(ddd[49:60], [1.2, 1.3, 1.1, 0.9, 0.7, 0.5, 0.3, 0.1, -0.1, -0.3, -0.2])
+		#ddd[0:40] = 0
+		#ddd[47:]  = 0
 		inv = (-1)*abs(ifft(ddd))
+
+		t1 = abs(ifft(np.log(abs(ti))))
+		yyy[0] = 0
+		ddd[0] = 0
 
 		minv = inv.mean()
 		#inv[ inv > minv+30000 ] = minv-30000
@@ -604,8 +613,10 @@ class OratUtils:
 				img[mp[j]-2:mp[j]+2,:] = 150
 			f = plt.figure()
 
-			idata = f.add_subplot(1,2,1); idata.set_autoscaley_on(False); idata.set_ylim( [0, len(inv)] ); idata.plot( inv[::-1], range( len(inv) ) )
-			f.add_subplot(1,2,2); plt.imshow(img, cmap=cm.Greys_r)
+			f.add_subplot(2,2,1); plt.plot(abs(yyy[2:150]))
+			f.add_subplot(2,2,2); plt.plot(t1[2:150])
+			idata = f.add_subplot(2,2,3); idata.set_autoscaley_on(False); idata.set_ylim( [0, len(inv)] ); idata.plot( inv[::-1], range( len(inv) ) )
+			f.add_subplot(2,2,4); plt.imshow(img, cmap=cm.Greys_r)
 			plt.show()
 
 		return mp
