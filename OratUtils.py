@@ -3,6 +3,7 @@
 import re
 import math
 import numpy as np
+import numpy.ma as ma
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -388,7 +389,7 @@ class OratUtils:
 		cIm = np.copy(image)
 
 		# Take histogram of the image
-		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False ) #0.16s
+		hist, bin_edges = np.histogram( cIm, bins=255, range=(0,255), density=False ) #0.16s #never used?
 
 		# Binarize the image and invert it to a complement image
 		bwI = HFun.im2bw(cIm, 0.95)	#
@@ -554,7 +555,19 @@ class OratUtils:
 
 		"""
 
-		img = np.copy(image) #HFun.im2bw(image, 0.95)
+		img = np.copy(image)
+
+
+		bwI = HFun.im2bw(np.copy(image), 0.95)
+		compIm = (bwI[:,:]-1)**2
+		compIm = compIm.astype( np.int64 )
+		lArray, nFeat = label(compIm)
+		sizes = ndimage.sum(compIm, lArray, range(1, nFeat+1) )
+		maxInd = np.where( sizes == sizes.max())[0] + 1
+		maxPixs = np.where( lArray == maxInd )
+		lArray[ maxPixs ] = 0
+		compIm = HFun.remPatches( sizes, lArray, 50, nFeat )
+		compIm = HFun.remHighPatches( compIm, 70 )
 
 		# Check if the imagename contains (2) or not
 		# Very bad way to choose the area to find lines from, but at the moment there's no other method to do this. Needs to be improved somehow!
@@ -570,10 +583,14 @@ class OratUtils:
 			leftLim = 270
 			rightLim = 1460
 
-		img[0:upLim, :] = 255
-		img[downLim::,:] = 255
-		img[:, 0:leftLim] = 255
-		img[:, rightLim::]= 255
+		# img[0:upLim, :] = 255
+		# img[downLim::,:] = 255
+		# img[:, 0:leftLim] = 255
+		# img[:, rightLim::]= 255
+
+
+		img = ((compIm[:,:]-1)**2)*255
+
 
 		linesums = np.zeros((height,1))
 
@@ -585,12 +602,7 @@ class OratUtils:
 		yyy = fft(invorig[:,0])
 		ddd = np.copy(yyy)
 		ti = np.copy(yyy)
-		#ddd[1:] = 0
-		ddd[65:] = 0 		# Once again there's a static number doing something. Leaving only the first 55 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
-		#ddd[61:] = 0
-		#ddd[49:60] = np.multiply(ddd[49:60], [1.2, 1.3, 1.1, 0.9, 0.7, 0.5, 0.3, 0.1, -0.1, -0.3, -0.2])
-		#ddd[0:40] = 0
-		#ddd[47:]  = 0
+		ddd[55:] = 0 		# Once again there's a static number doing something. Leaving only the first 55 coefficient seemed to give good results. Better approach needed as this might cause bad performance on some images.
 		inv = (-1)*abs(ifft(ddd))
 
 		t1 = abs(ifft(np.log(abs(ti))))
@@ -600,7 +612,7 @@ class OratUtils:
 		minv = inv.mean()
 		#inv[ inv > minv+30000 ] = minv-30000
 
-		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=25, delta=1500 )
+		max_peaks, min_peaks = peakdet.peakdetect( inv, None, lookahead=25, delta=3000 ) #delta=1500
 		mp = np.asarray(max_peaks)[:,0]
 
 		mp = mp[ mp > upLim ]
@@ -613,10 +625,10 @@ class OratUtils:
 				img[mp[j]-2:mp[j]+2,:] = 150
 			f = plt.figure()
 
-			f.add_subplot(2,2,1); plt.plot(abs(yyy[2:150]))
-			f.add_subplot(2,2,2); plt.plot(t1[2:150])
-			idata = f.add_subplot(2,2,3); idata.set_autoscaley_on(False); idata.set_ylim( [0, len(inv)] ); idata.plot( inv[::-1], range( len(inv) ) )
-			f.add_subplot(2,2,4); plt.imshow(img, cmap=cm.Greys_r)
+			#f.add_subplot(2,2,1); plt.plot(abs(yyy[2:150]))
+			#f.add_subplot(2,2,2); plt.plot(t1[2:150])
+			idata = f.add_subplot(1,2,1); idata.set_autoscaley_on(False); idata.set_ylim( [0, len(inv)] ); idata.plot( inv[::-1], range( len(inv) ) )
+			f.add_subplot(1,2,2); plt.imshow(img, cmap=cm.Greys_r)
 			plt.show()
 
 		return mp

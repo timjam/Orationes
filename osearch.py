@@ -90,7 +90,6 @@ def osearch( img, switch, txtf, sw ):
 	# Put in its own thread?
 	bboxes = OratUtils.boundingBox( cIm, debug )
 
-
 	# Get the positions of lines according to the image and its radon transform
 	imlines = OratUtils.poormanradon( cIm, imagename, ImHeight, debug )
 
