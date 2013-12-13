@@ -56,6 +56,17 @@
 <div class="section" id="module-osearch">
 <span id="orationes-search"></span><h2>Orationes Search<a class="headerlink" href="#module-osearch" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
+<dt id="osearch.init">
+<tt class="descclassname">osearch.</tt><tt class="descname">init</tt><big>(</big><em>sysargv</em><big>)</big><a class="headerlink" href="#osearch.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>The first function to be called when this script is run. Checks if the system arguments are correct 
+and returns error when needed.</p>
+<p>When calling from PHP use the $output and $return_var arguments to catch the correct output and 
+possible return error code. If the $return_var is 1 then the program has finished without errors.</p>
+<p>Refer to PHP <a class="reference external" href="http://php.net/function.exec">exec</a> command manual for further information of calling 
+Python scripts and programs in general from PHP.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="osearch.osearch">
 <tt class="descclassname">osearch.</tt><tt class="descname">osearch</tt><big>(</big><em>img</em>, <em>switch</em>, <em>txtf</em>, <em>sw</em><big>)</big><a class="reference internal" href="_modules/osearch.html#osearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osearch.osearch" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main program that only calls the processing methods from OratUtils and HFun classes.</p>
@@ -70,11 +81,23 @@
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nothing or JSON string</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">error code or 1 and JSON string</p>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="docutils">
+<dt>The error codes are:</dt>
+<dd>2 - Error in starting parameters
+3 - Given image doesn&#8217;t exist, it&#8217;s path is faulty or its format is wrong or either the image file is corrupted.
+4 - Given string or character to be searched cannot be found from the XML
+5 - 
+6 - 
+7 - 
+8 - 
+9 - Unknown error while opening the image</dd>
+</dl>
+<p>There are still lots of places that are missing error handling!</p>
 <p>The return option have to be chosen between returning the string as a return code or 
 is it just printed out for the calling PHP program. Currently it is being printed.</p>
 </dd></dl>
@@ -82,6 +105,25 @@ is it just printed out for the calling PHP program. Currently it is being printe
 </div>
 <div class="section" id="module-getBoxes">
 <span id="orationes-getboxes"></span><h2>Orationes getBoxes<a class="headerlink" href="#module-getBoxes" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="getBoxes.getBoxesAndLines">
+<tt class="descclassname">getBoxes.</tt><tt class="descname">getBoxesAndLines</tt><big>(</big><em>img</em><big>)</big><a class="reference internal" href="_modules/getBoxes.html#getBoxesAndLines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#getBoxes.getBoxesAndLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional directly callable program that can be used to extract the bounding box
+and line location information from an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> (<em>string</em>) &#8211; The name of the image.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">JSON string</td>
+</tr>
+</tbody>
+</table>
+<p>Returns a JSON array containing the possible locations of the text lines and 
+bounding boxes.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-OratUtils">
 <span id="utility-functions"></span><h2>Utility functions<a class="headerlink" href="#module-OratUtils" title="Permalink to this headline">¶</a></h2>
@@ -600,6 +642,22 @@ Argument c can be any regular expression</p>
 <dt id="OratUtils.HFun">
 <em class="property">class </em><tt class="descclassname">OratUtils.</tt><tt class="descname">HFun</tt><a class="headerlink" href="#OratUtils.HFun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains helper functions that are used in various places</p>
+<dl class="staticmethod">
+<dt id="OratUtils.HFun.gray2uint8">
+<em class="property">static </em><tt class="descname">gray2uint8</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#OratUtils.HFun.gray2uint8" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts grasycale images to uint8 type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>image</strong> (<em>ndarray</em>) &#8211; The grayscale image to converted</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">ndarray( uint8 ) - I</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="staticmethod">
 <dt id="OratUtils.HFun.im2float">
 <em class="property">static </em><tt class="descname">im2float</tt><big>(</big><em>image</em><big>)</big><a class="headerlink" href="#OratUtils.HFun.im2float" title="Permalink to this definition">¶</a></dt>

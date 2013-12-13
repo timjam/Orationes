@@ -171,7 +171,7 @@ class OratUtils:
 
 			k += 1
 
-		print k
+		#print k
 
 
 		return charcount, charpos, charlines, wordlens

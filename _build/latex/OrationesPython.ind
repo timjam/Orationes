@@ -1,0 +1,59 @@
+\begin{theindex}
+
+  \item boundingBox() (OratUtils.OratUtils static method), 
+		\hyperpage{4}
+
+  \indexspace
+
+  \item contStretch() (OratUtils.OratUtils static method), 
+		\hyperpage{5}
+
+  \indexspace
+
+  \item findCorr() (OratUtils.OratUtils static method), \hyperpage{5}
+
+  \indexspace
+
+  \item getBoxes (module), \hyperpage{3}
+  \item getBoxesAndLines() (in module getBoxes), \hyperpage{3}
+  \item gray2uint8() (OratUtils.HFun static method), \hyperpage{10}
+
+  \indexspace
+
+  \item hfilter() (OratUtils.OratUtils static method), \hyperpage{6}
+  \item HFun (class in OratUtils), \hyperpage{10}
+
+  \indexspace
+
+  \item im2float() (OratUtils.HFun static method), \hyperpage{10}
+  \item init() (in module osearch), \hyperpage{3}
+
+  \indexspace
+
+  \item OratUtils (class in OratUtils), \hyperpage{4}
+  \item OratUtils (module), \hyperpage{4}
+  \item osearch (module), \hyperpage{3}
+  \item osearch() (in module osearch), \hyperpage{3}
+
+  \indexspace
+
+  \item packBoxesAndLines() (OratUtils.OratUtils static method), 
+		\hyperpage{6}
+  \item packCoordsToJson() (OratUtils.OratUtils static method), 
+		\hyperpage{6}
+  \item padlines() (OratUtils.OratUtils static method), \hyperpage{6}
+  \item poormanradon() (OratUtils.OratUtils static method), 
+		\hyperpage{7}
+  \item processlines() (OratUtils.OratUtils static method), 
+		\hyperpage{8}
+
+  \indexspace
+
+  \item stringparser() (OratUtils.OratUtils static method), 
+		\hyperpage{8}
+
+  \indexspace
+
+  \item txtfparser() (OratUtils.OratUtils static method), \hyperpage{9}
+
+\end{theindex}

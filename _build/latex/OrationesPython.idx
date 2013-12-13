@@ -1,0 +1,21 @@
+\indexentry{osearch (module)|hyperpage}{3}
+\indexentry{init() (in module osearch)|hyperpage}{3}
+\indexentry{osearch() (in module osearch)|hyperpage}{3}
+\indexentry{getBoxes (module)|hyperpage}{3}
+\indexentry{getBoxesAndLines() (in module getBoxes)|hyperpage}{3}
+\indexentry{OratUtils (module)|hyperpage}{4}
+\indexentry{OratUtils (class in OratUtils)|hyperpage}{4}
+\indexentry{boundingBox() (OratUtils.OratUtils static method)|hyperpage}{4}
+\indexentry{contStretch() (OratUtils.OratUtils static method)|hyperpage}{5}
+\indexentry{findCorr() (OratUtils.OratUtils static method)|hyperpage}{5}
+\indexentry{hfilter() (OratUtils.OratUtils static method)|hyperpage}{6}
+\indexentry{packBoxesAndLines() (OratUtils.OratUtils static method)|hyperpage}{6}
+\indexentry{packCoordsToJson() (OratUtils.OratUtils static method)|hyperpage}{6}
+\indexentry{padlines() (OratUtils.OratUtils static method)|hyperpage}{6}
+\indexentry{poormanradon() (OratUtils.OratUtils static method)|hyperpage}{7}
+\indexentry{processlines() (OratUtils.OratUtils static method)|hyperpage}{8}
+\indexentry{stringparser() (OratUtils.OratUtils static method)|hyperpage}{8}
+\indexentry{txtfparser() (OratUtils.OratUtils static method)|hyperpage}{9}
+\indexentry{HFun (class in OratUtils)|hyperpage}{10}
+\indexentry{gray2uint8() (OratUtils.HFun static method)|hyperpage}{10}
+\indexentry{im2float() (OratUtils.HFun static method)|hyperpage}{10}

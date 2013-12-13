@@ -11,6 +11,7 @@ Orationes getBoxes
 ==================
 
 .. automodule:: getBoxes
+	:members:
 
 Utility functions
 =================
