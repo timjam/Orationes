@@ -55,10 +55,12 @@ Running the program:
 			complex regular expressions.
 
 
+
 File structure:
 	The root has all the needed python files.
 	All the images used must be in the Images folder.
 	All the plaintext XMLs must be in the text folder.
+
 
 
 Updating the documentation:
