@@ -42,6 +42,14 @@
   \item packCoordsToJson() (OratUtils.OratUtils static method), 
 		\hyperpage{6}
   \item padlines() (OratUtils.OratUtils static method), \hyperpage{6}
+  \item peakdet (module), \hyperpage{10}
+  \item peakdetect() (in module peakdet), \hyperpage{10}
+  \item peakdetect\_fft() (in module peakdet), \hyperpage{10}
+  \item peakdetect\_parabole() (in module peakdet), \hyperpage{11}
+  \item peakdetect\_sine() (in module peakdet), \hyperpage{11}
+  \item peakdetect\_sine\_locked() (in module peakdet), \hyperpage{12}
+  \item peakdetect\_zero\_crossing() (in module peakdet), 
+		\hyperpage{12}
   \item poormanradon() (OratUtils.OratUtils static method), 
 		\hyperpage{7}
   \item processlines() (OratUtils.OratUtils static method), 
@@ -55,5 +63,9 @@
   \indexspace
 
   \item txtfparser() (OratUtils.OratUtils static method), \hyperpage{9}
+
+  \indexspace
+
+  \item zero\_crossings() (in module peakdet), \hyperpage{12}
 
 \end{theindex}

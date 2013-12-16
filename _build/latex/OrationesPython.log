@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.11 (MiKTeX 2.9) (preloaded format=pdflatex 2012.11.26)  13 DEC 2013 15:18
+This is pdfTeX, Version 3.1415926-1.40.11 (MiKTeX 2.9) (preloaded format=pdflatex 2012.11.26)  13 DEC 2013 16:08
 entering extended mode
 **OrationesPython.tex
 (C:\Users\timomata\Documents\Orationes\OratPython\_build\latex\OrationesPython.tex
@@ -918,16 +918,16 @@ LaTeX Font Info:    Try loading font information for TS1+ptm on input line 152.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\psnfss\ts1ptm.fd"
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-) [3] [4] [5] [6] [7] [8] [9] [10]
+) [3] [4] [5] [6] [7] [8] [9] [10] [11] [12]
 Chapter 2.
-[11
+[13
 
-] [12
+] [14
 
-] [13
+] [15
 
 
-] (C:\Users\timomata\Documents\Orationes\OratPython\_build\latex\OrationesPython.ind [14
+] (C:\Users\timomata\Documents\Orationes\OratPython\_build\latex\OrationesPython.ind [16
 
 
 ]
@@ -935,22 +935,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 40--42
 []\T1/ptm/m/n/10 packBoxesAndLines() (OratU-tils.OratUtils static
  []
 
-[15
+[17
 
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 883.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 883.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1154.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1154.
  (C:\Users\timomata\Documents\Orationes\OratPython\_build\latex\OrationesPython.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 883.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1154.
 Package rerunfilecheck Info: File `OrationesPython.out' has not changed.
-(rerunfilecheck)             Checksum: 4075E1228C6AACD3385D449F8B472056;471.
+(rerunfilecheck)             Checksum: 48B66343222AEB132614193EF1556E02;531.
  ) 
 Here is how much of TeX's memory you used:
- 8589 strings out of 494053
- 121552 string characters out of 3146175
- 220159 words of memory out of 3000000
- 11600 multiletter control sequences out of 15000+200000
+ 8610 strings out of 494053
+ 121942 string characters out of 3146175
+ 220537 words of memory out of 3000000
+ 11610 multiletter control sequences out of 15000+200000
  53388 words of font info for 60 fonts, out of 3000000 for 9000
  716 hyphenation exceptions out of 8191
  38i,23n,45p,280b,672s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -964,9 +964,9 @@ lvetic/uhvb8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/urw/helvetic/uh
  2.9/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program
  Files (x86)/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/urw/times/utmri8
 a.pfb>
-Output written on OrationesPython.pdf (19 pages, 197563 bytes).
+Output written on OrationesPython.pdf (21 pages, 215709 bytes).
 PDF statistics:
- 258 PDF objects out of 1000 (max. 8388607)
- 63 named destinations out of 1000 (max. 500000)
- 65 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 293 PDF objects out of 1000 (max. 8388607)
+ 74 named destinations out of 1000 (max. 500000)
+ 73 words of extra memory for PDF output out of 10000 (max. 10000000)
 

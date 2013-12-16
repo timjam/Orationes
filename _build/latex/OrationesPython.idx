@@ -19,3 +19,11 @@
 \indexentry{HFun (class in OratUtils)|hyperpage}{10}
 \indexentry{gray2uint8() (OratUtils.HFun static method)|hyperpage}{10}
 \indexentry{im2float() (OratUtils.HFun static method)|hyperpage}{10}
+\indexentry{peakdet (module)|hyperpage}{10}
+\indexentry{peakdetect() (in module peakdet)|hyperpage}{10}
+\indexentry{peakdetect\_fft() (in module peakdet)|hyperpage}{10}
+\indexentry{peakdetect\_parabole() (in module peakdet)|hyperpage}{11}
+\indexentry{peakdetect\_sine() (in module peakdet)|hyperpage}{11}
+\indexentry{peakdetect\_sine\_locked() (in module peakdet)|hyperpage}{12}
+\indexentry{peakdetect\_zero\_crossing() (in module peakdet)|hyperpage}{12}
+\indexentry{zero\_crossings() (in module peakdet)|hyperpage}{12}

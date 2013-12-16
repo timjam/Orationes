@@ -853,6 +853,274 @@ ndarray( float64 ) -- I
 
 
 
+\section{Peakdetection}
+\label{code:peakdetection}
+This is the only part not written by me (the author of this program), thus all the glory and honors and what so ever goes to its right authors. Only one function is used.
+For more info about this module see \href{https://gist.github.com/sixtenbe/1178136}{Sixtenbe's github}
+
+NOTE that this file might not follow the Sphinx documentation guidelines and might not appear correctly!
+\phantomsection\label{code:module-peakdet}\index{peakdet (module)}\index{peakdetect() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.peakdetect}\pysiglinewithargsret{\code{peakdet.}\bfcode{peakdetect}}{\emph{y\_axis}, \emph{x\_axis=None}, \emph{lookahead=300}, \emph{delta=0}}{}
+Converted from/based on a MATLAB script at: 
+\href{http://billauer.co.il/peakdet.html}{http://billauer.co.il/peakdet.html}
+
+function for detecting local maximas and minmias in a signal.
+Discovers peaks by searching for values which are surrounded by lower
+or larger values for maximas and minimas respectively
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find peaks
+x\_axis -- (optional) A x-axis whose values correspond to the y\_axis list
+\begin{quote}
+
+and is used in the return to specify the postion of the peaks. If
+omitted an index of the y\_axis is used. (default: None)
+\end{quote}
+\begin{description}
+\item[{lookahead -- (optional) distance to look ahead from a peak candidate to}] \leavevmode
+determine if it is the actual peak (default: 200) 
+`(sample / period) / f' where `4 \textgreater{}= f \textgreater{}= 1.25' might be a good value
+
+\item[{delta -- (optional) this specifies a minimum difference between a peak and}] \leavevmode
+the following points, before a peak may be considered a peak. Useful
+to hinder the function from picking up false peaks towards to end of
+the signal. To work well delta should be set to delta \textgreater{}= RMSnoise * 5.
+(default: 0)
+\begin{quote}
+
+delta function causes a 20\% decrease in speed, when omitted
+Correctly used it can double the speed of the function
+\end{quote}
+
+\item[{return -- two lists {[}max\_peaks, min\_peaks{]} containing the positive and}] \leavevmode
+negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak\_value) 
+to get the average peak value do: np.mean(max\_peaks, 0){[}1{]} on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip({\color{red}\bfseries{}*}tab)
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{peakdetect\_fft() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.peakdetect_fft}\pysiglinewithargsret{\code{peakdet.}\bfcode{peakdetect\_fft}}{\emph{y\_axis}, \emph{x\_axis}, \emph{pad\_len=5}}{}
+Performs a FFT calculation on the data and zero-pads the results to
+increase the time domain resolution after performing the inverse fft and
+send the data to the `peakdetect' function for peak 
+detection.
+
+Omitting the x\_axis is forbidden as it would make the resulting x\_axis
+value silly if it was returned as the index 50.234 or similar.
+
+Will find at least 1 less peak then the `peakdetect\_zero\_crossing'
+function, but should result in a more precise value of the peak as
+resolution has been increased. Some peaks are lost in an attempt to
+minimize spectral leakage by calculating the fft between two zero
+crossings for n amount of signal periods.
+
+The biggest time eater in this function is the ifft and thereafter it's
+the `peakdetect' function which takes only half the time of the ifft.
+Speed improvementd could include to check if 2**n points could be used for
+fft and ifft or change the `peakdetect' to the `peakdetect\_zero\_crossing',
+which is maybe 10 times faster than `peakdetct'. The pro of `peakdetect'
+is that it resutls in one less lost peak. It should also be noted that the
+time used by the ifft function can change greatly depending on the input.
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find peaks
+x\_axis -- A x-axis whose values correspond to the y\_axis list and is used
+\begin{quote}
+
+in the return to specify the postion of the peaks.
+\end{quote}
+\begin{description}
+\item[{pad\_len -- (optional) By how many times the time resolution should be}] \leavevmode
+increased by, e.g. 1 doubles the resolution. The amount is rounded up
+to the nearest 2 ** n amount (default: 5)
+
+\item[{return -- two lists {[}max\_peaks, min\_peaks{]} containing the positive and}] \leavevmode
+negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak\_value) 
+to get the average peak value do: np.mean(max\_peaks, 0){[}1{]} on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip({\color{red}\bfseries{}*}tab)
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{peakdetect\_parabole() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.peakdetect_parabole}\pysiglinewithargsret{\code{peakdet.}\bfcode{peakdetect\_parabole}}{\emph{y\_axis}, \emph{x\_axis}, \emph{points=9}}{}
+Function for detecting local maximas and minmias in a signal.
+Discovers peaks by fitting the model function: y = k (x - tau) ** 2 + m
+to the peaks. The amount of points used in the fitting is set by the
+points argument.
+
+Omitting the x\_axis is forbidden as it would make the resulting x\_axis
+value silly if it was returned as index 50.234 or similar.
+
+will find the same amount of peaks as the `peakdetect\_zero\_crossing'
+function, but might result in a more precise value of the peak.
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find peaks
+x\_axis -- A x-axis whose values correspond to the y\_axis list and is used
+\begin{quote}
+
+in the return to specify the postion of the peaks.
+\end{quote}
+\begin{description}
+\item[{points -- (optional) How many points around the peak should be used during}] \leavevmode
+curve fitting, must be odd (default: 9)
+
+\item[{return -- two lists {[}max\_peaks, min\_peaks{]} containing the positive and}] \leavevmode
+negative peaks respectively. Each cell of the lists contains a list
+of: (position, peak\_value) 
+to get the average peak value do: np.mean(max\_peaks, 0){[}1{]} on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip({\color{red}\bfseries{}*}max\_peaks)
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{peakdetect\_sine() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.peakdetect_sine}\pysiglinewithargsret{\code{peakdet.}\bfcode{peakdetect\_sine}}{\emph{y\_axis}, \emph{x\_axis}, \emph{points=9}, \emph{lock\_frequency=False}}{}
+Function for detecting local maximas and minmias in a signal.
+Discovers peaks by fitting the model function:
+y = A * sin(2 * pi * f * x - tau) to the peaks. The amount of points used
+in the fitting is set by the points argument.
+
+Omitting the x\_axis is forbidden as it would make the resulting x\_axis
+value silly if it was returned as index 50.234 or similar.
+
+will find the same amount of peaks as the `peakdetect\_zero\_crossing'
+function, but might result in a more precise value of the peak.
+
+The function might have some problems if the sine wave has a
+non-negligible total angle i.e. a k*x component, as this messes with the
+internal offset calculation of the peaks, might be fixed by fitting a 
+k * x + m function to the peaks for offset calculation.
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find peaks
+x\_axis -- A x-axis whose values correspond to the y\_axis list and is used
+\begin{quote}
+
+in the return to specify the postion of the peaks.
+\end{quote}
+\begin{description}
+\item[{points -- (optional) How many points around the peak should be used during}] \leavevmode
+curve fitting, must be odd (default: 9)
+
+\item[{lock\_frequency -- (optional) Specifies if the frequency argument of the}] \leavevmode
+model function should be locked to the value calculated from the raw
+peaks or if optimization process may tinker with it. (default: False)
+
+\item[{return -- two lists {[}max\_peaks, min\_peaks{]} containing the positive and}] \leavevmode
+negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak\_value) 
+to get the average peak value do: np.mean(max\_peaks, 0){[}1{]} on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip({\color{red}\bfseries{}*}tab)
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{peakdetect\_sine\_locked() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.peakdetect_sine_locked}\pysiglinewithargsret{\code{peakdet.}\bfcode{peakdetect\_sine\_locked}}{\emph{y\_axis}, \emph{x\_axis}, \emph{points=9}}{}
+Convinience function for calling the `peakdetect\_sine' function with
+the lock\_frequency argument as True.
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find peaks
+x\_axis -- A x-axis whose values correspond to the y\_axis list and is used
+\begin{quote}
+
+in the return to specify the postion of the peaks.
+\end{quote}
+\begin{description}
+\item[{points -- (optional) How many points around the peak should be used during}] \leavevmode
+curve fitting, must be odd (default: 9)
+
+\end{description}
+
+return -- see `peakdetect\_sine'
+
+\end{fulllineitems}
+
+\index{peakdetect\_zero\_crossing() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.peakdetect_zero_crossing}\pysiglinewithargsret{\code{peakdet.}\bfcode{peakdetect\_zero\_crossing}}{\emph{y\_axis}, \emph{x\_axis=None}, \emph{window=11}}{}
+Function for detecting local maximas and minmias in a signal.
+Discovers peaks by dividing the signal into bins and retrieving the
+maximum and minimum value of each the even and odd bins respectively.
+Division into bins is performed by smoothing the curve and finding the
+zero crossings.
+
+Suitable for repeatable signals, where some noise is tolerated. Excecutes
+faster than `peakdetect', although this function will break if the offset
+of the signal is too large. It should also be noted that the first and
+last peak will probably not be found, as this function only can find peaks
+between the first and last zero crossing.
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find peaks
+x\_axis -- (optional) A x-axis whose values correspond to the y\_axis list
+\begin{quote}
+
+and is used in the return to specify the postion of the peaks. If
+omitted an index of the y\_axis is used. (default: None)
+\end{quote}
+\begin{description}
+\item[{window -- the dimension of the smoothing window; should be an odd integer}] \leavevmode
+(default: 11)
+
+\item[{return -- two lists {[}max\_peaks, min\_peaks{]} containing the positive and}] \leavevmode
+negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak\_value) 
+to get the average peak value do: np.mean(max\_peaks, 0){[}1{]} on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip({\color{red}\bfseries{}*}tab)
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{zero\_crossings() (in module peakdet)}
+
+\begin{fulllineitems}
+\phantomsection\label{code:peakdet.zero_crossings}\pysiglinewithargsret{\code{peakdet.}\bfcode{zero\_crossings}}{\emph{y\_axis}, \emph{window=11}}{}
+Algorithm to find zero crossings. Smoothens the curve and finds the
+zero-crossings by looking for a sign change.
+
+keyword arguments:
+y\_axis -- A list containg the signal over which to find zero-crossings
+window -- the dimension of the smoothing window; should be an odd integer
+\begin{quote}
+
+(default: 11)
+\end{quote}
+
+return -- the index for each zero-crossing
+
+\end{fulllineitems}
+
+
+
 \chapter{Indices and tables}
 \label{index:indices-and-tables}\begin{itemize}
 \item {} 
@@ -876,6 +1144,9 @@ ndarray( float64 ) -- I
 \bigletter{o}
 \item {\texttt{OratUtils}}, \pageref{code:module-OratUtils}
 \item {\texttt{osearch}}, \pageref{code:module-osearch}
+\indexspace
+\bigletter{p}
+\item {\texttt{peakdet}}, \pageref{code:module-peakdet}
 \end{theindex}
 
 \renewcommand{\indexname}{Index}

@@ -677,6 +677,211 @@ Argument c can be any regular expression</p>
 </dd></dl>
 
 </div>
+<div class="section" id="peakdetection">
+<h2>Peakdetection<a class="headerlink" href="#peakdetection" title="Permalink to this headline">¶</a></h2>
+<p>This is the only part not written by me (the author of this program), thus all the glory and honors and what so ever goes to its right authors. Only one function is used.
+For more info about this module see <a class="reference external" href="https://gist.github.com/sixtenbe/1178136">Sixtenbe&#8217;s github</a></p>
+<p>NOTE that this file might not follow the Sphinx documentation guidelines and might not appear correctly!</p>
+<span class="target" id="module-peakdet"></span><dl class="function">
+<dt id="peakdet.peakdetect">
+<tt class="descclassname">peakdet.</tt><tt class="descname">peakdetect</tt><big>(</big><em>y_axis</em>, <em>x_axis=None</em>, <em>lookahead=300</em>, <em>delta=0</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#peakdetect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.peakdetect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converted from/based on a MATLAB script at: 
+<a class="reference external" href="http://billauer.co.il/peakdet.html">http://billauer.co.il/peakdet.html</a></p>
+<p>function for detecting local maximas and minmias in a signal.
+Discovers peaks by searching for values which are surrounded by lower
+or larger values for maximas and minimas respectively</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find peaks
+x_axis &#8211; (optional) A x-axis whose values correspond to the y_axis list</p>
+<blockquote>
+<div>and is used in the return to specify the postion of the peaks. If
+omitted an index of the y_axis is used. (default: None)</div></blockquote>
+<dl class="docutils">
+<dt>lookahead &#8211; (optional) distance to look ahead from a peak candidate to</dt>
+<dd>determine if it is the actual peak (default: 200) 
+&#8216;(sample / period) / f&#8217; where &#8216;4 &gt;= f &gt;= 1.25&#8217; might be a good value</dd>
+<dt>delta &#8211; (optional) this specifies a minimum difference between a peak and</dt>
+<dd><p class="first">the following points, before a peak may be considered a peak. Useful
+to hinder the function from picking up false peaks towards to end of
+the signal. To work well delta should be set to delta &gt;= RMSnoise * 5.
+(default: 0)</p>
+<blockquote class="last">
+<div>delta function causes a 20% decrease in speed, when omitted
+Correctly used it can double the speed of the function</div></blockquote>
+</dd>
+<dt>return &#8211; two lists [max_peaks, min_peaks] containing the positive and</dt>
+<dd>negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak_value) 
+to get the average peak value do: np.mean(max_peaks, 0)[1] on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip(<a href="#id1"><span class="problematic" id="id2">*</span></a>tab)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="peakdet.peakdetect_fft">
+<tt class="descclassname">peakdet.</tt><tt class="descname">peakdetect_fft</tt><big>(</big><em>y_axis</em>, <em>x_axis</em>, <em>pad_len=5</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#peakdetect_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.peakdetect_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a FFT calculation on the data and zero-pads the results to
+increase the time domain resolution after performing the inverse fft and
+send the data to the &#8216;peakdetect&#8217; function for peak 
+detection.</p>
+<p>Omitting the x_axis is forbidden as it would make the resulting x_axis
+value silly if it was returned as the index 50.234 or similar.</p>
+<p>Will find at least 1 less peak then the &#8216;peakdetect_zero_crossing&#8217;
+function, but should result in a more precise value of the peak as
+resolution has been increased. Some peaks are lost in an attempt to
+minimize spectral leakage by calculating the fft between two zero
+crossings for n amount of signal periods.</p>
+<p>The biggest time eater in this function is the ifft and thereafter it&#8217;s
+the &#8216;peakdetect&#8217; function which takes only half the time of the ifft.
+Speed improvementd could include to check if 2**n points could be used for
+fft and ifft or change the &#8216;peakdetect&#8217; to the &#8216;peakdetect_zero_crossing&#8217;,
+which is maybe 10 times faster than &#8216;peakdetct&#8217;. The pro of &#8216;peakdetect&#8217;
+is that it resutls in one less lost peak. It should also be noted that the
+time used by the ifft function can change greatly depending on the input.</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find peaks
+x_axis &#8211; A x-axis whose values correspond to the y_axis list and is used</p>
+<blockquote>
+<div>in the return to specify the postion of the peaks.</div></blockquote>
+<dl class="docutils">
+<dt>pad_len &#8211; (optional) By how many times the time resolution should be</dt>
+<dd>increased by, e.g. 1 doubles the resolution. The amount is rounded up
+to the nearest 2 ** n amount (default: 5)</dd>
+<dt>return &#8211; two lists [max_peaks, min_peaks] containing the positive and</dt>
+<dd>negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak_value) 
+to get the average peak value do: np.mean(max_peaks, 0)[1] on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip(<a href="#id3"><span class="problematic" id="id4">*</span></a>tab)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="peakdet.peakdetect_parabole">
+<tt class="descclassname">peakdet.</tt><tt class="descname">peakdetect_parabole</tt><big>(</big><em>y_axis</em>, <em>x_axis</em>, <em>points=9</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#peakdetect_parabole"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.peakdetect_parabole" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for detecting local maximas and minmias in a signal.
+Discovers peaks by fitting the model function: y = k (x - tau) ** 2 + m
+to the peaks. The amount of points used in the fitting is set by the
+points argument.</p>
+<p>Omitting the x_axis is forbidden as it would make the resulting x_axis
+value silly if it was returned as index 50.234 or similar.</p>
+<p>will find the same amount of peaks as the &#8216;peakdetect_zero_crossing&#8217;
+function, but might result in a more precise value of the peak.</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find peaks
+x_axis &#8211; A x-axis whose values correspond to the y_axis list and is used</p>
+<blockquote>
+<div>in the return to specify the postion of the peaks.</div></blockquote>
+<dl class="docutils">
+<dt>points &#8211; (optional) How many points around the peak should be used during</dt>
+<dd>curve fitting, must be odd (default: 9)</dd>
+<dt>return &#8211; two lists [max_peaks, min_peaks] containing the positive and</dt>
+<dd>negative peaks respectively. Each cell of the lists contains a list
+of: (position, peak_value) 
+to get the average peak value do: np.mean(max_peaks, 0)[1] on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip(<a href="#id5"><span class="problematic" id="id6">*</span></a>max_peaks)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="peakdet.peakdetect_sine">
+<tt class="descclassname">peakdet.</tt><tt class="descname">peakdetect_sine</tt><big>(</big><em>y_axis</em>, <em>x_axis</em>, <em>points=9</em>, <em>lock_frequency=False</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#peakdetect_sine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.peakdetect_sine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for detecting local maximas and minmias in a signal.
+Discovers peaks by fitting the model function:
+y = A * sin(2 * pi * f * x - tau) to the peaks. The amount of points used
+in the fitting is set by the points argument.</p>
+<p>Omitting the x_axis is forbidden as it would make the resulting x_axis
+value silly if it was returned as index 50.234 or similar.</p>
+<p>will find the same amount of peaks as the &#8216;peakdetect_zero_crossing&#8217;
+function, but might result in a more precise value of the peak.</p>
+<p>The function might have some problems if the sine wave has a
+non-negligible total angle i.e. a k*x component, as this messes with the
+internal offset calculation of the peaks, might be fixed by fitting a 
+k * x + m function to the peaks for offset calculation.</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find peaks
+x_axis &#8211; A x-axis whose values correspond to the y_axis list and is used</p>
+<blockquote>
+<div>in the return to specify the postion of the peaks.</div></blockquote>
+<dl class="docutils">
+<dt>points &#8211; (optional) How many points around the peak should be used during</dt>
+<dd>curve fitting, must be odd (default: 9)</dd>
+<dt>lock_frequency &#8211; (optional) Specifies if the frequency argument of the</dt>
+<dd>model function should be locked to the value calculated from the raw
+peaks or if optimization process may tinker with it. (default: False)</dd>
+<dt>return &#8211; two lists [max_peaks, min_peaks] containing the positive and</dt>
+<dd>negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak_value) 
+to get the average peak value do: np.mean(max_peaks, 0)[1] on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip(<a href="#id7"><span class="problematic" id="id8">*</span></a>tab)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="peakdet.peakdetect_sine_locked">
+<tt class="descclassname">peakdet.</tt><tt class="descname">peakdetect_sine_locked</tt><big>(</big><em>y_axis</em>, <em>x_axis</em>, <em>points=9</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#peakdetect_sine_locked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.peakdetect_sine_locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convinience function for calling the &#8216;peakdetect_sine&#8217; function with
+the lock_frequency argument as True.</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find peaks
+x_axis &#8211; A x-axis whose values correspond to the y_axis list and is used</p>
+<blockquote>
+<div>in the return to specify the postion of the peaks.</div></blockquote>
+<dl class="docutils">
+<dt>points &#8211; (optional) How many points around the peak should be used during</dt>
+<dd>curve fitting, must be odd (default: 9)</dd>
+</dl>
+<p>return &#8211; see &#8216;peakdetect_sine&#8217;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="peakdet.peakdetect_zero_crossing">
+<tt class="descclassname">peakdet.</tt><tt class="descname">peakdetect_zero_crossing</tt><big>(</big><em>y_axis</em>, <em>x_axis=None</em>, <em>window=11</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#peakdetect_zero_crossing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.peakdetect_zero_crossing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for detecting local maximas and minmias in a signal.
+Discovers peaks by dividing the signal into bins and retrieving the
+maximum and minimum value of each the even and odd bins respectively.
+Division into bins is performed by smoothing the curve and finding the
+zero crossings.</p>
+<p>Suitable for repeatable signals, where some noise is tolerated. Excecutes
+faster than &#8216;peakdetect&#8217;, although this function will break if the offset
+of the signal is too large. It should also be noted that the first and
+last peak will probably not be found, as this function only can find peaks
+between the first and last zero crossing.</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find peaks
+x_axis &#8211; (optional) A x-axis whose values correspond to the y_axis list</p>
+<blockquote>
+<div>and is used in the return to specify the postion of the peaks. If
+omitted an index of the y_axis is used. (default: None)</div></blockquote>
+<dl class="docutils">
+<dt>window &#8211; the dimension of the smoothing window; should be an odd integer</dt>
+<dd>(default: 11)</dd>
+<dt>return &#8211; two lists [max_peaks, min_peaks] containing the positive and</dt>
+<dd>negative peaks respectively. Each cell of the lists contains a tupple
+of: (position, peak_value) 
+to get the average peak value do: np.mean(max_peaks, 0)[1] on the
+results to unpack one of the lists into x, y coordinates do: 
+x, y = zip(<a href="#id9"><span class="problematic" id="id10">*</span></a>tab)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="peakdet.zero_crossings">
+<tt class="descclassname">peakdet.</tt><tt class="descname">zero_crossings</tt><big>(</big><em>y_axis</em>, <em>window=11</em><big>)</big><a class="reference internal" href="_modules/peakdet.html#zero_crossings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#peakdet.zero_crossings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Algorithm to find zero crossings. Smoothens the curve and finds the
+zero-crossings by looking for a sign change.</p>
+<p>keyword arguments:
+y_axis &#8211; A list containg the signal over which to find zero-crossings
+window &#8211; the dimension of the smoothing window; should be an odd integer</p>
+<blockquote>
+<div>(default: 11)</div></blockquote>
+<p>return &#8211; the index for each zero-crossing</p>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -692,6 +897,7 @@ Argument c can be any regular expression</p>
 <li><a class="reference internal" href="#module-getBoxes">Orationes getBoxes</a></li>
 <li><a class="reference internal" href="#module-OratUtils">Utility functions</a></li>
 <li><a class="reference internal" href="#helper-functions">Helper Functions</a></li>
+<li><a class="reference internal" href="#peakdetection">Peakdetection</a></li>
 </ul>
 </li>
 </ul>
